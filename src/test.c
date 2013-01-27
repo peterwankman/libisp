@@ -17,10 +17,6 @@
 
 #include "libisp.h"
 
-/*
-(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))
-*/
-
 data_t *user_mul(const data_t *list) {
 	int iout = 1;
 	double dout = 1.0f;
@@ -75,7 +71,7 @@ int main(void) {
 		printf("\n");
 
 		if(a)
-			lisp_data_free(a);
+			free_data(a);
 		else if(error) {
 			printf("Syntax Error: '%s'\n", exp);
 			break;

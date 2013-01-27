@@ -20,11 +20,11 @@
 
 data_t *_dalloc(size_t size, const char *file, const int line);
 
-void lisp_showmemstats(FILE *fp);
+void showmemstats(FILE *fp);
 
-void lisp_data_free(data_t *in);
-void lisp_data_free_rec(data_t *in);
+void free_data(data_t *in);
+void free_data_rec(data_t *in);
 
-void lisp_run_gc(void);
+void run_gc(void);
 
 #endif

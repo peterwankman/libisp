@@ -102,7 +102,7 @@ static void dfree(void *memory) {
 	}
 }
 
-void lisp_data_free(data_t *in) {
+void free_data(data_t *in) {
 	if(in->type == string)
 		free(in->val.string);
 	if(in->type == symbol)
@@ -112,15 +112,15 @@ void lisp_data_free(data_t *in) {
 	dfree(in);
 }
 
-void lisp_data_free_rec(data_t *in) {
+void free_data_rec(data_t *in) {
 	if(in->type != pair) {
-		lisp_data_free(in);
+		free_data(in);
 		return;
 	} else {
-		lisp_data_free_rec(car(in));
-		lisp_data_free_rec(cdr(in));
+		free_data_rec(car(in));
+		free_data_rec(cdr(in));
 
-		lisp_data_free(in);
+		free_data(in);
 	}
 }
 
@@ -143,12 +143,12 @@ static void sweep(void) {
 	while(current) {
 		buf = current;
 		if(!current->mark)
-			lisp_data_free(current->memory);		
+			free_data(current->memory);		
 		current = buf->next;
 	}
 }
 
-void lisp_run_gc(void) {
+void run_gc(void) {
 	clear_mark();
 /*	mark();		*/
 	sweep();
@@ -156,7 +156,7 @@ void lisp_run_gc(void) {
 
 /* INFO */
 
-void lisp_showmemstats(FILE *fp) {
+void showmemstats(FILE *fp) {
 	alloclist_t *current = alloc_list, *buf;
 
 	if(n_allocs != n_frees) {
