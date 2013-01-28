@@ -15,6 +15,19 @@
 
 #include "libisp.h"
 
+void print_banner(void) {
+	printf(" '-._                  ___.....___\n");
+	printf("     `.__           ,-'        ,-.`-,\n");
+	printf("         `''-------'          ( p )  `._\n");
+	printf("                               `-'      (        Have you read your SICP today?\n");
+	printf("                                         \\\n");
+	printf("                                .         \\\n");
+	printf("                                 \\\\---..,--'\n");
+	printf("         .............._           --...--,\n");
+	printf("                        `-.._         _.-'\n");
+	printf("                             `'-----''                     Type (quit) to quit.\n\n");
+}
+
 static char *getline(FILE *fp) {
 	size_t size = 0, len  = 0, last = 0;
 	char *buf  = NULL;
@@ -37,13 +50,14 @@ int main(void) {
 	int error;
 	char *exp;
 
+	printf("Setting up the global environment...\n\n");
 	the_global_env = setup_environment();
 
-	printf("HAVE YOU READ YOUR SICP TODAY?\n\n");
+	print_banner();
 
 	while(1) {
 		readto = 0;
-		printf("-> ");
+		printf("HIBT> ");
 
 		exp = getline(stdin);
 		if(!strcmp(exp, "(quit)"))
@@ -54,9 +68,10 @@ int main(void) {
 		
 			if(error) {
 				printf("Syntax Error: '%s'\n", exp);
+				break;
 			} else {
 				ret = eval(exp_list, the_global_env);
-				printf("== ");
+				printf("YHBT: ");
 				lisp_print_data(ret);
 				printf("\n");
 			}	

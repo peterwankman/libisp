@@ -132,7 +132,7 @@ static data_t *get_list_of_values(const data_t *exps, data_t *env) {
 
 /* PROCEDURES */
 
-static int is_compound_procedure(const data_t *exp) { return is_tagged_list(exp, "closure"); }
+int is_compound_procedure(const data_t *exp) { return is_tagged_list(exp, "closure"); }
 static int is_primitive_procedure(const data_t *proc) { return is_tagged_list(proc, "primitive"); }
 static data_t *get_primitive_implementation(const data_t *proc) { return cadr(proc); }
 static data_t *get_procedure_body(const data_t *proc) { return caddr(proc); }

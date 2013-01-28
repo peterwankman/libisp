@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "data.h"
+#include "eval.h"
 
 extern data_t *the_global_env;
 
@@ -30,6 +31,10 @@ static void lisp_print_data_rec(const data_t *d) {
 			case symbol: printf("%s", d->val.symbol); break;
 			case string: printf("\"%s\"", d->val.string); break;
 			case pair:
+				if(is_compound_procedure(d)) {
+					printf("<proc>");
+					break;
+				}
 				head = car(d);
 				tail = cdr(d);
 				if(!head && !tail) {
@@ -60,7 +65,7 @@ static void lisp_print_data_rec(const data_t *d) {
 void lisp_print_data(const data_t *d) {
 	if(!d) {
 		printf("()");
-	} else {
+	} else {		
 		if(d->type == pair)
 			printf("(");
 		lisp_print_data_rec(d);
