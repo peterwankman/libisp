@@ -167,9 +167,9 @@ static data_t *lookup_variable_value(const data_t *var, data_t *env) {
 
 	if(env == NULL) {
 		printf("Unbound variable -- LOOKUP ");
-//		lisp_print_data(var);
-//		printf("\n");
-		return NULL;
+		lisp_print_data(var);
+		printf("\n");
+		return lisp_make_symbol("#f");
 	}
 		
 	current_frame = get_first_frame(env);
@@ -193,7 +193,7 @@ static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env) {
 
 	if(env == NULL) {
 		printf("Unbound variable -- SET!\n");
-		return NULL;
+		return lisp_make_symbol("#f");
 	}
 		
 	current_frame = get_first_frame(env);
@@ -258,10 +258,10 @@ data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env) 
 
 	if(length(vars) < length(vals)) {
 		printf("Too many arguments supplied\n");
-		return NULL;
+		return lisp_make_symbol("#f");
 	} else {
 		printf("Too few arguments supplied\n");
-		return NULL;
+		return lisp_make_symbol("#f");
 	}
 }
 
@@ -279,7 +279,7 @@ data_t *apply(const data_t *proc, const data_t *args) {
 		return out;
 	}
 	printf("Unknown procedure type -- APPLY\n");
-	return NULL;
+	return lisp_make_symbol("#f");
 }
 
 data_t *eval(const data_t *exp, data_t *env) {
@@ -310,5 +310,5 @@ data_t *eval(const data_t *exp, data_t *env) {
 			get_list_of_values(get_operands(exp), env));
 	
 	printf("Unknown expression type -- EVAL '");
-	return NULL;
+	return lisp_make_symbol("#f");
 }
