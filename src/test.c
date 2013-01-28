@@ -48,7 +48,7 @@ int main(void) {
 	data_t *exp_list, *ret;
 	size_t readto;
 	int error;
-	char *exp;
+	char *exp, *buf;
 
 	printf("Setting up the global environment...\n\n");
 	the_global_env = setup_environment();
@@ -60,8 +60,11 @@ int main(void) {
 		printf("HIBT> ");
 
 		exp = get_line(stdin);
-		if(!strcmp(exp, "(quit)"))
+		if(!strcmp(exp, "(quit)")) {
+			free(exp);
 			break;
+		}
+		buf = exp;
 
 		do {
 			exp_list = lisp_read(exp, &readto, &error);
@@ -79,6 +82,7 @@ int main(void) {
 			exp += readto;
 			run_gc();
 		} while(strlen(exp));
+		free(buf);
 	}
 	cleanup_lisp();
 	showmemstats(stdout);
