@@ -28,7 +28,7 @@ void print_banner(void) {
 	printf("                             `'-----''                     Type (quit) to quit.\n\n");
 }
 
-static char *getline(FILE *fp) {
+static char *get_line(FILE *fp) {
 	size_t size = 0, len  = 0, last = 0;
 	char *buf  = NULL;
 
@@ -59,7 +59,7 @@ int main(void) {
 		readto = 0;
 		printf("HIBT> ");
 
-		exp = getline(stdin);
+		exp = get_line(stdin);
 		if(!strcmp(exp, "(quit)"))
 			break;
 
