@@ -13,74 +13,58 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <math.h>
-
 #include "libisp.h"
 
-data_t *user_mul(const data_t *list) {
-	int iout = 1;
-	double dout = 1.0f;
-	data_t *head, *tail;
+static char *getline(FILE *fp) {
+	size_t size = 0, len  = 0, last = 0;
+	char *buf  = NULL;
 
-	if(list->type != pair)
-		return lisp_make_int(0);
-	
 	do {
-		head = car(list);
-		tail = cdr(list);
-		if(head->type == integer)
-			iout *= head->val.integer;
-		else if(head->type == decimal)
-			dout *= head->val.decimal;
-		else return lisp_make_int(0);
+		size += BUFSIZ;
+		buf = (char*)realloc(buf, size);
+		fgets(buf + last, size, fp);
+		len = strlen(buf);
+		last = len - 1;
+	} while (!feof(fp) && buf[last]!='\n');
+	buf[last] = '\0';
 
-		list = tail;
-	} while(list);
-
-	if(dout == 1.0f) {
-		return lisp_make_int(iout);
-	}
-
-	if((dout - iout) == floor(dout - iout))
-		return lisp_make_int((int)dout * iout);
-	
-	return lisp_make_decimal(dout * iout);
+	return buf;
 }
 
 int main(void) {
-	data_t *a, *ret;
+	data_t *exp_list, *ret;
 	size_t readto;
 	int error;
+	char *exp;
 
-	char *exp = "(define (f n) (if (= n 1) 1 (** n (f (- n 1))))) (f 5)";
-
-	add_prim_proc("**", user_mul);
 	the_global_env = setup_environment();
 
 	printf("HAVE YOU READ YOUR SICP TODAY?\n\n");
 
-	do {
+	while(1) {
 		readto = 0;
-		a = lisp_read(exp, &readto, &error);
 		printf("-> ");
-		lisp_print_data(a);
-		printf("\n");
-		ret = eval(a, the_global_env);
-		printf("== ");
-		lisp_print_data(ret);
-		printf("\n");
 
-		if(a)
-			free_data(a);
-		else if(error) {
-			printf("Syntax Error: '%s'\n", exp);
+		exp = getline(stdin);
+		if(!strcmp(exp, "(quit)"))
 			break;
-		}
-				
-		exp += readto;
-		run_gc();
-	} while(strlen(exp));
 
+		do {
+			exp_list = lisp_read(exp, &readto, &error);
+		
+			if(error) {
+				printf("Syntax Error: '%s'\n", exp);
+			} else {
+				ret = eval(exp_list, the_global_env);
+				printf("== ");
+				lisp_print_data(ret);
+				printf("\n");
+			}	
+		
+			exp += readto;
+			run_gc();
+		} while(strlen(exp));
+	}
 	cleanup_lisp();
 	showmemstats(stdout);
 	return 0;
