@@ -13,8 +13,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtin.h"
 #include "data.h"
 #include "eval.h"
+#include "mem.h"
 
 prim_proc_list *the_prim_procs = NULL;
 prim_proc_list *last_prim_proc = NULL;
@@ -243,7 +245,7 @@ static data_t *primitive_procedure_objects(void) {
 	while(curr_proc) {
 		out = cons(list(
 			lisp_make_symbol("primitive"),
-			lisp_make_primitive(curr_proc->proc)), out);
+			lisp_make_primitive(curr_proc->proc), NULL), out);
 		curr_proc = curr_proc->prev;
 	}
 
@@ -276,7 +278,8 @@ void add_prim_proc(char *name, prim_proc proc) {
 }
 
 data_t *setup_environment(void) {
-	data_t *initial_env, *the_empty_environment = cons(cons(NULL, NULL), NULL);
+	data_t *initial_env, *the_empty_environment;
+	the_empty_environment = cons(cons(NULL, NULL), NULL);
 	
 	add_prim_proc("+", prim_add);
 	add_prim_proc("*", prim_mul);
@@ -290,4 +293,18 @@ data_t *setup_environment(void) {
 									 the_empty_environment);
 
 	return initial_env;
+}
+
+void cleanup_lisp(void) {
+	prim_proc_list *current = the_prim_procs, *buf;
+
+	free_data_rec(the_global_env);
+
+	while(current) {
+		buf = current->next;
+		free(current->name);
+		free(current);
+
+		current = buf;
+	}
 }

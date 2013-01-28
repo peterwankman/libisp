@@ -27,4 +27,6 @@ data_t *prim_eq(const data_t *list);
 void add_prim_proc(char *name, prim_proc proc);
 data_t *setup_environment(void);
 
+void cleanup_lisp(void);
+
 #endif

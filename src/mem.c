@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "builtin.h"
 #include "data.h"
 #include "eval.h"
 
@@ -71,10 +72,13 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 	return memory;
 }
 
-/* FREE */
+/* GARBAGE COLLECTOR */
 
 static int delfromlist(const void *memory) {
 	alloclist_t *current = alloc_list, *last = NULL;
+
+	if(!memory)
+		return 0;
 
 	while(current) {
 		if(current->memory == memory) {
@@ -92,39 +96,24 @@ static int delfromlist(const void *memory) {
 
 	return 0;
 }
+void free_data(data_t *in) {
+	if(!in)
+		return;
 
-static void dfree(void *memory) {
-	if(delfromlist(memory)) {
+	if(delfromlist(in)) {
+		if(in->type == string)
+			free(in->val.string);
+		if(in->type == symbol)
+			free(in->val.symbol);
+		if(in->type == pair)
+			free(in->val.pair);
+
+		free(in);
 		n_frees++;
-		free(memory);
 	} else {
 		fprintf(stderr, "WARNING: Called free() on unknown pointer.\n");
 	}
 }
-
-void free_data(data_t *in) {
-	if(in->type == string)
-		free(in->val.string);
-	if(in->type == symbol)
-		free(in->val.symbol);
-	if(in->type == pair)
-		free(in->val.pair);
-	dfree(in);
-}
-
-void free_data_rec(data_t *in) {
-	if(in->type != pair) {
-		free_data(in);
-		return;
-	} else {
-		free_data_rec(car(in));
-		free_data_rec(cdr(in));
-
-		free_data(in);
-	}
-}
-
-/* GARBAGE COLLECTOR */
 
 static void clear_mark(void) {
 	alloclist_t *current = alloc_list;
@@ -135,23 +124,63 @@ static void clear_mark(void) {
 	}
 }
 
-static void mark(void); /* TBI */
+static alloclist_t *find_in_list(const void *memory) {
+	alloclist_t *current =  alloc_list;
 
-static void sweep(void) {
+	if(!memory)
+		return NULL;
+
+	while(current) {
+		if(current->memory == memory)
+			return current;
+		current = current->next;
+	}
+
+	return NULL;
+}
+
+static void mark(data_t *start) {
+	alloclist_t *list_entry = find_in_list(start);
+	data_t *head, *tail;
+
+	if(!start)
+		return;
+
+	if(list_entry->mark == 0) {
+		list_entry->mark = 1;
+		
+		if(start->type == pair) {
+			head = car(start);
+			tail = cdr(start);
+			mark(head);
+			mark(tail);
+		}
+	} 
+}
+
+static void sweep(const int req_mark) {
 	alloclist_t *current = alloc_list, *buf;
 
 	while(current) {
-		buf = current;
-		if(!current->mark)
+		buf = current->next;
+		if(current->mark == req_mark)
 			free_data(current->memory);		
-		current = buf->next;
+		current = buf;
 	}
 }
 
 void run_gc(void) {
 	clear_mark();
-/*	mark();		*/
-	sweep();
+	mark(the_global_env);
+	sweep(0);
+}
+
+/* FREE */
+
+void free_data_rec(data_t *in) {
+	clear_mark();
+	mark(in);
+	sweep(1);
 }
 
 /* INFO */

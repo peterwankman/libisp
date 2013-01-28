@@ -212,6 +212,8 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 		} else {
 			if((newexp = (char*)malloc(*readto)) == NULL)
 				return NULL;
+			buf = newexp;
+
 			strncpy(newexp, exp + 1, *readto - 2);
 			newexp[*readto - 2] = '\0';
 
@@ -222,6 +224,8 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 				out = cons(newdata, out);
 				newexp[exppos] = '\0';			
 			} while(newexp[0]);
+
+			free(buf);
 		}
 	}
 

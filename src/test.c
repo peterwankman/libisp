@@ -78,7 +78,10 @@ int main(void) {
 		}
 				
 		exp += readto;
+		run_gc();
 	} while(strlen(exp));
 
+	cleanup_lisp();
+	showmemstats(stdout);
 	return 0;
 }
