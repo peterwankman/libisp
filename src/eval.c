@@ -24,7 +24,13 @@ static data_t *lookup_variable_value(const data_t *var, data_t *env);
 /* HELPER PROCEDURES */
 
 static int is_tagged_list(const data_t *exp, const char *tag) {
+	data_t *head;
 	if(exp->type == pair) {
+		head = car(exp);
+		if(!head)
+			return 0;
+		if(head->type != symbol)
+			return 0;
 		if(!strcmp(car(exp)->val.symbol , tag))
 			return 1;
 	}

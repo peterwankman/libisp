@@ -183,6 +183,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	exp += skip;
 	
 	*error = 1;
+	*readto = 0;
 
 	if(is_quotation(exp) && !already_quoted) {
 		out = cons(lisp_make_symbol("quote"), cons(read_subexp(exp + 1, 1, &newread, error), NULL));
