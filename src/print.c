@@ -16,7 +16,7 @@
 
 extern data_t *the_global_env;
 
-static void lisp_print_data_rec(const data_t *d) {
+void lisp_print_data(const data_t *d) {
 	data_t *head, *tail;
 
 	if(!d)
@@ -35,41 +35,25 @@ static void lisp_print_data_rec(const data_t *d) {
 					printf("<proc>");
 					break;
 				}
+
+				printf("(");
+
 				head = car(d);
 				tail = cdr(d);
-				if(!head && !tail) {
-					printf("()");
-				} else {
-					if(head) {
-	 					if(head->type == pair)
-							printf("(");
-						lisp_print_data_rec(head);
-						if(head->type == pair)
-							printf(")");
-					}
 
-					if(tail) {
-						if(tail->type != pair)
-						printf(" . ");
-						else
-							printf(" ");
-
-						lisp_print_data_rec(tail);
-					}					
+				if(head) {
+	 				lisp_print_data(head);
 				}
-				break;
-		}
-	}
-}
 
-void lisp_print_data(const data_t *d) {
-	if(!d) {
-		printf("()");
-	} else {		
-		if(d->type == pair)
-			printf("(");
-		lisp_print_data_rec(d);
-		if(d->type == pair)
-			printf(")");
+				if(tail) {
+					if(tail->type != pair)
+					printf(" . ");
+					else
+						printf(" ");
+					lisp_print_data(tail);
+				}
+
+				printf(")");
+		}
 	}
 }
