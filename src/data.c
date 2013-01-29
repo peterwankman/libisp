@@ -168,6 +168,8 @@ int is_equal(const data_t *d1, const data_t *d2) {
 			return d1->val.integer == d2->val.integer;
 		case decimal:
 			return d1->val.decimal == d2->val.decimal;
+		case prim_procedure:
+			return d1->val.proc == d2->val.proc;
 		case string:
 			return !strcmp(d1->val.string, d2->val.string);
 		case symbol:			
