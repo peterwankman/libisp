@@ -488,6 +488,7 @@ void setup_environment(void) {
 void cleanup_lisp(void) {
 	prim_proc_list *current = the_prim_procs, *buf;
 
+	run_gc();
 	free_data_rec(the_global_env);
 
 	while(current) {

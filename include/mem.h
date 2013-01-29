@@ -20,6 +20,7 @@
 
 data_t *_dalloc(const size_t size, const char *file, const int line);
 void showmemstats(FILE *fp);
+void free_data(data_t *in);
 void free_data_rec(data_t *in);
 void run_gc(void);
 

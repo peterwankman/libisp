@@ -96,6 +96,7 @@ static int delfromlist(const void *memory) {
 
 	return 0;
 }
+
 void free_data(data_t *in) {
 	if(!in)
 		return;
