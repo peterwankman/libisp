@@ -208,7 +208,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 		out = lisp_make_symbol(buf);
 		free(buf);
 	} else if(is_combination(exp, readto)) {
-		if(!already_quoted && is_empty_combination(exp)) {
+		if(is_empty_combination(exp)) {			
 			out = NULL;
 		} else {
 			if((newexp = (char*)malloc(*readto)) == NULL)
