@@ -4,7 +4,7 @@ OBJ=objects
 BIN=bin
 
 CC=gcc
-CFLAGS = -I$(INC) -O0 -ggdb -Wall -lm
+CFLAGS = -I$(INC) -O3 -Wall -lm
 
 all:
 	make $(OBJ)
@@ -19,7 +19,7 @@ $(BIN):
 	mkdir $(BIN)
 
 $(BIN)/test: $(SRC)/test.c
-	$(CC) $(CFLAGS) $^ -Lbin -lisp -o $@
+	$(CC) $(CFLAGS) $^ -L$(BIN) -lisp -o $@
 
 $(BIN)/libisp.a: $(OBJ)/builtin.o \
 $(OBJ)/data.o \
