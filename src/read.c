@@ -42,7 +42,7 @@ static int is_string(const char *exp, size_t *len) {
 }
 
 static int is_symbol(const char *exp, size_t *len) {
-	char *allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*+-./:<=>?@^_~'";
+	char *allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*+-./:<=>?@^_~'#";
 	
 	*len = 0;
 	while(exp[*len] && !isspace(exp[*len]) && exp[*len] != ')') {
