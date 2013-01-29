@@ -4,7 +4,7 @@ OBJ=objects
 BIN=bin
 
 CC=gcc
-CFLAGS = -I$(INC) -O3 -Wall -lm
+CFLAGS = -I$(INC) -O0 -ggdb -Wall -lm
 
 all:
 	make $(OBJ)
