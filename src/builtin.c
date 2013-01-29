@@ -438,6 +438,37 @@ void setup_environment(void) {
 										primitive_procedure_objects(),
 										the_empty_environment);
 
+	run("(define (caar pair) (car (car pair))");
+	run("(define (cadr pair) (car (cdr pair))");
+	run("(define (cdar pair) (cdr (car pair))");
+	run("(define (cddr pair) (cdr (cdr pair))");
+
+	run("(define (caaar pair) (car (car (car pair)))");
+	run("(define (caadr pair) (car (car (cdr pair)))");
+	run("(define (cadar pair) (car (cdr (car pair)))");
+	run("(define (caddr pair) (car (cdr (cdr pair)))");
+	run("(define (cdaar pair) (cdr (car (car pair)))");
+	run("(define (cdadr pair) (cdr (car (cdr pair)))");
+	run("(define (cddar pair) (cdr (cdr (car pair)))");
+	run("(define (cdddr pair) (cdr (cdr (cdr pair)))");
+
+	run("(define (caaaar pair) (car (car (car (car pair))))");
+	run("(define (caaadr pair) (car (car (car (cdr pair))))");
+	run("(define (caadar pair) (car (car (cdr (car pair))))");
+	run("(define (caaddr pair) (car (car (cdr (cdr pair))))");
+	run("(define (cadaar pair) (car (cdr (car (car pair))))");
+	run("(define (cadadr pair) (car (cdr (car (cdr pair))))");
+	run("(define (caddar pair) (car (cdr (cdr (car pair))))");
+	run("(define (cadddr pair) (car (cdr (cdr (cdr pair))))");
+	run("(define (cdaaar pair) (cdr (car (car (car pair))))");
+	run("(define (cdaadr pair) (cdr (car (car (cdr pair))))");
+	run("(define (cdadar pair) (cdr (car (cdr (car pair))))");
+	run("(define (cdaddr pair) (cdr (car (cdr (cdr pair))))");
+	run("(define (cddaar pair) (cdr (cdr (car (car pair))))");
+	run("(define (cddadr pair) (cdr (cdr (car (cdr pair))))");
+	run("(define (cdddar pair) (cdr (cdr (cdr (car pair))))");
+	run("(define (cddddr pair) (cdr (cdr (cdr (cdr pair))))");
+
 	run("(define nil '())");
 	run("(define (zero? exp) (= 0 exp))");
 	run("(define (null? exp) (eq? exp '()))");
@@ -448,7 +479,7 @@ void setup_environment(void) {
 	run("(define (>= a b) (not (< a b)))");
 	run("(define (map proc items) (if null? items) nil (cons (proc (car items)) (map proc (cdr items))))");
 	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
-
+	
 	run_gc();
 }
 
