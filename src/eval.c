@@ -27,6 +27,8 @@ static data_t *lookup_variable_value(const data_t *var, data_t *env);
 
 static int is_tagged_list(const data_t *exp, const char *tag) {
 	data_t *head;
+	if(!exp)
+		return 0;
 	if(exp->type == pair) {
 		head = car(exp);
 		if(!head)
@@ -226,12 +228,6 @@ static data_t *get_definition_value(const data_t *exp) {
 	return make_lambda(cdadr(exp), cddr(exp));
 }
 static data_t *add_binding_to_frame(data_t *var, const data_t *val, data_t *frame) {
-/*	printf("Binding ");
-	lisp_print_data(var);
-	printf(" to be ");
-	lisp_print_data(val);
-	printf("\n");
-*/	
 	set_car(frame, (cons(var, car(frame))));
 	set_cdr(frame, (cons(val, cdr(frame))));
 	return (data_t*)val;
@@ -291,9 +287,6 @@ data_t *apply(const data_t *proc, const data_t *args) {
 }
 
 data_t *eval(const data_t *exp, data_t *env) {
-//	lisp_print_data(exp);
-//	printf("\n");
-
 	if(is_self_evaluating(exp))
 		return (data_t*)exp;
 	if(is_variable(exp))

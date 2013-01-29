@@ -479,7 +479,7 @@ void setup_environment(void) {
 	run("(define (abs n) (if (negative? n) (- 0 n) n))");
 	run("(define (<= a b) (not (> a b)))");
 	run("(define (>= a b) (not (< a b)))");
-	run("(define (map proc items) (if null? items) nil (cons (proc (car items)) (map proc (cdr items))))");
+	run("(define (map proc items) (if (eq? items '()) nil (cons (proc (car items)) (map proc (cdr items)))))");
 	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
 	
 	run_gc();
