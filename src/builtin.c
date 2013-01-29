@@ -482,7 +482,7 @@ void setup_environment(void) {
 	run("(define (map proc items) (if (eq? items '()) nil (cons (proc (car items)) (map proc (cdr items)))))");
 	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
 	run("(define (delay proc) (lambda () proc))");
-	run("(define (force proc) (x))");
+	run("(define (force proc) (proc))");
 	
 	run_gc();
 }
