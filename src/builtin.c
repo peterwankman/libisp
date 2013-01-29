@@ -102,11 +102,13 @@ data_t *prim_sub(const data_t *list) {
 
 	list = tail;
 
-	if(!list)
-		if(out_type == integer)
+	if(!list) {
+		if(out_type == integer) {
 			return lisp_make_int(-istart);
-		else
+		} else {
 			return lisp_make_decimal(-dstart);
+		}
+	}
 
 	do {
 		head = car(list);
