@@ -149,7 +149,11 @@ static data_t *get_procedure_body(const data_t *proc) { return caddr(proc); }
 static data_t *get_procedure_parameters(const data_t *proc) { return cadr(proc); }
 static data_t *get_procedure_environment(const data_t *proc) { return car(cdddr(proc)); }
 static data_t *make_procedure(data_t *parameters, data_t *body, data_t *env) {
+	return cons(lisp_make_symbol("closure"), cons(parameters, cons(body, cons(env, NULL))));
+/*	
+	THE FOLLOWING PRODUCES A BUG IF THE PARAMETERS OR BODY ARE THE EMPTY LIST!
 	return list(lisp_make_symbol("closure"), parameters, body, env, NULL);
+*/
 }
 static data_t *apply_primitive_procedure(const data_t *proc, const data_t *args) { return get_primitive_implementation(proc)->val.proc(args); }
 
@@ -299,7 +303,7 @@ data_t *eval(const data_t *exp, data_t *env) {
 		return eval_definition(exp, env);
 	if(is_if(exp))
 		return eval_if(exp, env);
-	if(is_lambda(exp))		
+	if(is_lambda(exp)) 
 		return make_procedure(get_lambda_parameters(exp), get_lambda_body(exp), env);
 	if(is_begin(exp))
 		return eval_sequence(get_begin_actions(exp), env);
