@@ -89,7 +89,11 @@ static data_t *get_if_alternative(const data_t *exp) {
 	return NULL;
 }
 static data_t *make_if(const data_t *pred, const data_t *conseq, const data_t *alt) {
+	return cons(lisp_make_symbol("if"), cons(pred, cons(conseq, cons(alt, NULL))));
+/*
+	BUG! See below.
 	return list(lisp_make_symbol("if"), pred, conseq, alt, NULL);
+*/
 }
 static int is_true(const data_t *x) { return !strcmp(x->val.symbol, "#t"); }
 static int is_false(const data_t *x) { return strcmp(x->val.symbol, "#t"); }
@@ -303,7 +307,7 @@ data_t *eval(const data_t *exp, data_t *env) {
 		return eval_definition(exp, env);
 	if(is_if(exp))
 		return eval_if(exp, env);
-	if(is_lambda(exp)) 
+	if(is_lambda(exp))
 		return make_procedure(get_lambda_parameters(exp), get_lambda_body(exp), env);
 	if(is_begin(exp))
 		return eval_sequence(get_begin_actions(exp), env);
