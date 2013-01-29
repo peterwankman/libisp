@@ -418,9 +418,8 @@ void add_prim_proc(char *name, prim_proc proc) {
 	last_prim_proc = curr_proc;
 }
 
-void *setup_environment(void) {
-	data_t *initial_env, *the_empty_environment;
-	the_empty_environment = cons(cons(NULL, NULL), NULL);
+void setup_environment(void) {
+	data_t *the_empty_environment = cons(cons(NULL, NULL), NULL);
 	
 	add_prim_proc("+", prim_add);
 	add_prim_proc("*", prim_mul);

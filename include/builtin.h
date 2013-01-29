@@ -17,7 +17,7 @@
 data_t *the_global_env;
 
 void add_prim_proc(char *name, prim_proc proc);
-void *setup_environment(void);
+void setup_environment(void);
 void cleanup_lisp(void);
 
 #endif
