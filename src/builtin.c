@@ -205,6 +205,96 @@ data_t *prim_comp_eq(const data_t *list) {
 	return lisp_make_symbol("#f");
 }
 
+data_t *prim_comp_less(const data_t *list) {
+	data_t *head, *tail;
+	
+	if(list && list->type == pair)
+		head = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	list = cdr(list);
+
+	if(list && list->type == pair)
+		tail = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	if((head->type == integer) && (tail->type == integer)) {
+		if(head->val.integer < tail->val.integer) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == decimal) && (tail->type == integer)) {
+		if(head->val.decimal < tail->val.integer) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == integer) && (tail->type == decimal)) {
+		if(head->val.integer < tail->val.decimal) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == decimal) && (tail->type == decimal)) {
+		if(head->val.decimal < tail->val.decimal) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	}
+
+	return lisp_make_symbol("#f");
+
+}
+
+data_t *prim_comp_more(const data_t *list) {
+	data_t *head, *tail;
+	
+	if(list && list->type == pair)
+		head = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	list = cdr(list);
+
+	if(list && list->type == pair)
+		tail = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	if((head->type == integer) && (tail->type == integer)) {
+		if(head->val.integer > tail->val.integer) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == decimal) && (tail->type == integer)) {
+		if(head->val.decimal > tail->val.integer) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == integer) && (tail->type == decimal)) {
+		if(head->val.integer > tail->val.decimal) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	} else if((head->type == decimal) && (tail->type == decimal)) {
+		if(head->val.decimal > tail->val.decimal) {
+			return lisp_make_symbol("#t");
+		} else {
+			return lisp_make_symbol("#f");
+		}
+	}
+
+	return lisp_make_symbol("#f");
+
+}
+
 data_t *prim_eq(const data_t *list) {
 	data_t *first, *second;
 	int ret;
@@ -224,6 +314,57 @@ data_t *prim_eq(const data_t *list) {
 	if(ret)
 		return lisp_make_symbol("#t");
 	return lisp_make_symbol("#f");
+}
+
+data_t *prim_not(const data_t *list) {
+	if(list && list->type == pair)
+		list = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	if(list && list->type == symbol)
+		if(!strcmp(list->val.symbol, "#f"))
+			return lisp_make_symbol("#t");
+	return lisp_make_symbol("#f");
+}
+
+data_t *prim_car(const data_t *list) {
+	if(list && list->type == pair)
+		list = car(list);
+	else
+		return NULL;
+
+	if(list && list->type == pair)
+		return car(list);
+	return NULL;
+}
+
+data_t *prim_cdr(const data_t *list) {
+	if(list && list->type == pair)
+		list = car(list);
+	else
+		return NULL;
+	if(list && list->type == pair)
+		return cdr(list);
+	return NULL;
+}
+
+data_t *prim_cons(const data_t *list) {
+	data_t *head, *tail;
+
+	if(list && list->type == pair)
+		head = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	list = cdr(list);
+
+	if(list && list->type == pair)
+		tail = car(list);
+	else
+		return lisp_make_symbol("#f");
+
+	return cons(head, tail);
 }
 
 static data_t *primitive_procedure_names(void) {
@@ -286,7 +427,13 @@ data_t *setup_environment(void) {
 	add_prim_proc("-", prim_sub);
 	add_prim_proc("/", prim_div);
 	add_prim_proc("=", prim_comp_eq);
+	add_prim_proc("<", prim_comp_less);
+	add_prim_proc("<", prim_comp_more);
+	add_prim_proc("not", prim_not);
 	add_prim_proc("eq?", prim_eq);
+	add_prim_proc("car", prim_car);
+	add_prim_proc("cdr", prim_cdr);
+	add_prim_proc("cons", prim_cons);
 
 	initial_env = extend_environment(primitive_procedure_names(), 
 									 primitive_procedure_objects(),
