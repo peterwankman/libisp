@@ -190,7 +190,7 @@ static data_t *get_assignment_value(const data_t *exp) { return caddr(exp); }
 static data_t *scan_assignment(data_t *env, const data_t *vars, data_t *vals, data_t *var, const data_t *val) {
 	if(vars == NULL)
 		return set_variable_value(var, val, get_enclosing_env(env));
-	if(is_equal(var, car(vals)))
+	if(is_equal(var, car(vars)))
 		return set_car(vals, val);
 	return scan_assignment(env, cdr(vars), cdr(vals), var, val);
 }
