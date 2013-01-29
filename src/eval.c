@@ -40,7 +40,7 @@ static int is_tagged_list(const data_t *exp, const char *tag) {
 	}
 	return 0;
 }
-static int is_self_evaluating(const data_t *exp) { return ((exp->type == integer) || (exp->type == decimal) || (exp->type == string)); }
+static int is_self_evaluating(const data_t *exp) { return (!exp || (exp->type == integer) || (exp->type == decimal) || (exp->type == string)); }
 static int is_symbol(const data_t *exp) { return (exp->type == symbol); }
 static int is_variable(const data_t *exp) { return is_symbol(exp); }
 

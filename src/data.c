@@ -182,6 +182,9 @@ int is_equal(const data_t *d1, const data_t *d2) {
 int length(const data_t *list) {
 	int out = 0;
 	
+	if(!list)
+		return 0;
+	
 	if(list->type != pair)
 		return 0;
 
