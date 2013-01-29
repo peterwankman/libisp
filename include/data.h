@@ -31,6 +31,4 @@ int length(const data_t *list);
 data_t *set_car(data_t *pair, const data_t *val);
 data_t *set_cdr(data_t *pair, const data_t *val);
 
-data_t *make_copy(const data_t *in);
-
 #endif

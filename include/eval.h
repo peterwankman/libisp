@@ -14,9 +14,13 @@
 #ifndef EVAL_H_
 #define EVAL_H_
 
+#ifndef LIBISP_H_
 int is_compound_procedure(const data_t *exp);
 data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
+#endif
+
 data_t *apply(const data_t *proc, const data_t *args);
 data_t *eval(data_t *exp, data_t *env);
+int run(const char *exp);
 
 #endif

@@ -18,13 +18,9 @@
 
 #define lisp_data_alloc(n) _dalloc(n, __FILE__, __LINE__)
 
-data_t *_dalloc(size_t size, const char *file, const int line);
-
+data_t *_dalloc(const size_t size, const char *file, const int line);
 void showmemstats(FILE *fp);
-
-void free_data(data_t *in);
 void free_data_rec(data_t *in);
-
 void run_gc(void);
 
 #endif

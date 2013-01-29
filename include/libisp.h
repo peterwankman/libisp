@@ -9,9 +9,14 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#ifndef LIBISP_H_
+#define LIBISP_H_
+
 #include "read.h"
 #include "eval.h"
 #include "print.h"
 #include "data.h"
 #include "mem.h"
 #include "builtin.h"
+
+#endif

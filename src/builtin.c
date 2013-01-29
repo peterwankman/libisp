@@ -418,7 +418,7 @@ void add_prim_proc(char *name, prim_proc proc) {
 	last_prim_proc = curr_proc;
 }
 
-data_t *setup_environment(void) {
+void *setup_environment(void) {
 	data_t *initial_env, *the_empty_environment;
 	the_empty_environment = cons(cons(NULL, NULL), NULL);
 	
@@ -428,18 +428,29 @@ data_t *setup_environment(void) {
 	add_prim_proc("/", prim_div);
 	add_prim_proc("=", prim_comp_eq);
 	add_prim_proc("<", prim_comp_less);
-	add_prim_proc("<", prim_comp_more);
+	add_prim_proc(">", prim_comp_more);
 	add_prim_proc("not", prim_not);
 	add_prim_proc("eq?", prim_eq);
 	add_prim_proc("car", prim_car);
 	add_prim_proc("cdr", prim_cdr);
 	add_prim_proc("cons", prim_cons);
 
-	initial_env = extend_environment(primitive_procedure_names(), 
-									 primitive_procedure_objects(),
-									 the_empty_environment);
+	the_global_env = extend_environment(primitive_procedure_names(), 
+										primitive_procedure_objects(),
+										the_empty_environment);
 
-	return initial_env;
+	run("(define nil '())");
+	run("(define (zero? exp) (= 0 exp))");
+	run("(define (null? exp) (eq? exp '()))");
+	run("(define (negative? exp) (< exp 0))");
+	run("(define (positive? exp) (> exp 0))");
+	run("(define (abs n) (if (negative? n) (- 0 n) n))");
+	run("(define (<= a b) (not (> a b)))");
+	run("(define (>= a b) (not (< a b)))");
+	run("(define (map proc items) (if null? items) nil (cons (proc (car items)) (map proc (cdr items))))");
+	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
+
+	run_gc();
 }
 
 void cleanup_lisp(void) {

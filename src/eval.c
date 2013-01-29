@@ -13,9 +13,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+#include "builtin.h"
 #include "data.h"
 #include "mem.h"
 #include "print.h"
+#include "read.h"
 
 data_t *eval(const data_t *exp, data_t *env);
 static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env);
@@ -317,4 +319,17 @@ data_t *eval(const data_t *exp, data_t *env) {
 	
 	printf("Unknown expression type -- EVAL '");
 	return lisp_make_symbol("#f");
+}
+
+int run(const char *exp) {
+	int error = 0;
+	size_t readto;
+	data_t *exp_list = lisp_read(exp, &readto, &error);
+
+	if(error)
+		return error;
+
+	eval(exp_list, the_global_env);
+
+	return 0;
 }

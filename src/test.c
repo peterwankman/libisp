@@ -51,7 +51,7 @@ int main(void) {
 	char *exp, *buf;
 
 	printf("Setting up the global environment...\n\n");
-	the_global_env = setup_environment();
+	setup_environment();
 
 	print_banner();
 

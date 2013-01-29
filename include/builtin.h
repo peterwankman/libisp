@@ -16,17 +16,8 @@
 
 data_t *the_global_env;
 
-data_t *prim_add(const data_t *list);
-data_t *prim_mul(const data_t *list);
-data_t *prim_sub(const data_t *list);
-data_t *prim_div(const data_t *list);
-data_t *prim_comp_eq(const data_t *list);
-
-data_t *prim_eq(const data_t *list);
-
 void add_prim_proc(char *name, prim_proc proc);
-data_t *setup_environment(void);
-
+void *setup_environment(void);
 void cleanup_lisp(void);
 
 #endif
