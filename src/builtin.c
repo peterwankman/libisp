@@ -473,7 +473,7 @@ void setup_environment(void) {
 
 	run("(define nil '())");
 	run("(define (zero? exp) (= 0 exp))");
-	run("(define (null? exp) (eq? exp '()))");
+	run("(define (null? exp) (eq? exp nil))");
 	run("(define (negative? exp) (< exp 0))");
 	run("(define (positive? exp) (> exp 0))");
 	run("(define (abs n) (if (negative? n) (- 0 n) n))");

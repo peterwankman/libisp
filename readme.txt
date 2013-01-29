@@ -5,10 +5,12 @@ libisp -- Lisp evaluator based on SICP
 -------------
 
 1.1. General
+------------
 
 libisp.h is the main header file for the whole library.
 
 1.1. Primitive Procedures
+-------------------------
 
 You can add your own procedures as primitives with the supplied function
 add_prim_proc(), by providing a name under which the procedure will be known to
@@ -52,9 +54,7 @@ you need.
 ----------
 
 After you have added all primitive procedures you will need (or none), you need
-to initialize the global environment. Do it like this:
-
-	the_global_env = setup_environment();
+to initialize the global environment. To do it, just call setup_environment()
 	
 The interpreter can now be used.
 
@@ -81,6 +81,12 @@ eval() returns a Lisp data structure, which can be printed to the screen with
 	
 or be manipulated however you like.
 
+You can also evaluate an expression in the global environment an discard the
+result. This is useful for defining variables and non-primitive procedures,
+that will be used by your program. The usage of the function should be trivial.
+
+	void run(const char *exp);
+
 1.4. MEMORY MANAGEMENT
 ----------------------
 
@@ -94,7 +100,14 @@ You can also free data structures manually, using the functions
 	void free_data_rec(data_t *in);
 
 The former will free just the data structure supplied, while the latter will
-free a list structure recursively.
+free a list structure recursively. After you are done with using libisp, clean
+up everything with
+
+	void cleanup_lisp(void);
+	
+This will run the garbage collector, free the global environment and then free
+the list of primitive procedures. After that, everything allocated by libisp
+is free()d.
 
 There is a function which shows allocated instances of data_t that have not yet
 been freed.
