@@ -23,7 +23,6 @@ data_t *lisp_make_primitive(prim_proc in);
 data_t *cons(const data_t *l, const data_t *r);
 data_t *car(const data_t *in);
 data_t *cdr(const data_t *in);
-data_t *list(const data_t *in, ...);
 
 int is_equal(const data_t *d1, const data_t *d2);
 int length(const data_t *list);

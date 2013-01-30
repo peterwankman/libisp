@@ -118,17 +118,6 @@ static data_t *list_va(va_list ap) {
 	return cons(item, list_va(ap));
 }
 
-data_t *list(const data_t *in, ...) {
-	data_t *out;
-	va_list ap;
-
-	va_start(ap, in);
-	out = cons(in, list_va(ap));
-	va_end(ap);
-
-	return out;
-}
-
 data_t *car(const data_t *in) {
 	if(!in)
 		return NULL;

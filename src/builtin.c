@@ -392,9 +392,7 @@ static data_t *primitive_procedure_objects(void) {
 	data_t *out = NULL;
 
 	while(curr_proc) {
-		out = cons(list(
-			lisp_make_symbol("primitive"),
-			lisp_make_primitive(curr_proc->proc), NULL), out);
+		out = cons(cons(lisp_make_symbol("primitive"), cons(lisp_make_primitive(curr_proc->proc), NULL)), out);
 		curr_proc = curr_proc->prev;
 	}
 
