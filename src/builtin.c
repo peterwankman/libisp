@@ -369,6 +369,12 @@ data_t *prim_cons(const data_t *list) {
 	return cons(head, tail);
 }
 
+data_t *prim_list(const data_t *list) {
+	if(!list)
+		return NULL;
+	return cons(car(list), prim_list(cdr(list)));
+}
+
 static data_t *primitive_procedure_names(void) {
 	prim_proc_list *curr_proc = last_prim_proc;
 	data_t *out = NULL;
@@ -435,6 +441,7 @@ void setup_environment(void) {
 	add_prim_proc("car", prim_car);
 	add_prim_proc("cdr", prim_cdr);
 	add_prim_proc("cons", prim_cons);
+	add_prim_proc("list", prim_list);
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
