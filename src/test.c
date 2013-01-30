@@ -15,6 +15,10 @@
 
 #include "libisp.h"
 
+#define INPUT_PROMPT		"HIBT> "
+#define OUTPUT_PROMPT		"YHBT: "
+#define GOODBYE				"GB2FIOC!"
+
 void print_banner(void) {
 	printf(" '-._                  ___.....___\n");
 	printf("     `.__           ,-'        ,-.`-,\n");
@@ -26,6 +30,20 @@ void print_banner(void) {
 	printf("         .............._           --...--,\n");
 	printf("                        `-.._         _.-'\n");
 	printf("                             `'-----''                     Type (quit) to quit.\n\n");
+}
+
+int balanced_parens(char *exp) {
+	int out = 0;
+	char c;
+
+	while(c = *(exp++)) {
+		if(c == '(')
+			out++;
+		if(c == ')')
+			out--;
+	}
+
+	return out;
 }
 
 static char *get_line(FILE *fp) {
@@ -44,25 +62,68 @@ static char *get_line(FILE *fp) {
 	return buf;
 }
 
+char *input_exp(int *paren) {
+	char *out, *buf;
+	size_t bufsize = BUFSIZ, newlen;
+	
+	*paren = 0;
+
+	if((out = malloc(bufsize)) == NULL) {
+		fprintf(stderr, "ERROR: malloc(%d) failed.\n", bufsize);
+		return NULL;
+	}
+
+	memset(out, 0, bufsize);
+	do {
+		printf("%s", INPUT_PROMPT);
+		buf = get_line(stdin);
+		*paren += balanced_parens(buf);
+		newlen = strlen(out) + strlen(buf) + 2;
+
+		if(newlen > bufsize) {
+			bufsize += BUFSIZ;
+			if((out = (char*)realloc(out, bufsize)) == NULL) {
+				fprintf(stderr, "ERROR: realloc(%d) failed.\n", bufsize);
+				return NULL;
+			}
+		}
+		if(strlen(out))
+			strcat(out, " ");
+		else
+			newlen--;
+
+		strcat(out, buf);
+		out[newlen - 1] = '\0';
+		free(buf);
+	} while(*paren > 0);
+
+	return out;
+}
+
 int main(void) {
 	data_t *exp_list, *ret;
 	size_t readto, reclaimed;
-	int error;
+	int error, paren = 0;
 	char *exp, *buf;
 
 	mem_verbosity = GC_SILENT;
 
 	printf("Setting up the global environment...\n\n");
 	setup_environment();
-
 	print_banner();
 
 	while(1) {
 		readto = 0;
-		printf("HIBT> ");
 
-		exp = get_line(stdin);
+		exp = input_exp(&paren);
+		if(paren < 0) {
+			fprintf(stderr, "Syntax error: Unbalanced parentheses.\n");
+			free(exp);
+			continue;
+		}
+
 		if(!strcmp(exp, "(quit)")) {
+			printf("%s\n", GOODBYE);
 			free(exp);
 			break;
 		}
@@ -76,7 +137,7 @@ int main(void) {
 				break;
 			} else {
 				ret = eval(exp_list, the_global_env);
-				printf("YHBT: ");
+				printf("%s", OUTPUT_PROMPT);
 				lisp_print_data(ret);
 				printf("\n");
 			}	
@@ -90,5 +151,5 @@ int main(void) {
 	}
 	cleanup_lisp();
 	showmemstats(stdout);
-	return 0;
+	return EXIT_SUCCESS;
 }
