@@ -489,13 +489,13 @@ void setup_environment(void) {
 	run("(define (delay proc) (lambda () proc))");
 	run("(define (force proc) (proc))");
 	
-	run_gc();
+	run_gc(GC_FORCE);
 }
 
 void cleanup_lisp(void) {
 	prim_proc_list *current = the_prim_procs, *buf;
 
-	run_gc();
+	run_gc(GC_FORCE);
 	free_data_rec(the_global_env);
 
 	while(current) {

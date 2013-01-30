@@ -46,9 +46,11 @@ static char *get_line(FILE *fp) {
 
 int main(void) {
 	data_t *exp_list, *ret;
-	size_t readto;
+	size_t readto, reclaimed;
 	int error;
 	char *exp, *buf;
+
+	mem_verbosity = GC_SILENT;
 
 	printf("Setting up the global environment...\n\n");
 	setup_environment();
@@ -80,7 +82,9 @@ int main(void) {
 			}	
 		
 			exp += readto;
-			run_gc();
+
+			if((mem_verbosity == GC_VERBOSE) && (reclaimed = run_gc(GC_LOWMEM)))
+				printf("GC: %d bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
 	}

@@ -10,21 +10,29 @@
  */
 
 #include <stdio.h>
-
 #include <stdlib.h>
 #include <string.h>
 
 #include "builtin.h"
 #include "data.h"
 #include "eval.h"
+#include "mem.h"
 
-static int n_allocs = 0;
-static int n_frees = 0;
+size_t mem_lim_soft =  65535;
+size_t mem_lim_hard = 131071;
+int mem_verbosity = GC_SILENT; 
+
+static size_t n_allocs = 0;
+static size_t n_frees = 0;
+static size_t n_bytes_allocated = 0;
+static size_t n_bytes_peak = 0;
+static int warned = 0;
 
 typedef struct alloclist_t {
 	data_t *memory;
 	char *file;
 	int line;
+	size_t size;
 	char mark;
 	struct alloclist_t *next;
 } alloclist_t;
@@ -33,7 +41,7 @@ static alloclist_t *alloc_list = NULL;
 
 /* ALLOCATOR */
 
-static alloclist_t *make_entry(data_t *memory, const char *file, const int line) {
+static alloclist_t *make_entry(data_t *memory, const char *file, const int line, size_t size) {
 	alloclist_t *out;
 	
 	if((out = (alloclist_t*)malloc(sizeof(alloclist_t))) == NULL)
@@ -42,6 +50,8 @@ static alloclist_t *make_entry(data_t *memory, const char *file, const int line)
 	out->memory = memory;
 	out->line = line;
 	out->file = (char*)file;	
+	out->mark = 0;
+	out->size = size;
 	out->next = NULL;
 
 	return out;
@@ -62,13 +72,32 @@ static void addtolist(const alloclist_t *entry) {
 }
 
 data_t *_dalloc(const size_t size, const char *file, const int line) {
-	data_t *memory = (data_t*)malloc(size);
-	alloclist_t *newentry;	
+	data_t *memory;
+	size_t newsize = n_bytes_allocated + size;
+	alloclist_t *newentry;
 
-	if((newentry = make_entry(memory, file, line)))
-		addtolist(newentry);
+	if(newsize > mem_lim_hard) {
+		fprintf(stderr, "ERROR: Hard memory limit reached. (%d > %d)\n", newsize, mem_lim_hard);
+		return NULL;
+	} else if(!warned && (newsize > mem_lim_soft)) {
+		if(mem_verbosity == GC_VERBOSE)
+			fprintf(stderr, "Warning: Soft memory limit reached.\n");
+		warned = 1;
+	} else if(warned && (newsize < mem_lim_soft))
+		warned = 0;
 
-	n_allocs++;
+	memory = (data_t*)malloc(size);
+
+	if(memory) {
+		if((newentry = make_entry(memory, file, line, size)))
+			addtolist(newentry);
+
+		n_bytes_allocated += size;
+		if(n_bytes_allocated > n_bytes_peak)
+			n_bytes_peak = n_bytes_allocated;
+
+		n_allocs++;
+	}
 	return memory;
 }
 
@@ -87,6 +116,7 @@ static int delfromlist(const void *memory) {
 			} else {
 				alloc_list = current->next;
 			}
+			n_bytes_allocated -= current->size;
 			free(current);
 			return 1;
 		}
@@ -170,10 +200,16 @@ static void sweep(const int req_mark) {
 	}
 }
 
-void run_gc(void) {
-	clear_mark();
-	mark(the_global_env);
-	sweep(0);
+size_t run_gc(int force) {
+	size_t old_mem = n_bytes_allocated;
+
+	if((force == GC_FORCE) || (n_bytes_allocated > mem_lim_soft)) {
+		clear_mark();
+		mark(the_global_env);
+		sweep(0);
+	}
+
+	return old_mem - n_bytes_allocated;
 }
 
 /* FREE */
@@ -204,4 +240,9 @@ void showmemstats(FILE *fp) {
 		fprintf(fp, "%d allocs; %d frees.\n", n_allocs, n_frees);
 		printf("--- end summary ---\n");
 	}
+
+	if(n_bytes_allocated)
+		fprintf(fp, "Bytes left allocated: %d out of ", n_bytes_allocated);
+	if((mem_verbosity == GC_VERBOSE) || n_bytes_allocated)
+		fprintf(fp, "%d bytes peak memory usage.\n", n_bytes_peak);
 }
