@@ -254,6 +254,66 @@ static data_t *eval_definition(const data_t *exp, data_t *env) {
 	return define_variable(get_definition_variable(exp), eval(get_definition_value(exp), env), env);
 }
 
+/* LET */
+
+static int is_let(const data_t *exp) { return is_tagged_list(exp, "let"); }
+static data_t *get_let_assignment(const data_t *exp) { return cadr(exp); }
+static data_t *get_let_body(const data_t *exp) { return cddr(exp); }
+static data_t *get_let_exp(const data_t *assignment) {
+	if(assignment == NULL)
+		return NULL;
+	return cons(cadar(assignment), get_let_exp(cdr(assignment)));
+}
+static data_t *get_let_var(const data_t *assignment) {
+	if(assignment == NULL)
+		return NULL;
+	return cons(caar(assignment), get_let_var(cdr(assignment)));
+}
+static data_t *transform_let(const data_t *assignment, const data_t *body) {
+	return cons(make_lambda(get_let_var(assignment), body), get_let_exp(assignment));
+}
+static data_t *let_to_combination(const data_t *exp) {
+	return transform_let(get_let_assignment(exp), get_let_body(exp));
+}
+
+/* LET* */
+
+static int is_let_star(const data_t *exp) { return is_tagged_list(exp, "let*"); }
+static data_t *get_let_star_assignment(const data_t *exp) { return cadr(exp); }
+static data_t *get_let_star_body(const data_t *exp) { return cddr(exp); }
+static data_t *transform_let_star(const data_t *assignment, const data_t *body) {
+	if(cdr(assignment) == NULL)
+		return cons(lisp_make_symbol("let"), cons(assignment, body));
+	return cons(lisp_make_symbol("let"), 
+				cons(cons(car(assignment), NULL),
+				cons(transform_let_star(cdr(assignment), body), NULL)));
+}
+static data_t *let_star_to_nested_lets(const data_t *exp) {
+	return transform_let_star(get_let_star_assignment(exp), get_let_star_body(exp));
+}
+
+/* LETREC */
+
+
+
+static int is_letrec(const data_t *exp) { return is_tagged_list(exp, "letrec"); }
+static data_t *make_unassigned_letrec(const data_t *vars) {
+	if(vars == NULL)
+		return NULL;
+	return cons(cons(car(vars), cons(cons(lisp_make_symbol("quote"), cons(lisp_make_symbol("unassigned"), NULL)), NULL)), make_unassigned_letrec(cdr(vars)));
+}
+static data_t *make_set_letrec(const data_t *vars, const data_t *exps) {
+	if(vars == NULL)
+		return NULL;
+	return cons(cons(lisp_make_symbol("set!"), cons(car(vars), cons(car(exps), NULL))),	make_set_letrec(cdr(vars), cdr(exps)));
+}
+static data_t *letrec_to_let(const data_t *exp) {
+	data_t *assignment = get_let_assignment(exp);
+	data_t *lvars = get_let_var(assignment);
+	data_t *lexps = get_let_exp(assignment);
+	return cons(lisp_make_symbol("let"), cons(make_unassigned_letrec(lvars), append(make_set_letrec(lvars, lexps), get_let_body(exp))));
+}
+
 /* EVALUATOR PROPER */
 
 data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env) {
@@ -305,6 +365,12 @@ data_t *eval(const data_t *exp, data_t *env) {
 		return eval_sequence(get_begin_actions(exp), env);
 	if(is_cond(exp))
 		return eval(cond_to_if(exp), env);
+	if(is_letrec(exp))
+		return eval(letrec_to_let(exp), env);
+	if(is_let_star(exp))
+		return eval(let_star_to_nested_lets(exp), env);
+	if(is_let(exp))
+		return eval(let_to_combination(exp), env);
 	if(is_application(exp))		
 		return apply(
 			eval(get_operator(exp), env),

@@ -193,3 +193,72 @@ data_t *set_cdr(data_t *in, const data_t *val) {
 	in->val.pair->r = (data_t*)val;
 	return (data_t*)val;
 }
+
+data_t *make_copy(const data_t *in) {
+	data_t *out;
+
+	if(!in)
+		return NULL;
+
+	out = (data_t*)malloc(sizeof(data_t));
+	if(!out)
+		return NULL;
+
+	out->type = in->type;
+
+	switch(out->type) {
+		case integer: out->val.integer = in->val.integer; break;
+		case decimal: out->val.decimal = in->val.decimal; break;
+		case prim_procedure: out->val.proc = in->val.proc; break;
+		case string: 
+			out->val.string = malloc(strlen(in->val.string) + 1);
+			strcpy(out->val.string, in->val.string);
+			break;
+		case symbol:
+			out->val.symbol = malloc(strlen(in->val.symbol) + 1);
+			strcpy(out->val.symbol, in->val.symbol);
+			break;		
+		case pair:
+			out->val.pair = malloc(sizeof(cons_t));
+			if(!out)
+				return NULL;
+			if(in->val.pair->l)
+				out->val.pair->l = make_copy(in->val.pair->l);
+			else
+				out->val.pair->l = NULL;
+
+			if(in->val.pair->r)
+				out->val.pair->r = make_copy(in->val.pair->r);
+			else
+				out->val.pair->r = NULL;
+	}
+
+	return out;
+}
+
+data_t *append(const data_t *list1, const data_t *list2) {
+	data_t *out, *buf;
+
+	if(!list1) {
+		if(!list2)
+			return NULL;
+		if(list2->type != pair)
+			return NULL;
+		return make_copy(list2);
+	}
+
+	if(list1->type != pair)
+		return NULL;
+
+	if(!list2)
+		return make_copy(list1);
+
+	buf = out = make_copy(list1);
+
+	while(cdr(out))
+		out = cdr(out);
+	
+	set_cdr(out, make_copy(list2));
+
+	return buf;
+}
