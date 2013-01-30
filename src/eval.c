@@ -294,8 +294,6 @@ static data_t *let_star_to_nested_lets(const data_t *exp) {
 
 /* LETREC */
 
-
-
 static int is_letrec(const data_t *exp) { return is_tagged_list(exp, "letrec"); }
 static data_t *make_unassigned_letrec(const data_t *vars) {
 	if(vars == NULL)
