@@ -107,17 +107,6 @@ data_t *cons(const data_t *l, const data_t *r) {
 	return out;
 }
 
-static data_t *list_va(va_list ap) {
-	data_t *item;
-
-	item = va_arg(ap, data_t*);	
-
-	if(item == NULL)
-		return NULL;
-
-	return cons(item, list_va(ap));
-}
-
 data_t *car(const data_t *in) {
 	if(!in)
 		return NULL;
