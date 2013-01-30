@@ -375,6 +375,68 @@ data_t *prim_list(const data_t *list) {
 	return cons(car(list), prim_list(cdr(list)));
 }
 
+data_t *prim_set_car(const data_t *list) {
+	data_t *head, *newcar;
+	
+	if(!list)
+		return NULL;
+
+	if(list->type != pair)
+		return NULL;
+
+	head = car(list);
+	list = cdr(list);
+
+	if(!list)
+		return head;
+
+	if(list->type != pair)
+		return head;
+
+	newcar = car(list);
+
+	if(!head)
+		return NULL;
+
+	if(head->type != pair)
+		return NULL;
+
+	head->val.pair->l = newcar;
+
+	return head;
+}
+
+data_t *prim_set_cdr(const data_t *list) {
+	data_t *head, *newcdr;
+	
+	if(!list)
+		return NULL;
+
+	if(list->type != pair)
+		return NULL;
+
+	head = car(list);
+	list = cdr(list);
+
+	if(!list)
+		return head;
+
+	if(list->type != pair)
+		return head;
+
+	newcdr = car(list);
+
+	if(!head)
+		return NULL;
+
+	if(head->type != pair)
+		return NULL;
+
+	head->val.pair->r = newcdr;
+
+	return head;
+}
+
 static data_t *primitive_procedure_names(void) {
 	prim_proc_list *curr_proc = last_prim_proc;
 	data_t *out = NULL;
@@ -438,6 +500,8 @@ void setup_environment(void) {
 	add_prim_proc("eq?", prim_eq);
 	add_prim_proc("car", prim_car);
 	add_prim_proc("cdr", prim_cdr);
+	add_prim_proc("set-car!", prim_set_car);
+	add_prim_proc("set-cdr!", prim_set_cdr);
 	add_prim_proc("cons", prim_cons);
 	add_prim_proc("list", prim_list);
 
@@ -484,10 +548,11 @@ void setup_environment(void) {
 	run("(define (abs n) (if (negative? n) (- 0 n) n))");
 	run("(define (<= a b) (not (> a b)))");
 	run("(define (>= a b) (not (< a b)))");
-	run("(define (map proc items) (if (eq? items '()) nil (cons (proc (car items)) (map proc (cdr items)))))");
+	run("(define (map proc items) (if (null? items) nil (cons (proc (car items)) (map proc (cdr items)))))");
 	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
 	run("(define (delay proc) (lambda () proc))");
 	run("(define (force proc) (proc))");
+	run("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
 	
 	run_gc(GC_FORCE);
 }
