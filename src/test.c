@@ -107,6 +107,8 @@ int main(void) {
 	char *exp, *buf;
 
 	mem_verbosity = GC_SILENT;
+	mem_lim_soft = 1024 * 768;
+	mem_lim_hard = 1024 * 1024;
 
 	printf("Setting up the global environment...\n\n");
 	setup_environment();
