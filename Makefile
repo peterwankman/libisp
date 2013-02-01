@@ -10,7 +10,7 @@ all:
 	make $(OBJ)
 	make $(BIN)
 	make $(BIN)/libisp.a
-	make $(BIN)/test
+	make $(BIN)/lisp
 
 $(OBJ):
 	mkdir $(OBJ)
