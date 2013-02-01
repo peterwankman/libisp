@@ -217,6 +217,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 
 			strncpy(newexp, exp + 1, *readto - 2);
 			newexp[*readto - 2] = '\0';
+			newexp += skip_whitespace(newexp);
 
 			out = NULL;
 			do {
@@ -240,11 +241,17 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 }
 
 data_t *lisp_read(const char *exp, size_t *readto, int *error) {
-	size_t l = strlen(exp);
+	size_t l = strlen(exp), int_readto;
+	data_t *out;
 
-	*readto = 0;
+	int_readto = 0;
 	if(!l)		
 		return NULL;
 	
-	return read_subexp(exp, 0, readto, error);
+	out = read_subexp(exp, 0, &int_readto, error);
+
+	if(readto)
+		*readto = int_readto;
+
+	return out;
 }
