@@ -18,7 +18,7 @@ $(OBJ):
 $(BIN):
 	mkdir $(BIN)
 
-$(BIN)/test: $(SRC)/test.c
+$(BIN)/lisp: $(SRC)/test.c
 	$(CC) $(CFLAGS) $^ -L$(BIN) -lisp -o $@
 
 $(BIN)/libisp.a: $(OBJ)/builtin.o \
