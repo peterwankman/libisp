@@ -17,7 +17,7 @@
 
 #include "data.h"
 
-data_t *lisp_read(const char *exp, size_t *readto, int *error);
+data_t *read_exp(const char *exp, size_t *readto, int *error);
 
 static size_t skip_whitespace(const char *exp) {
 	char *out = (char*)exp;
@@ -70,7 +70,7 @@ static int is_decimal(const char *exp, size_t *len, double *out) {
 	while(exp[*len] && !isspace(exp[*len]) && exp[*len] != ')') {
 		if(exp[*len] == '.')
 			pointfound = 1;
-		else if((exp[*len] < '0') || (exp[*len] > '9') && exp[*len]) {			
+		else if(((exp[*len] < '0') || (exp[*len] > '9')) && exp[*len]) {
 			return 0;
 		}
 		(*len)++;
@@ -186,26 +186,26 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	*readto = 0;
 
 	if(is_quotation(exp) && !already_quoted) {
-		out = cons(lisp_make_symbol("quote"), cons(read_subexp(exp + 1, 1, &newread, error), NULL));
+		out = cons(make_symbol("quote"), cons(read_subexp(exp + 1, 1, &newread, error), NULL));
 		*readto += newread + 1;
 	} else if(is_decimal(exp, readto, &decimal)) {
-		out = lisp_make_decimal(decimal);
+		out = make_decimal(decimal);
 	} else if(is_integer(exp, readto, &integer)) {		
-		out = lisp_make_int(integer);
+		out = make_int(integer);
 	} else if(is_string(exp, readto)) {
 		if((buf = (char*)malloc(*readto - 1)) == NULL)
 			return NULL;
 		
 		strncpy(buf, exp + 1, *readto - 2);
 		buf[*readto - 2] = '\0';
-		out = lisp_make_string(buf);		
+		out = make_string(buf);		
 		free(buf);		
 	} else if(is_symbol(exp, readto)) {		
 		if((buf = (char*)malloc(*readto + 1)) == NULL)
 			return NULL;
 		strncpy(buf, exp, *readto);
 		buf[*readto] = '\0';
-		out = lisp_make_symbol(buf);
+		out = make_symbol(buf);
 		free(buf);
 	} else if(is_combination(exp, readto)) {
 		if(is_empty_combination(exp)) {			
@@ -240,7 +240,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	return out;	
 }
 
-data_t *lisp_read(const char *exp, size_t *readto, int *error) {
+data_t *read_exp(const char *exp, size_t *readto, int *error) {
 	size_t l = strlen(exp), int_readto;
 	data_t *out;
 

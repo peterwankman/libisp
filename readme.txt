@@ -62,9 +62,9 @@ The interpreter can now be used.
 -----------------------------
 
 Before evaluating an expression, you must first read it into a Lisp data struc-
-ture. lisp_read() will do that for you.
+ture. read_exp() will do that for you.
 
-	data_t *lisp_read(const char *exp, size_t *readto, int *error);
+	data_t *read_exp(const char *exp, size_t *readto, int *error);
 	
 exp will be the expression to evaluate, *readto is a pointer to the last byte
 read by the reader. You can use it to get to the next expression in the next
@@ -77,7 +77,7 @@ The returned data structure can now be used to evaluate the expression.
 Use the_global_environment for the last parameter, unless you know what you do.
 eval() returns a Lisp data structure, which can be printed to the screen with
 
-	void lisp_print_data(const data_t *d);
+	void print_data(const data_t *d);
 	
 or be manipulated however you like.
 
@@ -85,15 +85,28 @@ You can also evaluate an expression in the global environment an discard the
 result. This is useful for defining variables and non-primitive procedures,
 that will be used by your program. The usage of the function should be trivial.
 
-	void run(const char *exp);
+	void run_exp(const char *exp);
 
 1.4. MEMORY MANAGEMENT
 ----------------------
 
+The memory management uses two variables to determine its behaviour:
+
+	size_t mem_lim_soft
+	size_t mem_lim_hard
+
+After mem_lim_hard is reached, the allocator will refuse to allocate any more
+memory and return an error. The soft limit tells the garbage collector, when to
+actually reclaim memory.
+
 You need to call the garbage collector manually. Just use
 
-	void run_gc(void);
-	
+	size_t run_gc(int force);
+
+The parameter can be GC_FORCE, which will always reclaim any unreachable memory
+or GC_LOWMEM, which will only reclaim memory, when more than mem_lim_soft is
+in use. It will return the number of bytes reclaimed (if any).
+
 You can also free data structures manually, using the functions
 
 	void free_data(data_t *in);

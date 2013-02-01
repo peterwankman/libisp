@@ -17,7 +17,7 @@
 
 /* MAKE DATA OBJECTS */
 
-data_t *lisp_make_int(const int i) {
+data_t *make_int(const int i) {
 	data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
@@ -29,7 +29,7 @@ data_t *lisp_make_int(const int i) {
 	return out;
 }
 
-data_t *lisp_make_decimal(const double d) {
+data_t *make_decimal(const double d) {
 	data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
@@ -41,7 +41,7 @@ data_t *lisp_make_decimal(const double d) {
 	return out;
 }
 
-data_t *lisp_make_string(const char *str) {
+data_t *make_string(const char *str) {
 	data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
@@ -58,7 +58,7 @@ data_t *lisp_make_string(const char *str) {
 	return out;
 }
 
-data_t *lisp_make_symbol(const char *ident) {
+data_t *make_symbol(const char *ident) {
 	data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
@@ -75,7 +75,7 @@ data_t *lisp_make_symbol(const char *ident) {
 	return out;
 }
 
-data_t *lisp_make_primitive(prim_proc in) {
+data_t *make_primitive(prim_proc in) {
 		data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(data_t))))

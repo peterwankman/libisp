@@ -14,6 +14,6 @@
 #ifndef PRINT_H_
 #define PRINT_H_
 
-void lisp_print_data(const data_t *d);
+void print_data(const data_t *d);
 
 #endif

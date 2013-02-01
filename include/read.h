@@ -14,6 +14,6 @@
 #ifndef READ_H_
 #define READ_H_
 
-data_t *lisp_read(const char *exp, size_t *readto, int *error);
+data_t *read_exp(const char *exp, size_t *readto, int *error);
 
 #endif

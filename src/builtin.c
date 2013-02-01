@@ -27,7 +27,7 @@ data_t *prim_add(const data_t *list) {
 	data_t *head, *tail;
 
 	if(list->type != pair)
-		return lisp_make_int(0);
+		return make_int(0);
 	
 	do {
 		head = car(list);
@@ -42,13 +42,13 @@ data_t *prim_add(const data_t *list) {
 	} while(list);
 
 	if(dout == 0.0f) {
-		return lisp_make_int(iout);
+		return make_int(iout);
 	}
 	
 	if((dout - iout) == floor(dout - iout))
-		return lisp_make_int((int)dout - iout);
+		return make_int((int)dout - iout);
 
-	return lisp_make_decimal(dout + iout);
+	return make_decimal(dout + iout);
 }
 
 data_t *prim_mul(const data_t *list) {
@@ -57,7 +57,7 @@ data_t *prim_mul(const data_t *list) {
 	data_t *head, *tail;
 
 	if(list->type != pair)
-		return lisp_make_int(0);
+		return make_int(0);
 	
 	do {
 		head = car(list);
@@ -66,19 +66,19 @@ data_t *prim_mul(const data_t *list) {
 			iout *= head->val.integer;
 		else if(head->type == decimal)
 			dout *= head->val.decimal;
-		else return lisp_make_int(0);
+		else return make_int(0);
 
 		list = tail;
 	} while(list);
 
 	if(dout == 1.0f) {
-		return lisp_make_int(iout);
+		return make_int(iout);
 	}
 
 	if((dout - iout) == floor(dout - iout))
-		return lisp_make_int((int)dout * iout);
+		return make_int((int)dout * iout);
 	
-	return lisp_make_decimal(dout * iout);
+	return make_decimal(dout * iout);
 }
 
 data_t *prim_sub(const data_t *list) {
@@ -88,7 +88,7 @@ data_t *prim_sub(const data_t *list) {
 	data_t *head, *tail;
 
 	if(list->type != pair)
-		return lisp_make_int(0);
+		return make_int(0);
 	head = car(list);
 	tail = cdr(list);
 
@@ -98,15 +98,15 @@ data_t *prim_sub(const data_t *list) {
 	else if(out_type == integer)
 		istart = head->val.integer;
 	else
-		return lisp_make_int(0);
+		return make_int(0);
 
 	list = tail;
 
 	if(!list) {
 		if(out_type == integer) {
-			return lisp_make_int(-istart);
+			return make_int(-istart);
 		} else {
-			return lisp_make_decimal(-dstart);
+			return make_decimal(-dstart);
 		}
 	}
 
@@ -126,10 +126,10 @@ data_t *prim_sub(const data_t *list) {
 	} while(list);
 
 	if(out_type == integer) {
-		return lisp_make_int(istart - iout);
+		return make_int(istart - iout);
 	}
 	
-	return lisp_make_decimal(dstart - dout - iout);
+	return make_decimal(dstart - dout - iout);
 }
 
 data_t *prim_div(const data_t *list) {
@@ -138,7 +138,7 @@ data_t *prim_div(const data_t *list) {
 	data_t *head, *tail;
 
 	if(list->type != pair)
-		return lisp_make_int(0);
+		return make_int(0);
 	head = car(list);
 	tail = cdr(list);
 
@@ -148,12 +148,12 @@ data_t *prim_div(const data_t *list) {
 	else if(start_type == integer)
 		dstart = (double)head->val.integer;
 	else
-		return lisp_make_int(0);
+		return make_int(0);
 
 	list = tail;
 
 	if(!list)
-		return lisp_make_decimal(1 / dstart);
+		return make_decimal(1 / dstart);
 
 	do {
 		head = car(list);
@@ -168,9 +168,9 @@ data_t *prim_div(const data_t *list) {
 	} while(list);
 	
 	if(dstart / dout == floor(dstart / dout))
-		return lisp_make_int((int)(dstart / dout));
+		return make_int((int)(dstart / dout));
 
-	return lisp_make_decimal(dstart / dout);
+	return make_decimal(dstart / dout);
 }
 
 data_t *prim_comp_eq(const data_t *list) {
@@ -178,33 +178,33 @@ data_t *prim_comp_eq(const data_t *list) {
 	dtype_t type_first, type_second;
 
 	if(list->type != pair)
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	first = car(list);
 	second = cdr(list);
 
 	if(second->type != pair)
-		return lisp_make_symbol("error");
+		return make_symbol("error");
 	second = car(second);
 
 	type_first = first->type;
 	type_second = second->type;
 
 	if((type_first != decimal) && (type_first != integer))
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 	
 	if((type_second != decimal) && (type_second != integer))
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	if(type_first == integer)
 		if(first->val.integer == second->val.integer)
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 
 	if(type_first == decimal)
 		if(first->val.decimal == second->val.decimal)
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 
-	return lisp_make_symbol("#f");
+	return make_symbol("#f");
 }
 
 data_t *prim_comp_less(const data_t *list) {
@@ -213,42 +213,42 @@ data_t *prim_comp_less(const data_t *list) {
 	if(list && list->type == pair)
 		head = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	list = cdr(list);
 
 	if(list && list->type == pair)
 		tail = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->val.integer < tail->val.integer) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == decimal) && (tail->type == integer)) {
 		if(head->val.decimal < tail->val.integer) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == integer) && (tail->type == decimal)) {
 		if(head->val.integer < tail->val.decimal) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == decimal) && (tail->type == decimal)) {
 		if(head->val.decimal < tail->val.decimal) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	}
 
-	return lisp_make_symbol("#f");
+	return make_symbol("#f");
 
 }
 
@@ -258,42 +258,42 @@ data_t *prim_comp_more(const data_t *list) {
 	if(list && list->type == pair)
 		head = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	list = cdr(list);
 
 	if(list && list->type == pair)
 		tail = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->val.integer > tail->val.integer) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == decimal) && (tail->type == integer)) {
 		if(head->val.decimal > tail->val.integer) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == integer) && (tail->type == decimal)) {
 		if(head->val.integer > tail->val.decimal) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} else if((head->type == decimal) && (tail->type == decimal)) {
 		if(head->val.decimal > tail->val.decimal) {
-			return lisp_make_symbol("#t");
+			return make_symbol("#t");
 		} else {
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	}
 
-	return lisp_make_symbol("#f");
+	return make_symbol("#f");
 
 }
 
@@ -302,32 +302,32 @@ data_t *prim_eq(const data_t *list) {
 	int ret;
 
 	if(list->type != pair)
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	first = car(list);
 	second = cdr(list);
 
 	if(second->type != pair)
-		return lisp_make_symbol("error");
+		return make_symbol("error");
 	second = car(second);
 
 	ret = is_equal(first, second);
 
 	if(ret)
-		return lisp_make_symbol("#t");
-	return lisp_make_symbol("#f");
+		return make_symbol("#t");
+	return make_symbol("#f");
 }
 
 data_t *prim_not(const data_t *list) {
 	if(list && list->type == pair)
 		list = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	if(list && list->type == symbol)
 		if(!strcmp(list->val.symbol, "#f"))
-			return lisp_make_symbol("#t");
-	return lisp_make_symbol("#f");
+			return make_symbol("#t");
+	return make_symbol("#f");
 }
 
 data_t *prim_car(const data_t *list) {
@@ -357,14 +357,14 @@ data_t *prim_cons(const data_t *list) {
 	if(list && list->type == pair)
 		head = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	list = cdr(list);
 
 	if(list && list->type == pair)
 		tail = car(list);
 	else
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	return cons(head, tail);
 }
@@ -442,7 +442,7 @@ static data_t *primitive_procedure_names(void) {
 	data_t *out = NULL;
 
 	while(curr_proc) {
-		out = cons(lisp_make_symbol(curr_proc->name), out);
+		out = cons(make_symbol(curr_proc->name), out);
 		curr_proc = curr_proc->prev;
 	}
 
@@ -454,7 +454,7 @@ static data_t *primitive_procedure_objects(void) {
 	data_t *out = NULL;
 
 	while(curr_proc) {
-		out = cons(cons(lisp_make_symbol("primitive"), cons(lisp_make_primitive(curr_proc->proc), NULL)), out);
+		out = cons(cons(make_symbol("primitive"), cons(make_primitive(curr_proc->proc), NULL)), out);
 		curr_proc = curr_proc->prev;
 	}
 
@@ -509,50 +509,50 @@ void setup_environment(void) {
 										primitive_procedure_objects(),
 										the_empty_environment);
 
-	run("(define (caar pair) (car (car pair)))");
-	run("(define (cadr pair) (car (cdr pair)))");
-	run("(define (cdar pair) (cdr (car pair)))");
-	run("(define (cddr pair) (cdr (cdr pair)))");
+	run_exp("(define (caar pair) (car (car pair)))");
+	run_exp("(define (cadr pair) (car (cdr pair)))");
+	run_exp("(define (cdar pair) (cdr (car pair)))");
+	run_exp("(define (cddr pair) (cdr (cdr pair)))");
 
-	run("(define (caaar pair) (car (car (car pair))))");
-	run("(define (caadr pair) (car (car (cdr pair))))");
-	run("(define (cadar pair) (car (cdr (car pair))))");
-	run("(define (caddr pair) (car (cdr (cdr pair))))");
-	run("(define (cdaar pair) (cdr (car (car pair))))");
-	run("(define (cdadr pair) (cdr (car (cdr pair))))");
-	run("(define (cddar pair) (cdr (cdr (car pair))))");
-	run("(define (cdddr pair) (cdr (cdr (cdr pair))))");
+	run_exp("(define (caaar pair) (car (car (car pair))))");
+	run_exp("(define (caadr pair) (car (car (cdr pair))))");
+	run_exp("(define (cadar pair) (car (cdr (car pair))))");
+	run_exp("(define (caddr pair) (car (cdr (cdr pair))))");
+	run_exp("(define (cdaar pair) (cdr (car (car pair))))");
+	run_exp("(define (cdadr pair) (cdr (car (cdr pair))))");
+	run_exp("(define (cddar pair) (cdr (cdr (car pair))))");
+	run_exp("(define (cdddr pair) (cdr (cdr (cdr pair))))");
 
-	run("(define (caaaar pair) (car (car (car (car pair)))))");
-	run("(define (caaadr pair) (car (car (car (cdr pair)))))");
-	run("(define (caadar pair) (car (car (cdr (car pair)))))");
-	run("(define (caaddr pair) (car (car (cdr (cdr pair)))))");
-	run("(define (cadaar pair) (car (cdr (car (car pair)))))");
-	run("(define (cadadr pair) (car (cdr (car (cdr pair)))))");
-	run("(define (caddar pair) (car (cdr (cdr (car pair)))))");
-	run("(define (cadddr pair) (car (cdr (cdr (cdr pair)))))");
-	run("(define (cdaaar pair) (cdr (car (car (car pair)))))");
-	run("(define (cdaadr pair) (cdr (car (car (cdr pair)))))");
-	run("(define (cdadar pair) (cdr (car (cdr (car pair)))))");
-	run("(define (cdaddr pair) (cdr (car (cdr (cdr pair)))))");
-	run("(define (cddaar pair) (cdr (cdr (car (car pair)))))");
-	run("(define (cddadr pair) (cdr (cdr (car (cdr pair)))))");
-	run("(define (cdddar pair) (cdr (cdr (cdr (car pair)))))");
-	run("(define (cddddr pair) (cdr (cdr (cdr (cdr pair)))))");
+	run_exp("(define (caaaar pair) (car (car (car (car pair)))))");
+	run_exp("(define (caaadr pair) (car (car (car (cdr pair)))))");
+	run_exp("(define (caadar pair) (car (car (cdr (car pair)))))");
+	run_exp("(define (caaddr pair) (car (car (cdr (cdr pair)))))");
+	run_exp("(define (cadaar pair) (car (cdr (car (car pair)))))");
+	run_exp("(define (cadadr pair) (car (cdr (car (cdr pair)))))");
+	run_exp("(define (caddar pair) (car (cdr (cdr (car pair)))))");
+	run_exp("(define (cadddr pair) (car (cdr (cdr (cdr pair)))))");
+	run_exp("(define (cdaaar pair) (cdr (car (car (car pair)))))");
+	run_exp("(define (cdaadr pair) (cdr (car (car (cdr pair)))))");
+	run_exp("(define (cdadar pair) (cdr (car (cdr (car pair)))))");
+	run_exp("(define (cdaddr pair) (cdr (car (cdr (cdr pair)))))");
+	run_exp("(define (cddaar pair) (cdr (cdr (car (car pair)))))");
+	run_exp("(define (cddadr pair) (cdr (cdr (car (cdr pair)))))");
+	run_exp("(define (cdddar pair) (cdr (cdr (cdr (car pair)))))");
+	run_exp("(define (cddddr pair) (cdr (cdr (cdr (cdr pair)))))");
 
-	run("(define nil '())");
-	run("(define (zero? exp) (= 0 exp))");
-	run("(define (null? exp) (eq? exp nil))");
-	run("(define (negative? exp) (< exp 0))");
-	run("(define (positive? exp) (> exp 0))");
-	run("(define (abs n) (if (negative? n) (- 0 n) n))");
-	run("(define (<= a b) (not (> a b)))");
-	run("(define (>= a b) (not (< a b)))");
-	run("(define (map proc items) (if (null? items) nil (cons (proc (car items)) (map proc (cdr items)))))");
-	run("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
-	run("(define (delay proc) (lambda () proc))");
-	run("(define (force proc) (proc))");
-	run("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
+	run_exp("(define nil '())");
+	run_exp("(define (zero? exp) (= 0 exp))");
+	run_exp("(define (null? exp) (eq? exp nil))");
+	run_exp("(define (negative? exp) (< exp 0))");
+	run_exp("(define (positive? exp) (> exp 0))");
+	run_exp("(define (abs n) (if (negative? n) (- 0 n) n))");
+	run_exp("(define (<= a b) (not (> a b)))");
+	run_exp("(define (>= a b) (not (< a b)))");
+	run_exp("(define (map proc items) (if (null? items) nil (cons (proc (car items)) (map proc (cdr items)))))");
+	run_exp("(define (fact n) (if (= n 1) 1 (* n (fact (- n 1)))))");
+	run_exp("(define (delay proc) (lambda () proc))");
+	run_exp("(define (force proc) (proc))");
+	run_exp("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
 	
 	run_gc(GC_FORCE);
 }

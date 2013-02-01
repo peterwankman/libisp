@@ -51,7 +51,7 @@ static data_t *get_begin_actions(const data_t *exp) { return cdr(exp); }
 int is_last_exp(const data_t *seq) { return cdr(seq) == NULL; }
 static data_t *get_first_exp(const data_t *seq) { return car(seq); }
 static data_t *get_rest_exps(const data_t *seq) { return cdr(seq); }
-static data_t *make_begin(const data_t *seq) { return cons(lisp_make_symbol("begin"), seq); }
+static data_t *make_begin(const data_t *seq) { return cons(make_symbol("begin"), seq); }
 static data_t *sequence_to_exp(const data_t *seq) {
 	if(seq == NULL)
 		return NULL;
@@ -75,7 +75,7 @@ static int is_lambda(const data_t *exp) { return is_tagged_list(exp, "lambda"); 
 static data_t *get_lambda_parameters(const data_t *exp) { return cadr(exp); }
 static data_t *get_lambda_body(const data_t *exp) { return cddr(exp); }
 static data_t *make_lambda(const data_t *parameters, const data_t *body) {
-	return cons(lisp_make_symbol("lambda"), cons(parameters, body));
+	return cons(make_symbol("lambda"), cons(parameters, body));
 }
 
 /* IF */
@@ -89,7 +89,7 @@ static data_t *get_if_alternative(const data_t *exp) {
 	return NULL;
 }
 static data_t *make_if(const data_t *pred, const data_t *conseq, const data_t *alt) {
-	return cons(lisp_make_symbol("if"), cons(pred, cons(conseq, cons(alt, NULL))));
+	return cons(make_symbol("if"), cons(pred, cons(conseq, cons(alt, NULL))));
 }
 static int is_true(const data_t *x) { return !strcmp(x->val.symbol, "#t"); }
 static int is_false(const data_t *x) { return strcmp(x->val.symbol, "#t"); }
@@ -104,13 +104,13 @@ static data_t *eval_if(const data_t *exp, data_t *env) {
 static int is_cond(const data_t *exp) { return is_tagged_list(exp, "cond"); }
 static data_t *get_cond_clauses(const data_t *exp) { return cdr(exp); }
 static data_t *get_cond_predicate(const data_t *clause) { return car(clause); }
-static int is_cond_else_clause(const data_t *clause) { return is_equal(get_cond_predicate(clause), lisp_make_symbol("else")); }
+static int is_cond_else_clause(const data_t *clause) { return is_equal(get_cond_predicate(clause), make_symbol("else")); }
 static data_t *get_cond_actions(const data_t *clause) { return cdr(clause); }
 static data_t *expand_clauses(const data_t *clauses) {
 	data_t *first, *rest;
 
 	if(clauses == NULL)
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 
 	first = car(clauses);
 	rest = cdr(clauses);
@@ -120,7 +120,7 @@ static data_t *expand_clauses(const data_t *clauses) {
 			sequence_to_exp(get_cond_actions(first));
 		} else {
 			printf("ELSE clause isn't last -- COND-IF");
-			return lisp_make_symbol("#f");
+			return make_symbol("#f");
 		}
 	} 
 	return make_if(get_cond_predicate(first), sequence_to_exp(get_cond_actions(first)), expand_clauses(rest));
@@ -149,7 +149,7 @@ static data_t *get_procedure_body(const data_t *proc) { return caddr(proc); }
 static data_t *get_procedure_parameters(const data_t *proc) { return cadr(proc); }
 static data_t *get_procedure_environment(const data_t *proc) { return car(cdddr(proc)); }
 static data_t *make_procedure(data_t *parameters, data_t *body, data_t *env) {
-	return cons(lisp_make_symbol("closure"), cons(parameters, cons(body, cons(env, NULL))));
+	return cons(make_symbol("closure"), cons(parameters, cons(body, cons(env, NULL))));
 }
 static data_t *apply_primitive_procedure(const data_t *proc, const data_t *args) { return get_primitive_implementation(proc)->val.proc(args); }
 
@@ -177,9 +177,9 @@ static data_t *lookup_variable_value(const data_t *var, data_t *env) {
 
 	if(env == NULL) {
 		printf("Unbound variable -- LOOKUP ");
-		lisp_print_data(var);
+		print_data(var);
 		printf("\n");
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 	}
 		
 	current_frame = get_first_frame(env);
@@ -203,7 +203,7 @@ static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env) {
 
 	if(env == NULL) {
 		printf("Unbound variable -- SET!\n");
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 	}
 		
 	current_frame = get_first_frame(env);
@@ -283,8 +283,8 @@ static data_t *get_let_star_assignment(const data_t *exp) { return cadr(exp); }
 static data_t *get_let_star_body(const data_t *exp) { return cddr(exp); }
 static data_t *transform_let_star(const data_t *assignment, const data_t *body) {
 	if(cdr(assignment) == NULL)
-		return cons(lisp_make_symbol("let"), cons(assignment, body));
-	return cons(lisp_make_symbol("let"), 
+		return cons(make_symbol("let"), cons(assignment, body));
+	return cons(make_symbol("let"), 
 				cons(cons(car(assignment), NULL),
 				cons(transform_let_star(cdr(assignment), body), NULL)));
 }
@@ -298,18 +298,18 @@ static int is_letrec(const data_t *exp) { return is_tagged_list(exp, "letrec"); 
 static data_t *make_unassigned_letrec(const data_t *vars) {
 	if(vars == NULL)
 		return NULL;
-	return cons(cons(car(vars), cons(cons(lisp_make_symbol("quote"), cons(lisp_make_symbol("unassigned"), NULL)), NULL)), make_unassigned_letrec(cdr(vars)));
+	return cons(cons(car(vars), cons(cons(make_symbol("quote"), cons(make_symbol("unassigned"), NULL)), NULL)), make_unassigned_letrec(cdr(vars)));
 }
 static data_t *make_set_letrec(const data_t *vars, const data_t *exps) {
 	if(vars == NULL)
 		return NULL;
-	return cons(cons(lisp_make_symbol("set!"), cons(car(vars), cons(car(exps), NULL))),	make_set_letrec(cdr(vars), cdr(exps)));
+	return cons(cons(make_symbol("set!"), cons(car(vars), cons(car(exps), NULL))),	make_set_letrec(cdr(vars), cdr(exps)));
 }
 static data_t *letrec_to_let(const data_t *exp) {
 	data_t *assignment = get_let_assignment(exp);
 	data_t *lvars = get_let_var(assignment);
 	data_t *lexps = get_let_exp(assignment);
-	return cons(lisp_make_symbol("let"), cons(make_unassigned_letrec(lvars), append(make_set_letrec(lvars, lexps), get_let_body(exp))));
+	return cons(make_symbol("let"), cons(make_unassigned_letrec(lvars), append(make_set_letrec(lvars, lexps), get_let_body(exp))));
 }
 
 /* EVALUATOR PROPER */
@@ -320,10 +320,10 @@ data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env) 
 
 	if(length(vars) < length(vals)) {
 		printf("Too many arguments supplied\n");
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 	} else {
 		printf("Too few arguments supplied\n");
-		return lisp_make_symbol("#f");
+		return make_symbol("#f");
 	}
 }
 
@@ -341,7 +341,7 @@ data_t *apply(const data_t *proc, const data_t *args) {
 		return out;
 	}
 	printf("Unknown procedure type -- APPLY\n");
-	return lisp_make_symbol("#f");
+	return make_symbol("#f");
 }
 
 data_t *eval(const data_t *exp, data_t *env) {
@@ -375,13 +375,12 @@ data_t *eval(const data_t *exp, data_t *env) {
 			get_list_of_values(get_operands(exp), env));
 	
 	printf("Unknown expression type -- EVAL '");
-	return lisp_make_symbol("#f");
+	return make_symbol("#f");
 }
 
-int run(const char *exp) {
+int run_exp(const char *exp) {
 	int error = 0;
-	size_t readto;
-	data_t *exp_list = lisp_read(exp, &readto, &error);
+	data_t *exp_list = read_exp(exp, NULL, &error);
 
 	if(error)
 		return error;

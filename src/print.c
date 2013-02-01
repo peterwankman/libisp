@@ -16,7 +16,7 @@
 
 extern data_t *the_global_env;
 
-void lisp_print_data_rec(const data_t *d, int print_parens) {
+void print_data_rec(const data_t *d, int print_parens) {
 	data_t *head, *tail;
 
 	if(!d)
@@ -43,16 +43,16 @@ void lisp_print_data_rec(const data_t *d, int print_parens) {
 				tail = cdr(d);
 
 				if(tail) {
-					lisp_print_data_rec(head, 1);
+					print_data_rec(head, 1);
 					if(tail->type != pair) {
 						printf(" . ");
-						lisp_print_data_rec(tail, 1);
+						print_data_rec(tail, 1);
 					} else {
 						printf(" ");
-						lisp_print_data_rec(tail, 0);
+						print_data_rec(tail, 0);
 					}
 				} else {
-					lisp_print_data_rec(head, 1);					
+					print_data_rec(head, 1);					
 				}
 
 				if(print_parens)
@@ -61,6 +61,6 @@ void lisp_print_data_rec(const data_t *d, int print_parens) {
 	}
 }
 
-void lisp_print_data(const data_t *d) {
-	lisp_print_data_rec(d, 1);
+void print_data(const data_t *d) {
+	print_data_rec(d, 1);
 }

@@ -21,6 +21,6 @@ data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
 
 data_t *apply(const data_t *proc, const data_t *args);
 data_t *eval(data_t *exp, data_t *env);
-int run(const char *exp);
+int run_exp(const char *exp);
 
 #endif

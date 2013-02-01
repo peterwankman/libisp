@@ -132,7 +132,7 @@ int main(void) {
 		buf = exp;
 
 		do {
-			exp_list = lisp_read(exp, &readto, &error);
+			exp_list = read_exp(exp, &readto, &error);
 		
 			if(error) {
 				printf("Syntax Error: '%s'\n", exp);
@@ -140,7 +140,7 @@ int main(void) {
 			} else {
 				ret = eval(exp_list, the_global_env);
 				printf("%s", OUTPUT_PROMPT);
-				lisp_print_data(ret);
+				print_data(ret);
 				printf("\n");
 			}	
 		
