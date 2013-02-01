@@ -78,6 +78,7 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 
 	if(newsize > mem_lim_hard) {
 		fprintf(stderr, "ERROR: Hard memory limit reached. (%d > %d)\n", newsize, mem_lim_hard);
+		run_gc(GC_FORCE);
 		return NULL;
 	} else if(!warned && (newsize > mem_lim_soft)) {
 		if(mem_verbosity == GC_VERBOSE)

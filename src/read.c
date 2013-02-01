@@ -70,7 +70,7 @@ static int is_decimal(const char *exp, size_t *len, double *out) {
 	while(exp[*len] && !isspace(exp[*len]) && exp[*len] != ')') {
 		if(exp[*len] == '.')
 			pointfound = 1;
-		else if((exp[*len] < '0') && (exp[*len] > '9') && exp[*len]) {			
+		else if((exp[*len] < '0') || (exp[*len] > '9') && exp[*len]) {			
 			return 0;
 		}
 		(*len)++;
