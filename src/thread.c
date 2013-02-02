@@ -3,6 +3,7 @@
 #include <WinBase.h>
 #else
 #include <pthread.h>
+#define HANDLE pthread_t
 #endif
 
 #include <time.h>
@@ -22,70 +23,63 @@ int thread_timeout = 2;
 #ifdef _WIN32
 static DWORD WINAPI thread(LPVOID in) {
 #else
-void *thread(void *in) {
+static void *thread(void *in) {
 #endif
 	threadparam_t *param = (threadparam_t*)in;
-	
+
 	param->result = eval(param->exp, param->env);
 	param->running = 0;
-
-#ifdef _WIN32
-	return NULL;
-#else
+#ifndef _WIN32
 	pthread_exit(NULL);
+#endif
+	return 0;
+}
+
+void kill_thread(threadparam_t *info, char *msg, HANDLE thread_handle) {
+#ifdef _WIN32
+	TerminateThread(thread_handle, 0);
+#else
+	pthread_detach(thread_handle);
+	pthread_cancel(thread_handle);
+#endif
+	fprintf(stderr, msg);
+	info->result = NULL;
+	info->running = 0;
+}
+
+static HANDLE spawn_thread(threadparam_t *param) {
+#ifdef _WIN32
+	return CreateThread(NULL, 0, thread, param, 0, NULL);
+#else
+	pthread_t thread_handle;
+
+	if(pthread_create(&thread_handle, NULL, thread, param)) {
+		fprintf(stderr, "ERROR: Could not spawn eval() thread.\n");
+		return 0;
+	}
+
+	return thread_handle;
 #endif
 }
 
 data_t *eval_thread(data_t *exp, data_t *env) {
-#ifdef _WIN32
 	HANDLE thread_handle;
-#else
-	pthread_t thread_handle;
-#endif
 	threadparam_t info;
 	time_t starttime = time(NULL);
-	
+
 	info.exp = exp;
 	info.env = env;
 	info.running = 1;
 
-#ifdef _WIN32
-	thread_handle = CreateThread(NULL, 0, thread, &info, 0, NULL);
-#else
-	if(pthread_create(&thread_handle, NULL, thread, &info)) {
-		printf("ERROR: Could not spawn eval() thread.\n");
-		return NULL;
-	}
-#endif
+	thread_handle = spawn_thread(&info);
 
 	while(info.running) {
-		if(thread_timeout && (time(NULL) - starttime > thread_timeout)) {
-#ifdef _WIN32
-			TerminateThread(thread_handle, 0); 
-#else
-			pthread_detach(thread_handle);
-			pthread_cancel(thread_handle);
-#endif
-			printf("ERROR: eval() timed out. (%ds)\n", thread_timeout);
-			info.result = NULL;
-			info.running = 0;
-		}
-		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard) {
-#ifdef _WIN32
-			TerminateThread(thread_handle, 0); 
-#else
-			pthread_detach(thread_handle);
-			pthread_cancel(thread_handle);
-#endif
-			printf("ERROR: Hard memory limit reached (%d bytes). eval() aborted.\n", mem_lim_hard);
-			info.result = NULL;
-			info.running = 0;
-		}
+		if(thread_timeout && (time(NULL) - starttime > thread_timeout))
+			kill_thread(&info, "ERROR: eval() timed out.\n", thread_handle);
+		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard)
+			kill_thread(&info, "ERROR: Hard memory limit reached. Cancelled.\n",
+				thread_handle);
 	}
-
-#ifndef _WIN32
-	pthread_detach(thread_handle);
-#endif
 
 	return info.result;
 }

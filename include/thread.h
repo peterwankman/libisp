@@ -14,7 +14,8 @@
 #ifndef THREAD_H_
 #define THREAD_H_
 
-data_t *eval_thread(data_t *exp, data_t *env);
 int thread_timeout;
+
+data_t *eval_thread(data_t *exp, data_t *env);
 
 #endif
