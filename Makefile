@@ -19,14 +19,15 @@ $(BIN):
 	mkdir $(BIN)
 
 $(BIN)/lisp: $(SRC)/test.c
-	$(CC) $(CFLAGS) $^ -L$(BIN) -lisp -o $@
+	$(CC) $(CFLAGS) $^ -L$(BIN) -lisp -pthread -o $@
 
 $(BIN)/libisp.a: $(OBJ)/builtin.o \
 $(OBJ)/data.o \
 $(OBJ)/eval.o \
 $(OBJ)/mem.o \
 $(OBJ)/print.o \
-$(OBJ)/read.o
+$(OBJ)/read.o \
+$(OBJ)/thread.o
 	ar rcs $@ $^
 
 $(OBJ)/builtin.o: $(SRC)/builtin.c
@@ -45,6 +46,9 @@ $(OBJ)/print.o: $(SRC)/print.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(OBJ)/read.o: $(SRC)/read.c
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+$(OBJ)/thread.o: $(SRC)/thread.c
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 .PHONY: clean
