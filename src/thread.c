@@ -14,10 +14,10 @@
 #include "mem.h"
 
 typedef struct {
-	int running;
 	data_t *exp, *env, *result;
 } threadparam_t;
 
+int thread_running = 0;
 int thread_timeout = 2;
 
 #ifdef _WIN32
@@ -28,23 +28,22 @@ static void *thread(void *in) {
 	threadparam_t *param = (threadparam_t*)in;
 
 	param->result = eval(param->exp, param->env);
-	param->running = 0;
+	thread_running = 0;
 #ifndef _WIN32
 	pthread_exit(NULL);
 #endif
 	return 0;
 }
 
-void kill_thread(threadparam_t *info, char *msg, HANDLE thread_handle) {
+void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle) {
 #ifdef _WIN32
 	TerminateThread(thread_handle, 0);
 #else
-	pthread_detach(thread_handle);
 	pthread_cancel(thread_handle);
 #endif
 	fprintf(stderr, msg);
 	info->result = NULL;
-	info->running = 0;
+	thread_running = 0;
 }
 
 static HANDLE spawn_thread(threadparam_t *param) {
@@ -57,28 +56,31 @@ static HANDLE spawn_thread(threadparam_t *param) {
 		fprintf(stderr, "ERROR: Could not spawn eval() thread.\n");
 		return 0;
 	}
+	pthread_detach(thread_handle);
 
 	return thread_handle;
 #endif
 }
 
-data_t *eval_thread(data_t *exp, data_t *env) {
+data_t *eval_thread(const data_t *exp, data_t *env) {
 	HANDLE thread_handle;
 	threadparam_t info;
 	time_t starttime = time(NULL);
 
-	info.exp = exp;
+	info.exp = (data_t*)exp;
 	info.env = env;
-	info.running = 1;
+	thread_running = 1;
 
 	thread_handle = spawn_thread(&info);
 
-	while(info.running) {
+	while(thread_running) {
 		if(thread_timeout && (time(NULL) - starttime > thread_timeout))
 			kill_thread(&info, "ERROR: eval() timed out.\n", thread_handle);
-		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard)
-			kill_thread(&info, "ERROR: Hard memory limit reached. Cancelled.\n",
+		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard) {
+			kill_thread(&info, "ERROR: Hard memory limit reached.\n", 
 				thread_handle);
+			run_gc(GC_FORCE);
+		}
 	}
 
 	return info.result;
