@@ -9,6 +9,7 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#include <float.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +27,9 @@ data_t *prim_add(const data_t *list) {
 	int iout = 0;
 	double dout = 0.0f;
 	data_t *head, *tail;
+
+	if(!list)
+		return make_symbol("error");
 
 	if(list->type != pair)
 		return make_int(0);
@@ -56,6 +60,9 @@ data_t *prim_mul(const data_t *list) {
 	int iout = 1;
 	double dout = 1.0f;
 	data_t *head, *tail;
+
+	if(!list)
+		return make_symbol("error");
 
 	if(list->type != pair)
 		return make_int(0);
@@ -88,6 +95,9 @@ data_t *prim_sub(const data_t *list) {
 	double dout = 0.0f, dstart;
 	data_t *head, *tail;
 
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_int(0);
 	head = car(list);
@@ -138,6 +148,9 @@ data_t *prim_div(const data_t *list) {
 	double dout = 1.0f, dstart;
 	data_t *head, *tail;
 
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_int(0);
 	head = car(list);
@@ -178,6 +191,9 @@ data_t *prim_comp_eq(const data_t *list) {
 	data_t *first, *second;
 	dtype_t type_first, type_second;
 
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -214,7 +230,7 @@ data_t *prim_comp_less(const data_t *list) {
 	if(list && list->type == pair)
 		head = car(list);
 	else
-		return make_symbol("#f");
+		return make_symbol("error");
 
 	list = cdr(list);
 
@@ -299,6 +315,9 @@ data_t *prim_comp_more(const data_t *list) {
 }
 
 data_t *prim_or(const data_t *list) {
+	if(!list)
+		return make_symbol("#f");
+	
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -311,6 +330,9 @@ data_t *prim_or(const data_t *list) {
 }
 
 data_t *prim_and(const data_t *list) {
+	if(!list)
+		return make_symbol("#f");
+
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -323,6 +345,9 @@ data_t *prim_and(const data_t *list) {
 }
 
 data_t *prim_floor(const data_t *list) {
+	if(!list)
+		return make_symbol("error");
+
 	if(list->type != pair)
 		return make_symbol("error");
 
@@ -338,6 +363,9 @@ data_t *prim_floor(const data_t *list) {
 }
 
 data_t *prim_ceiling(const data_t *list) {
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_symbol("error");
 
@@ -355,6 +383,9 @@ data_t *prim_ceiling(const data_t *list) {
 data_t *prim_trunc(const data_t *list) {
 	double num;
 
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_symbol("error");
 
@@ -378,6 +409,9 @@ data_t *prim_round(const data_t *list) {
 	double num, fracpart;
 	int intpart;
 
+	if(!list)
+		return make_symbol("error");
+	
 	if(list->type != pair)
 		return make_symbol("error");
 
@@ -402,9 +436,76 @@ data_t *prim_round(const data_t *list) {
 	return make_symbol("error");
 }
 
+data_t *prim_max(const data_t *list) {
+	int ival, imax = 0;
+	double dval, dmax = 0.0f;
+	data_t *val;
+
+	if(!list)
+		return make_symbol("error");
+	
+	if(list->type != pair)
+		return make_symbol("error");
+
+	while(list) {
+		if(list->type != pair)
+			return make_symbol("error");
+		val = car(list);
+		if(val->type == integer) {
+			ival = val->val.integer;
+			if(ival > imax)
+				imax = ival;
+		} else if(val->type == decimal) {
+			dval = val->val.decimal;
+			if(dval > dmax)
+				dmax = dval;
+		}
+		list = cdr(list);
+	}
+
+	if((double)imax > dmax)
+		return make_int(imax);
+	return make_decimal(dmax);
+}
+
+data_t *prim_min(const data_t *list) {
+	int ival, imin = INT_MAX;
+	double dval, dmin = DBL_MAX;
+	data_t *val;
+
+	if(!list)
+		return make_symbol("error");
+
+	if(list->type != pair)
+		return make_symbol("error");
+
+	while(list) {
+		if(list->type != pair)
+			return make_symbol("error");
+		val = car(list);
+		if(val->type == integer) {
+			ival = val->val.integer;
+			if(ival < imin)
+				imin = ival;
+		} else if(val->type == decimal) {
+			dval = val->val.decimal;
+			if(dval < dmin)
+				dmin = dval;
+		}
+		list = cdr(list);
+	}
+
+	if((double)imin < dmin)
+		return make_int(imin);
+	return make_decimal(dmin);
+}
+
 data_t *prim_eq(const data_t *list) {
 	data_t *first, *second;
 	int ret;
+
+	if(!list)
+		return make_symbol("error");
 
 	if(list->type != pair)
 		return make_symbol("#f");
@@ -462,14 +563,14 @@ data_t *prim_cons(const data_t *list) {
 	if(list && list->type == pair)
 		head = car(list);
 	else
-		return make_symbol("#f");
+		return make_symbol("error");
 
 	list = cdr(list);
 
 	if(list && list->type == pair)
 		tail = car(list);
 	else
-		return make_symbol("#f");
+		return make_symbol("error");
 
 	return cons(head, tail);
 }
@@ -545,12 +646,15 @@ data_t *prim_set_cdr(const data_t *list) {
 data_t *prim_sym_to_str(const data_t *list) {
 	data_t *sym;
 
+	if(!list)
+		return make_symbol("error");
+
 	if(list->type != pair)
-		return make_string("");
+		return make_symbol("error");
 	sym = car(list);
 
 	if(sym->type != symbol)
-		return make_string("");
+		return make_symbol("error");
 
 	return make_string(sym->val.symbol);
 }
@@ -558,18 +662,24 @@ data_t *prim_sym_to_str(const data_t *list) {
 data_t *prim_str_to_sym(const data_t *list) {
 	data_t *str;
 
+	if(!list)
+		return make_symbol("error");
+
 	if(list->type != pair)
-		return make_symbol("");
+		return make_symbol("error");
 	str = car(list);
 
 	if(str->type != string)
-		return make_symbol("");
+		return make_symbol("error");
 
 	return make_symbol(str->val.string);
 }
 
 data_t *prim_is_sym(const data_t *list) {
 	data_t *sym;
+	if(!list)
+		return make_symbol("#f");
+
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -579,9 +689,43 @@ data_t *prim_is_sym(const data_t *list) {
 	return make_symbol("#f");
 }
 
+data_t *prim_is_str(const data_t *list) {
+	data_t *str;
+
+	if(!list)
+		return make_symbol("#f");
+
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	str = car(list);
+	if(str->type == string)
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
+data_t *prim_is_pair(const data_t *list) {
+	data_t *cons;
+
+	if(!list)
+		return make_symbol("#f");
+
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	cons = car(list);
+	if(cons->type == pair)
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
 data_t *prim_is_num(const data_t *list) {
 	data_t *head;
 	dtype_t type;
+	
+	if(!list)
+		return make_symbol("#f");
+
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -598,6 +742,9 @@ data_t *prim_is_num(const data_t *list) {
 data_t *prim_is_int(const data_t *list) {
 	data_t *head;
 
+	if(!list)
+		return make_symbol("#f");
+	
 	if(list->type != pair)
 		return make_symbol("#f");
 	
@@ -611,6 +758,9 @@ data_t *prim_is_int(const data_t *list) {
 }
 
 data_t *prim_is_proc(const data_t *list) {
+	if(!list)
+		return make_symbol("#f");
+
 	if(list->type != pair)
 		return make_symbol("#f");
 
@@ -635,20 +785,23 @@ data_t *prim_set_config(const data_t *list) {
 	char *var_name;
 	int value;
 
+	if(!list)
+		return make_symbol("error");
+
 	if(list->type != pair)
-		return make_symbol("#f");
+		return make_symbol("error");
 
 	if(!list)
-		return make_symbol("#f");
+		return make_symbol("No variable supplied");
 	if(list->type != pair)
-		return make_symbol("#f");
+		return make_symbol("error");
 	var = car(list);
 
 	list = cdr(list);
 	if(!list)
-		return make_symbol("#f");
+		return make_symbol("No value supplied");
 	if(list->type != pair)
-		return make_symbol("#f");
+		return make_symbol("error");
 	val = car(list);
 
 	if(var->type != symbol)
@@ -738,6 +891,8 @@ void setup_environment(void) {
 	add_prim_proc("ceiling", prim_ceiling);
 	add_prim_proc("truncate", prim_trunc);
 	add_prim_proc("round", prim_round);
+	add_prim_proc("max", prim_max);
+	add_prim_proc("min", prim_min);
 	add_prim_proc("eq?", prim_eq);
 	add_prim_proc("car", prim_car);
 	add_prim_proc("cdr", prim_cdr);
@@ -750,10 +905,11 @@ void setup_environment(void) {
 	add_prim_proc("integer?", prim_is_int);
 	add_prim_proc("procedure?", prim_is_proc);
 	add_prim_proc("set-config!", prim_set_config);
-		
 	add_prim_proc("symbol->string", prim_sym_to_str);
 	add_prim_proc("string->symbol", prim_str_to_sym);
 	add_prim_proc("symbol?", prim_is_sym);
+	add_prim_proc("string?", prim_is_str);
+	add_prim_proc("pair?", prim_is_pair);
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
