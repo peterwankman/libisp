@@ -180,6 +180,9 @@ data_t *prim_div(const data_t *list) {
 
 		list = tail;
 	} while(list);
+
+	if(dout == 0)
+		return make_symbol("error");
 	
 	if(dstart / dout == floor(dstart / dout))
 		return make_int((int)(dstart / dout));
@@ -812,16 +815,52 @@ data_t *prim_set_config(const data_t *list) {
 		return make_symbol("Config value needs to be an integer");
 	value = val->val.integer;
 	
-	if(!strcmp(var_name, "mem_lim_soft")) {
-		mem_lim_soft = value;
-		return make_symbol("ok");
-	} else if(!strcmp(var_name, "mem_lim_hard")) {
-		mem_lim_hard = value;
-		return make_symbol("ok");
-	} else if(!strcmp(var_name, "thread_timeout")) {
+	if(!strcmp(var_name, "thread_timeout")) {
 		thread_timeout = val->val.integer;
 		return make_symbol("ok");
 	}
+	if(!strcmp(var_name, "mem_lim_soft")) {
+		mem_lim_soft = value;
+		return make_symbol("ok");
+	}
+	if(!strcmp(var_name, "mem_lim_hard")) {
+		mem_lim_hard = value;
+		return make_symbol("ok");
+	}
+	if(!strcmp(var_name, "mem_verbosity")) {
+		mem_verbosity = val->val.integer;
+		return make_symbol("ok");
+	}
+	return make_symbol("Unknown config variable");
+}
+
+data_t *prim_get_config(const data_t *list) {
+	data_t *var;
+	char *var_name;
+
+	if(!list)
+		return make_symbol("error");
+
+	if(list->type != pair)
+		return make_symbol("error");
+
+	var = car(list);
+	if(var->type != symbol)
+		return make_symbol("Config variable needs to be a symbol");
+
+	var_name = var->val.symbol;
+
+	if(!strcmp(var_name, "thread_timeout"))
+		return make_int(thread_timeout);
+	if(!strcmp(var_name, "mem_lim_soft"))
+		return make_int(mem_lim_soft);
+	if(!strcmp(var_name, "mem_lim_hard"))
+		return make_int(mem_lim_hard);
+	if(!strcmp(var_name, "n_bytes_allocated"))
+		return make_int(n_bytes_allocated);
+	if(!strcmp(var_name, "mem_verbosity"))
+		return make_int(mem_verbosity);
+
 	return make_symbol("Unknown config variable");
 }
 
@@ -905,6 +944,7 @@ void setup_environment(void) {
 	add_prim_proc("integer?", prim_is_int);
 	add_prim_proc("procedure?", prim_is_proc);
 	add_prim_proc("set-config!", prim_set_config);
+	add_prim_proc("get-config", prim_get_config);
 	add_prim_proc("symbol->string", prim_sym_to_str);
 	add_prim_proc("string->symbol", prim_str_to_sym);
 	add_prim_proc("symbol?", prim_is_sym);
@@ -967,7 +1007,11 @@ void setup_environment(void) {
 	run_exp("(define (lcm a b) (/ (* a b) (gcd a b)))");
 	run_exp("(define (odd? n) (if (= 1 (modulo n 2)) '#t '#f))");
 	run_exp("(define (even? n) (not (odd? n)))");
-	
+	run_exp("(define (square n) (* n n))");
+	run_exp("(define (average a b) (/ (+ a b) 2))");
+	run_exp("(define (sqrt x) (define (good-enough? guess) (< (abs (- (square guess) x)) 0.000001)) (define (improve guess) (average guess (/ x guess))) (define (sqrt-iter guess) (if (good-enough? guess) (abs guess) (sqrt-iter (improve guess)))) (sqrt-iter 1.0))");
+	run_exp("(define (expt base ex) (if (= 0 ex) 1 (* base (expt base (- ex 1)))))");
+
 	run_gc(GC_FORCE);
 }
 

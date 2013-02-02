@@ -77,6 +77,7 @@ data_t *eval_thread(const data_t *exp, data_t *env) {
 	HANDLE thread_handle;
 	threadparam_t info;
 	time_t starttime = time(NULL);
+	size_t reclaimed;
 
 	info.exp = (data_t*)exp;
 	info.env = env;
@@ -86,11 +87,12 @@ data_t *eval_thread(const data_t *exp, data_t *env) {
 
 	while(thread_running) {
 		if(thread_timeout && (time(NULL) - starttime > thread_timeout))
-			kill_thread(&info, "ERROR: eval() timed out.\n", thread_handle);
+			kill_thread(&info, "-- ERROR: eval() timed out.\n", thread_handle);
 		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard) {
-			kill_thread(&info, "ERROR: Hard memory limit reached.\n", 
+			kill_thread(&info, "-- ERROR: Hard memory limit reached.\n", 
 				thread_handle);
-			run_gc(GC_FORCE);
+			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE)))
+				printf("-- GC: %d bytes of memory reclaimed.\n", reclaimed);			
 		}
 	}
 

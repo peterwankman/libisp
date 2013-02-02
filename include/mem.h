@@ -16,8 +16,8 @@
 #ifndef MEM_H_
 #define MEM_H_
 
-#define GC_SILENT	0
-#define GC_VERBOSE	1
+#define MEM_SILENT	0
+#define MEM_VERBOSE	1
 #define GC_LOWMEM	0
 #define GC_FORCE	1
 #define lisp_data_alloc(n) _dalloc(n, __FILE__, __LINE__)

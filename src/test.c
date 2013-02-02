@@ -106,7 +106,7 @@ int main(void) {
 	int error, paren = 0;
 	char *exp, *buf;
 
-	mem_verbosity = GC_SILENT;
+	mem_verbosity = MEM_SILENT;
 	mem_lim_soft = 1024 * 768;
 	mem_lim_hard = 1024 * 1024;
 
@@ -119,7 +119,7 @@ int main(void) {
 
 		exp = input_exp(&paren);
 		if(paren < 0) {
-			fprintf(stderr, "Syntax error: Unbalanced parentheses.\n");
+			fprintf(stderr, "-- Syntax error: Unbalanced parentheses.\n");
 			free(exp);
 			continue;
 		}
@@ -135,7 +135,7 @@ int main(void) {
 			exp_list = read_exp(exp, &readto, &error);
 		
 			if(error) {
-				printf("Syntax Error: '%s'\n", exp);
+				printf("-- Syntax Error: '%s'\n", exp);
 				break;
 			} else {
 				ret = eval_thread(exp_list, the_global_env);
@@ -146,8 +146,8 @@ int main(void) {
 		
 			exp += readto;
 
-			if((mem_verbosity == GC_VERBOSE) && (reclaimed = run_gc(GC_LOWMEM)))
-				printf("GC: %d bytes of memory reclaimed.\n", reclaimed);
+			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_LOWMEM)))
+				printf("-- GC: %d bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
 	}

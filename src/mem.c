@@ -22,7 +22,7 @@
 size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;
 size_t n_bytes_allocated = 0;
-int mem_verbosity = GC_SILENT; 
+int mem_verbosity = MEM_SILENT; 
 
 static size_t n_allocs = 0;
 static size_t n_frees = 0;
@@ -82,8 +82,8 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 			for(;;);
 		return NULL;
 	} else if(!warned && (newsize > mem_lim_soft)) {
-		if(mem_verbosity == GC_VERBOSE)
-			fprintf(stderr, "Warning: Soft memory limit reached.\n");
+		if(mem_verbosity == MEM_VERBOSE)
+			fprintf(stderr, "-- WARNING: Soft memory limit reached.\n");
 		warned = 1;
 	} else if(warned && (newsize < mem_lim_soft))
 		warned = 0;
@@ -144,7 +144,7 @@ void free_data(data_t *in) {
 		free(in);
 		n_frees++;
 	} else {
-		fprintf(stderr, "WARNING: Called free() on unknown pointer.\n");
+		fprintf(stderr, "-- WARNING: Called free() on unknown pointer.\n");
 	}
 }
 
@@ -227,8 +227,8 @@ void free_data_rec(data_t *in) {
 void showmemstats(FILE *fp) {
 	alloclist_t *current = alloc_list, *buf;
 
-	if(n_allocs != n_frees) {
-		printf("\n--- memory.c summary ---\n");
+	if((n_allocs != n_frees) || (mem_verbosity == MEM_VERBOSE)) {
+		printf("\n--- Memory usage summary ---\n");
 		if(n_frees < n_allocs) {
 			fprintf(fp, "Showing unfreed memory:\n");
 			while(current) {
@@ -240,11 +240,11 @@ void showmemstats(FILE *fp) {
 		}
 
 		fprintf(fp, "%d allocs; %d frees.\n", n_allocs, n_frees);
-		printf("--- end summary ---\n");
+		printf("--- End summary ---\n");
 	}
 
 	if(n_bytes_allocated)
 		fprintf(fp, "Bytes left allocated: %d out of ", n_bytes_allocated);
-	if((mem_verbosity == GC_VERBOSE) || n_bytes_allocated)
+	if((mem_verbosity == MEM_VERBOSE) || n_bytes_allocated)
 		fprintf(fp, "%d bytes peak memory usage.\n", n_bytes_peak);
 }
