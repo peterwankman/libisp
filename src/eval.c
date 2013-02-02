@@ -117,7 +117,7 @@ static data_t *expand_clauses(const data_t *clauses) {
 
 	if(is_cond_else_clause(first)) {
 		if(rest == NULL) {
-			sequence_to_exp(get_cond_actions(first));
+			return sequence_to_exp(get_cond_actions(first));
 		} else {
 			printf("ELSE clause isn't last -- COND-IF");
 			return make_symbol("#f");

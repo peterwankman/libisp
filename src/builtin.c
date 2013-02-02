@@ -570,7 +570,7 @@ void setup_environment(void) {
 	run_exp("(define (force proc) (proc))");
 	run_exp("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
 	run_exp("(define (modulo num div) (- num (* (floor (/ num div)) div)))");
-	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) ((< a b) (gcd a (modulo b a)))))");
+	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) (else (gcd a (modulo b a)))))");
 	
 	run_gc(GC_FORCE);
 }
