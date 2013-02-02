@@ -29,13 +29,7 @@ data_t *prim_add(const data_t *list) {
 	double dout = 0.0f;
 	data_t *head, *tail;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
-		return make_int(0);
-	
-	do {
+	while(list) {
 		head = car(list);
 		tail = cdr(list);
 		if(head->type == integer)
@@ -45,7 +39,7 @@ data_t *prim_add(const data_t *list) {
 		else return 0;
 
 		list = tail;
-	} while(list);
+	}
 
 	if(dout == 0.0f) {
 		return make_int(iout);
@@ -62,13 +56,7 @@ data_t *prim_mul(const data_t *list) {
 	double dout = 1.0f;
 	data_t *head, *tail;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
-		return make_int(0);
-	
-	do {
+	while(list) {
 		head = car(list);
 		tail = cdr(list);
 		if(head->type == integer)
@@ -78,7 +66,7 @@ data_t *prim_mul(const data_t *list) {
 		else return make_int(0);
 
 		list = tail;
-	} while(list);
+	}
 
 	if(dout == 1.0f) {
 		return make_int(iout);
@@ -96,11 +84,9 @@ data_t *prim_sub(const data_t *list) {
 	double dout = 0.0f, dstart;
 	data_t *head, *tail;
 
-	if(!list)
+	if(!length(list))
 		return make_symbol("error");
-	
-	if(list->type != pair)
-		return make_int(0);
+
 	head = car(list);
 	tail = cdr(list);
 
@@ -110,7 +96,7 @@ data_t *prim_sub(const data_t *list) {
 	else if(out_type == integer)
 		istart = head->val.integer;
 	else
-		return make_int(0);
+		return make_symbol("error");
 
 	list = tail;
 
@@ -149,11 +135,9 @@ data_t *prim_div(const data_t *list) {
 	double dout = 1.0f, dstart;
 	data_t *head, *tail;
 
-	if(!list)
+	if(!length(list))
 		return make_symbol("error");
-	
-	if(list->type != pair)
-		return make_int(0);
+
 	head = car(list);
 	tail = cdr(list);
 
@@ -163,7 +147,7 @@ data_t *prim_div(const data_t *list) {
 	else if(start_type == integer)
 		dstart = (double)head->val.integer;
 	else
-		return make_int(0);
+		return make_symbol("error");
 
 	list = tail;
 
@@ -195,10 +179,7 @@ data_t *prim_comp_eq(const data_t *list) {
 	data_t *first, *second;
 	dtype_t type_first, type_second;
 
-	if(!list)
-		return make_symbol("error");
-	
-	if(list->type != pair)
+	if(length(list) != 2)
 		return make_symbol("#f");
 
 	first = car(list);
@@ -230,18 +211,12 @@ data_t *prim_comp_eq(const data_t *list) {
 
 data_t *prim_comp_less(const data_t *list) {
 	data_t *head, *tail;
-	
-	if(list && list->type == pair)
-		head = car(list);
-	else
+
+	if(length(list) != 2)
 		return make_symbol("error");
-
-	list = cdr(list);
-
-	if(list && list->type == pair)
-		tail = car(list);
-	else
-		return make_symbol("#f");
+	
+	head = car(list);
+	tail = car(cdr(list));
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->val.integer < tail->val.integer) {
@@ -275,18 +250,12 @@ data_t *prim_comp_less(const data_t *list) {
 
 data_t *prim_comp_more(const data_t *list) {
 	data_t *head, *tail;
+
+	if(length(list) != 2)
+		return make_symbol("error");
 	
-	if(list && list->type == pair)
-		head = car(list);
-	else
-		return make_symbol("#f");
-
-	list = cdr(list);
-
-	if(list && list->type == pair)
-		tail = car(list);
-	else
-		return make_symbol("#f");
+	head = car(list);
+	tail = car(cdr(list));
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->val.integer > tail->val.integer) {
@@ -319,12 +288,6 @@ data_t *prim_comp_more(const data_t *list) {
 }
 
 data_t *prim_or(const data_t *list) {
-	if(!list)
-		return make_symbol("#f");
-	
-	if(list->type != pair)
-		return make_symbol("#f");
-
 	while(list) {
 		if(is_equal(car(list), make_symbol("#t")))
 			return make_symbol("#t");
@@ -334,12 +297,6 @@ data_t *prim_or(const data_t *list) {
 }
 
 data_t *prim_and(const data_t *list) {
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
-
 	while(list) {
 		if(is_equal(car(list), make_symbol("#f")))
 			return make_symbol("#f");
@@ -349,10 +306,7 @@ data_t *prim_and(const data_t *list) {
 }
 
 data_t *prim_floor(const data_t *list) {
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 
 	list = car(list);
@@ -367,10 +321,7 @@ data_t *prim_floor(const data_t *list) {
 }
 
 data_t *prim_ceiling(const data_t *list) {
-	if(!list)
-		return make_symbol("error");
-	
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 
 	list = car(list);
@@ -387,10 +338,7 @@ data_t *prim_ceiling(const data_t *list) {
 data_t *prim_trunc(const data_t *list) {
 	double num;
 
-	if(!list)
-		return make_symbol("error");
-	
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 
 	list = car(list);
@@ -413,10 +361,7 @@ data_t *prim_round(const data_t *list) {
 	double num, fracpart;
 	int intpart;
 
-	if(!list)
-		return make_symbol("error");
-	
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 
 	list = car(list);
@@ -445,10 +390,7 @@ data_t *prim_max(const data_t *list) {
 	double dval, dmax = 0.0f;
 	data_t *val;
 
-	if(!list)
-		return make_symbol("error");
-	
-	if(list->type != pair)
+	if(!length(list))
 		return make_symbol("error");
 
 	while(list) {
@@ -477,10 +419,7 @@ data_t *prim_min(const data_t *list) {
 	double dval, dmin = DBL_MAX;
 	data_t *val;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
+	if(!length(list))
 		return make_symbol("error");
 
 	while(list) {
@@ -506,77 +445,56 @@ data_t *prim_min(const data_t *list) {
 
 data_t *prim_eq(const data_t *list) {
 	data_t *first, *second;
-	int ret;
 
-	if(!list)
+	if(length(list) != 2)
 		return make_symbol("error");
-
-	if(list->type != pair)
-		return make_symbol("#f");
 
 	first = car(list);
-	second = cdr(list);
-
-	if(second->type != pair)
-		return make_symbol("error");
-	second = car(second);
-
-	ret = is_equal(first, second);
-
-	if(ret)
+	second = car(cdr(list));
+	
+	if(is_equal(first, second))
 		return make_symbol("#t");
 	return make_symbol("#f");
 }
 
 data_t *prim_not(const data_t *list) {
-	if(list && list->type == pair)
-		list = car(list);
-	else
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 
-	if(list && list->type == symbol)
-		if(!strcmp(list->val.symbol, "#f"))
-			return make_symbol("#t");
+	list = car(list);
+	
+	if(!strcmp(list->val.symbol, "#f"))
+		return make_symbol("#t");
 	return make_symbol("#f");
 }
 
 data_t *prim_car(const data_t *list) {
-	if(list && list->type == pair)
-		list = car(list);
-	else
-		return NULL;
-
+	if(length(list) != 1)
+		return make_symbol("error");
+	
+	list = car(list);
+	
 	if(list && list->type == pair)
 		return car(list);
 	return NULL;
 }
 
 data_t *prim_cdr(const data_t *list) {
-	if(list && list->type == pair)
-		list = car(list);
-	else
-		return NULL;
+	if(length(list) != 1)
+		return make_symbol("error");
+		
+	list = car(list);
+	
 	if(list && list->type == pair)
 		return cdr(list);
 	return NULL;
 }
 
 data_t *prim_cons(const data_t *list) {
-	data_t *head, *tail;
-
-	if(list && list->type == pair)
-		head = car(list);
-	else
+	if(length(list) != 2)
 		return make_symbol("error");
-
-	list = cdr(list);
-
-	if(list && list->type == pair)
-		tail = car(list);
-	else
-		return make_symbol("error");
-
-	return cons(head, tail);
+	
+	return cons(car(list), car(cdr(list)));
 }
 
 data_t *prim_list(const data_t *list) {
@@ -588,28 +506,17 @@ data_t *prim_list(const data_t *list) {
 data_t *prim_set_car(const data_t *list) {
 	data_t *head, *newcar;
 	
-	if(!list)
-		return NULL;
-
-	if(list->type != pair)
-		return NULL;
-
+	if(length(list) != 2)
+		return make_symbol("error");
+	
 	head = car(list);
-	list = cdr(list);
-
-	if(!list)
-		return head;
-
-	if(list->type != pair)
-		return head;
-
-	newcar = car(list);
+	newcar = car(cdr(list));
 
 	if(!head)
-		return NULL;
+		return make_symbol("error");
 
 	if(head->type != pair)
-		return NULL;
+		return make_symbol("error");
 
 	head->val.pair->l = newcar;
 
@@ -619,28 +526,17 @@ data_t *prim_set_car(const data_t *list) {
 data_t *prim_set_cdr(const data_t *list) {
 	data_t *head, *newcdr;
 	
-	if(!list)
-		return NULL;
-
-	if(list->type != pair)
-		return NULL;
-
+	if(length(list) != 2)
+		return make_symbol("error");
+	
 	head = car(list);
-	list = cdr(list);
-
-	if(!list)
-		return head;
-
-	if(list->type != pair)
-		return head;
-
-	newcdr = car(list);
+	newcdr = car(cdr(list));
 
 	if(!head)
-		return NULL;
+		return make_symbol("error");
 
 	if(head->type != pair)
-		return NULL;
+		return make_symbol("error");
 
 	head->val.pair->r = newcdr;
 
@@ -650,14 +546,11 @@ data_t *prim_set_cdr(const data_t *list) {
 data_t *prim_sym_to_str(const data_t *list) {
 	data_t *sym;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 	sym = car(list);
 
-	if(sym->type != symbol)
+	if(!sym || sym->type != symbol)
 		return make_symbol("error");
 
 	return make_string(sym->val.symbol);
@@ -666,14 +559,11 @@ data_t *prim_sym_to_str(const data_t *list) {
 data_t *prim_str_to_sym(const data_t *list) {
 	data_t *str;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 	str = car(list);
 
-	if(str->type != string)
+	if(!str || str->type != string)
 		return make_symbol("error");
 
 	return make_symbol(str->val.string);
@@ -681,29 +571,21 @@ data_t *prim_str_to_sym(const data_t *list) {
 
 data_t *prim_is_sym(const data_t *list) {
 	data_t *sym;
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 
 	sym = car(list);
-	if(sym->type == symbol)
+	if(sym && (sym->type == symbol))
 		return make_symbol("#t");
 	return make_symbol("#f");
 }
 
 data_t *prim_is_str(const data_t *list) {
 	data_t *str;
-
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)	
 
 	str = car(list);
-	if(str->type == string)
+	if(str && (str->type == string))
 		return make_symbol("#t");
 	return make_symbol("#f");
 }
@@ -711,14 +593,11 @@ data_t *prim_is_str(const data_t *list) {
 data_t *prim_is_pair(const data_t *list) {
 	data_t *cons;
 
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 
 	cons = car(list);
-	if(cons->type == pair)
+	if(cons && (cons->type == pair))
 		return make_symbol("#t");
 	return make_symbol("#f");
 }
@@ -727,11 +606,8 @@ data_t *prim_is_num(const data_t *list) {
 	data_t *head;
 	dtype_t type;
 	
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 
 	head = car(list);
 	if(!head)
@@ -746,39 +622,28 @@ data_t *prim_is_num(const data_t *list) {
 data_t *prim_is_int(const data_t *list) {
 	data_t *head;
 
-	if(!list)
-		return make_symbol("#f");
-	
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 	
 	head = car(list);
-	if(!head)
-		return make_symbol("#f");
-
-	if(head->type == integer)
+	if(head && (head->type == integer))
 		return make_symbol("#t");
+
 	return make_symbol("#f");
 }
 
 data_t *prim_is_proc(const data_t *list) {
-	if(!list)
-		return make_symbol("#f");
-
-	if(list->type != pair)
-		return make_symbol("#f");
+	if(length(list) != 1)
+		return make_symbol("error");
 
 	list = car(list);
-	if(!list)
+	if(!list || list->type != pair)
 		return make_symbol("#f");
-	if(list->type != pair)
-		return make_symbol("#f");
-
+	
 	list = car(list);
-	if(!list)
+	if(!list || (list->type != symbol))
 		return make_symbol("#f");
-	if(list->type != symbol)
-		return make_symbol("#f");
+	
 	if((!strcmp(list->val.symbol, "closure")) || (!strcmp(list->val.symbol, "primitive")))
 		return make_symbol("#t");
 	return make_symbol("#f");
@@ -789,30 +654,17 @@ data_t *prim_set_config(const data_t *list) {
 	char *var_name;
 	int value;
 
-	if(!list)
+	if(length(list) != 2)
 		return make_symbol("error");
 
-	if(list->type != pair)
-		return make_symbol("error");
-
-	if(!list)
-		return make_symbol("No variable supplied");
-	if(list->type != pair)
-		return make_symbol("error");
 	var = car(list);
+	val = car(cdr(list));
 
-	list = cdr(list);
-	if(!list)
-		return make_symbol("No value supplied");
-	if(list->type != pair)
-		return make_symbol("error");
-	val = car(list);
-
-	if(var->type != symbol)
+	if(!var || (var->type != symbol))
 		return make_symbol("Config variable needs to be a symbol");
 	var_name = var->val.symbol;
 
-	if(val->type != integer)
+	if(!val || (val->type != integer))
 		return make_symbol("Config value needs to be an integer");
 	value = val->val.integer;
 	
@@ -839,16 +691,12 @@ data_t *prim_get_config(const data_t *list) {
 	data_t *var;
 	char *var_name;
 
-	if(!list)
-		return make_symbol("error");
-
-	if(list->type != pair)
+	if(length(list) != 1)
 		return make_symbol("error");
 
 	var = car(list);
 	if(var->type != symbol)
 		return make_symbol("Config variable needs to be a symbol");
-
 	var_name = var->val.symbol;
 
 	if(!strcmp(var_name, "thread_timeout"))
