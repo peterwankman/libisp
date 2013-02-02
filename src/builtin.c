@@ -569,38 +569,24 @@ data_t *prim_str_to_sym(const data_t *list) {
 	return make_symbol(str->val.string);
 }
 
-data_t *prim_is_sym(const data_t *list) {
+static data_t *is_type(const data_t *list, dtype_t type) {
 	data_t *sym;
 	if(length(list) != 1)
 		return make_symbol("error");
 
 	sym = car(list);
-	if(sym && (sym->type == symbol))
+	if(sym && (sym->type == type))
 		return make_symbol("#t");
 	return make_symbol("#f");
 }
 
-data_t *prim_is_str(const data_t *list) {
-	data_t *str;
-	if(length(list) != 1)	
+data_t *prim_is_sym(const data_t *list) { return is_type(list, symbol); }
 
-	str = car(list);
-	if(str && (str->type == string))
-		return make_symbol("#t");
-	return make_symbol("#f");
-}
+data_t *prim_is_str(const data_t *list) { return is_type(list, string); }
+	
+data_t *prim_is_pair(const data_t *list) { return is_type(list, pair); }
 
-data_t *prim_is_pair(const data_t *list) {
-	data_t *cons;
-
-	if(length(list) != 1)
-		return make_symbol("error");
-
-	cons = car(list);
-	if(cons && (cons->type == pair))
-		return make_symbol("#t");
-	return make_symbol("#f");
-}
+data_t *prim_is_int(const data_t *list) { return is_type(list, integer); }
 
 data_t *prim_is_num(const data_t *list) {
 	data_t *head;
@@ -616,19 +602,6 @@ data_t *prim_is_num(const data_t *list) {
 	type = head->type;
 	if((type == integer) || (type == decimal))
 		return make_symbol("#t");
-	return make_symbol("#f");
-}
-
-data_t *prim_is_int(const data_t *list) {
-	data_t *head;
-
-	if(length(list) != 1)
-		return make_symbol("error");
-	
-	head = car(list);
-	if(head && (head->type == integer))
-		return make_symbol("#t");
-
 	return make_symbol("#f");
 }
 
@@ -711,6 +684,86 @@ data_t *prim_get_config(const data_t *list) {
 		return make_int(mem_verbosity);
 
 	return make_symbol("Unknown config variable");
+}
+
+static data_t *mathfn(const data_t *list, const double (*func)(double)) {
+	data_t *val;
+	
+	if(length(list) != 1)
+		return make_symbol("error");
+	
+	val = car(list);
+	if(val) {
+		if(val->type == integer)
+			return make_decimal(func((double)val->val.integer));
+		if(val->type == decimal)
+			return make_decimal(func(val->val.decimal));
+	}
+	return make_symbol("error");
+}
+
+data_t *prim_sin(const data_t *list) { return mathfn(list, sin); }
+
+data_t *prim_cos(const data_t *list) { return mathfn(list, cos); }
+
+data_t *prim_tan(const data_t *list) { return mathfn(list, tan); }
+
+data_t *prim_asin(const data_t *list) { return mathfn(list, asin); }
+
+data_t *prim_acos(const data_t *list) { return mathfn(list, acos); }
+
+data_t *prim_atan(const data_t *list) { return mathfn(list, atan); }
+
+data_t *prim_log(const data_t *list) { return mathfn(list, log); }
+
+data_t *prim_exp(const data_t *list) { return mathfn(list, exp); }
+
+static int gcd(const int a, const int b) {
+	if(a == 0)
+		return b;
+	else if(b == 0)
+		return a;
+	else if(a > b)
+		return gcd(a % b, b);
+	else
+		return gcd(a, b % a);
+}
+
+static int lcm(const int a, const int b) { return a * b / gcd(a, b); }
+
+static data_t *cumulfn(const data_t *list, const int (*func)(const int, const int))  {
+	int cumul, n;
+	data_t *head;
+
+	if(length(list) == 0)
+		return make_int(0);
+		
+	head = car(list);
+	if(!head || (head->type != integer))
+		return make_symbol("error");
+	cumul = head->val.integer;
+
+	list = cdr(list);
+	while(list) {
+		head = car(list);
+		if(!head || (head->type != integer))
+			return make_symbol("error");
+
+		n = head->val.integer;
+		cumul = func(cumul, n);
+
+		list = cdr(list);
+	}
+
+	return make_int(cumul);
+}
+
+data_t *prim_gcd(const data_t *list) {
+	return cumulfn(list, gcd);
+}
+
+data_t *prim_lcm(const data_t *list) {
+	return cumulfn(list, lcm);
 }
 
 static data_t *primitive_procedure_names(void) {
@@ -799,6 +852,18 @@ void setup_environment(void) {
 	add_prim_proc("symbol?", prim_is_sym);
 	add_prim_proc("string?", prim_is_str);
 	add_prim_proc("pair?", prim_is_pair);
+	add_prim_proc("gcd", prim_gcd);
+	add_prim_proc("lcm", prim_lcm);
+
+	add_prim_proc("sin", prim_sin);
+	add_prim_proc("cos", prim_cos);
+	add_prim_proc("tan", prim_tan);
+	add_prim_proc("asin", prim_asin);
+	add_prim_proc("acos", prim_acos);
+	add_prim_proc("atan", prim_atan);
+	add_prim_proc("log", prim_log);
+	add_prim_proc("exp", prim_exp);
+
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
@@ -852,8 +917,6 @@ void setup_environment(void) {
 	run_exp("(define (modulo num div) (- num (* (floor (/ num div)) div)))");
 	run_exp("(define (quotient num div) (truncate (/ num div)))");
 	run_exp("(define (remainder num div) (+ (* (quotient num div) div -1) num))");
-	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) (else (gcd a (modulo b a)))))");
-	run_exp("(define (lcm a b) (/ (* a b) (gcd a b)))");
 	run_exp("(define (odd? n) (if (= 1 (modulo n 2)) '#t '#f))");
 	run_exp("(define (even? n) (not (odd? n)))");
 	run_exp("(define (square n) (* n n))");
