@@ -297,6 +297,30 @@ data_t *prim_comp_more(const data_t *list) {
 
 }
 
+data_t *prim_or(const data_t *list) {
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	while(list) {
+		if(is_equal(car(list), make_symbol("#t")))
+			return make_symbol("#t");
+		list = cdr(list);
+	}
+	return make_symbol("#f");
+}
+
+data_t *prim_and(const data_t *list) {
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	while(list) {
+		if(is_equal(car(list), make_symbol("#f")))
+			return make_symbol("#f");
+		list = cdr(list);
+	}
+	return make_symbol("#t");
+}
+
 data_t *prim_floor(const data_t *list) {
 	if(list->type != pair)
 		return make_symbol("error");
@@ -308,6 +332,71 @@ data_t *prim_floor(const data_t *list) {
 
 	if(list->type == decimal)
 		return make_int((int)floor(list->val.decimal));
+
+	return make_symbol("error");
+}
+
+data_t *prim_ceiling(const data_t *list) {
+	if(list->type != pair)
+		return make_symbol("error");
+
+	list = car(list);
+
+	if(list->type == integer)
+		return make_int(list->val.integer);
+
+	if(list->type == decimal)
+		return make_int((int)ceil(list->val.decimal));
+
+	return make_symbol("error");
+}
+
+data_t *prim_trunc(const data_t *list) {
+	double num;
+
+	if(list->type != pair)
+		return make_symbol("error");
+
+	list = car(list);
+
+	if(list->type == integer)
+		return make_int(list->val.integer);
+
+	if(list->type == decimal) {
+		num = list->val.decimal;
+
+		if(num < 0)
+			return make_int((int)ceil(list->val.decimal));
+		return make_int((int)floor(list->val.decimal));
+	}
+
+	return make_symbol("error");
+}
+
+data_t *prim_round(const data_t *list) {
+	double num, fracpart;
+	int intpart;
+
+	if(list->type != pair)
+		return make_symbol("error");
+
+	list = car(list);
+
+	if(list->type == integer)
+		return make_int(list->val.integer);
+
+	if(list->type == decimal) {
+		num = list->val.decimal;
+		fracpart = num - floor(num);
+		if(fracpart < .5)
+			return make_int((int)(num - fracpart));
+		if(fracpart > .5)
+			return make_int((int)(num - fracpart + 1));
+		intpart = (int)(num - fracpart);
+		if(intpart % 2)
+			return make_int(intpart + 1);
+		return make_int(intpart);
+	}
 
 	return make_symbol("error");
 }
@@ -452,6 +541,94 @@ data_t *prim_set_cdr(const data_t *list) {
 	return head;
 }
 
+data_t *prim_sym_to_str(const data_t *list) {
+	data_t *sym;
+
+	if(list->type != pair)
+		return make_string("");
+	sym = car(list);
+
+	if(sym->type != symbol)
+		return make_string("");
+
+	return make_string(sym->val.symbol);
+}
+
+data_t *prim_str_to_sym(const data_t *list) {
+	data_t *str;
+
+	if(list->type != pair)
+		return make_symbol("");
+	str = car(list);
+
+	if(str->type != string)
+		return make_symbol("");
+
+	return make_symbol(str->val.string);
+}
+
+data_t *prim_is_sym(const data_t *list) {
+	data_t *sym;
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	sym = car(list);
+	if(sym->type == symbol)
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
+data_t *prim_is_num(const data_t *list) {
+	data_t *head;
+	dtype_t type;
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	head = car(list);
+	if(!head)
+		return make_symbol("#f");
+
+	type = head->type;
+	if((type == integer) || (type == decimal))
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
+data_t *prim_is_int(const data_t *list) {
+	data_t *head;
+
+	if(list->type != pair)
+		return make_symbol("#f");
+	
+	head = car(list);
+	if(!head)
+		return make_symbol("#f");
+
+	if(head->type == integer)
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
+data_t *prim_is_proc(const data_t *list) {
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	list = car(list);
+	if(!list)
+		return make_symbol("#f");
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	list = car(list);
+	if(!list)
+		return make_symbol("#f");
+	if(list->type != symbol)
+		return make_symbol("#f");
+	if((!strcmp(list->val.symbol, "closure")) || (!strcmp(list->val.symbol, "primitive")))
+		return make_symbol("#t");
+	return make_symbol("#f");
+}
+
 static data_t *primitive_procedure_names(void) {
 	prim_proc_list *curr_proc = last_prim_proc;
 	data_t *out = NULL;
@@ -511,8 +688,13 @@ void setup_environment(void) {
 	add_prim_proc("=", prim_comp_eq);
 	add_prim_proc("<", prim_comp_less);
 	add_prim_proc(">", prim_comp_more);
-	add_prim_proc("floor", prim_floor);
+	add_prim_proc("or", prim_or);
+	add_prim_proc("and", prim_and);
 	add_prim_proc("not", prim_not);
+	add_prim_proc("floor", prim_floor);
+	add_prim_proc("ceiling", prim_ceiling);
+	add_prim_proc("truncate", prim_trunc);
+	add_prim_proc("round", prim_round);
 	add_prim_proc("eq?", prim_eq);
 	add_prim_proc("car", prim_car);
 	add_prim_proc("cdr", prim_cdr);
@@ -520,6 +702,14 @@ void setup_environment(void) {
 	add_prim_proc("set-cdr!", prim_set_cdr);
 	add_prim_proc("cons", prim_cons);
 	add_prim_proc("list", prim_list);
+	add_prim_proc("number?", prim_is_num);
+	add_prim_proc("real?", prim_is_num);
+	add_prim_proc("integer?", prim_is_int);
+	add_prim_proc("procedure?", prim_is_proc);
+	
+	add_prim_proc("symbol->string", prim_sym_to_str);
+	add_prim_proc("string->symbol", prim_str_to_sym);
+	add_prim_proc("symbol?", prim_is_sym);
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
@@ -561,6 +751,7 @@ void setup_environment(void) {
 	run_exp("(define (null? exp) (eq? exp nil))");
 	run_exp("(define (negative? exp) (< exp 0))");
 	run_exp("(define (positive? exp) (> exp 0))");
+	run_exp("(define (boolean? exp) (or (eq? exp '#t) (eq? exp '#f)))");
 	run_exp("(define (abs n) (if (negative? n) (- 0 n) n))");
 	run_exp("(define (<= a b) (not (> a b)))");
 	run_exp("(define (>= a b) (not (< a b)))");
@@ -571,6 +762,8 @@ void setup_environment(void) {
 	run_exp("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
 	run_exp("(define (modulo num div) (- num (* (floor (/ num div)) div)))");
 	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) (else (gcd a (modulo b a)))))");
+	run_exp("(define (odd? n) (if (= 1 (modulo n 2)) '#t '#f))");
+	run_exp("(define (even? n) (not (odd? n)))");
 	
 	run_gc(GC_FORCE);
 }
