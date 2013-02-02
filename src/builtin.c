@@ -21,8 +21,11 @@
 #include "mem.h"
 #include "thread.h"
 
-prim_proc_list *the_prim_procs = NULL;
-prim_proc_list *last_prim_proc = NULL;
+prim_proc_list_t *the_prim_procs = NULL;
+prim_proc_list_t *last_prim_proc = NULL;
+
+cvar_list_t *the_cvars;
+cvar_list_t *last_cvar;
 
 data_t *prim_add(const data_t *list) {
 	int iout = 0;
@@ -622,70 +625,6 @@ data_t *prim_is_proc(const data_t *list) {
 	return make_symbol("#f");
 }
 
-data_t *prim_set_config(const data_t *list) {
-	data_t *var, *val;
-	char *var_name;
-	int value;
-
-	if(length(list) != 2)
-		return make_symbol("error");
-
-	var = car(list);
-	val = car(cdr(list));
-
-	if(!var || (var->type != symbol))
-		return make_symbol("Config variable needs to be a symbol");
-	var_name = var->val.symbol;
-
-	if(!val || (val->type != integer))
-		return make_symbol("Config value needs to be an integer");
-	value = val->val.integer;
-	
-	if(!strcmp(var_name, "thread_timeout")) {
-		thread_timeout = val->val.integer;
-		return make_symbol("ok");
-	}
-	if(!strcmp(var_name, "mem_lim_soft")) {
-		mem_lim_soft = value;
-		return make_symbol("ok");
-	}
-	if(!strcmp(var_name, "mem_lim_hard")) {
-		mem_lim_hard = value;
-		return make_symbol("ok");
-	}
-	if(!strcmp(var_name, "mem_verbosity")) {
-		mem_verbosity = val->val.integer;
-		return make_symbol("ok");
-	}
-	return make_symbol("Unknown config variable");
-}
-
-data_t *prim_get_config(const data_t *list) {
-	data_t *var;
-	char *var_name;
-
-	if(length(list) != 1)
-		return make_symbol("error");
-
-	var = car(list);
-	if(var->type != symbol)
-		return make_symbol("Config variable needs to be a symbol");
-	var_name = var->val.symbol;
-
-	if(!strcmp(var_name, "thread_timeout"))
-		return make_int(thread_timeout);
-	if(!strcmp(var_name, "mem_lim_soft"))
-		return make_int(mem_lim_soft);
-	if(!strcmp(var_name, "mem_lim_hard"))
-		return make_int(mem_lim_hard);
-	if(!strcmp(var_name, "n_bytes_allocated"))
-		return make_int(n_bytes_allocated);
-	if(!strcmp(var_name, "mem_verbosity"))
-		return make_int(mem_verbosity);
-
-	return make_symbol("Unknown config variable");
-}
-
 static data_t *mathfn(const data_t *list, double (*func)(double)) {
 	data_t *val;
 	
@@ -766,8 +705,63 @@ data_t *prim_lcm(const data_t *list) {
 	return cumulfn(list, lcm);
 }
 
+data_t *prim_set_cvar(const data_t *list) {
+	cvar_list_t *cvar = the_cvars;
+	data_t *var, *val;
+	char *var_name;
+	int value;
+
+	if(length(list) != 2)
+		return make_symbol("error");
+
+	var = car(list);
+	val = car(cdr(list));
+
+	if(!var || (var->type != symbol))
+		return make_symbol("Config variable needs to be a symbol");
+	var_name = var->val.symbol;
+
+	if(!val || (val->type != integer))
+		return make_symbol("Config value needs to be an integer");
+	value = val->val.integer;
+
+	while(cvar) {
+		if(!strcmp(cvar->name, var_name)) {
+			*(cvar->value) = value;
+			return make_symbol("ok");
+		}
+		cvar = cvar->next;
+	}
+
+	return make_symbol("Unknown config variable");
+}
+
+data_t *prim_get_cvar(const data_t *list) {
+	cvar_list_t *cvar = the_cvars;
+	data_t *var;
+	char *var_name;
+
+	if(length(list) != 1)
+		return make_symbol("error");
+
+	var = car(list);
+	if(var->type != symbol)
+		return make_symbol("Config variable needs to be a symbol");
+	var_name = var->val.symbol;
+
+	while(cvar) {
+		if(!strcmp(cvar->name, var_name))
+			return make_int(*(cvar->value));
+		cvar = cvar->next;
+	}
+	
+	return make_symbol("Unknown config variable");
+}
+
+/* --- */
+
 static data_t *primitive_procedure_names(void) {
-	prim_proc_list *curr_proc = last_prim_proc;
+	prim_proc_list_t *curr_proc = last_prim_proc;
 	data_t *out = NULL;
 
 	while(curr_proc) {
@@ -779,7 +773,7 @@ static data_t *primitive_procedure_names(void) {
 }
 
 static data_t *primitive_procedure_objects(void) {
-	prim_proc_list *curr_proc = last_prim_proc;
+	prim_proc_list_t *curr_proc = last_prim_proc;
 	data_t *out = NULL;
 
 	while(curr_proc) {
@@ -791,10 +785,10 @@ static data_t *primitive_procedure_objects(void) {
 }
 
 void add_prim_proc(char *name, prim_proc proc) {
-	prim_proc_list *curr_proc;
+	prim_proc_list_t *curr_proc;
 
 	if(last_prim_proc == NULL) {
-		the_prim_procs = (prim_proc_list*)malloc(sizeof(prim_proc_list));
+		the_prim_procs = (prim_proc_list_t*)malloc(sizeof(prim_proc_list_t));
 		the_prim_procs->name = (char*)malloc(strlen(name) + 1);
 		strcpy(the_prim_procs->name, name);
 		the_prim_procs->proc = proc;
@@ -804,7 +798,7 @@ void add_prim_proc(char *name, prim_proc proc) {
 		return;
 	}
 	
-	curr_proc = (prim_proc_list*)malloc(sizeof(prim_proc_list));
+	curr_proc = (prim_proc_list_t*)malloc(sizeof(prim_proc_list_t));
 	curr_proc->name = (char*)malloc(strlen(name) + 1);
 	strcpy(curr_proc->name, name);
 	curr_proc->proc = proc;
@@ -815,8 +809,38 @@ void add_prim_proc(char *name, prim_proc proc) {
 	last_prim_proc = curr_proc;
 }
 
+void add_cvar(char *name, int *valptr) {
+	cvar_list_t *curr_var;
+
+	if(last_cvar == NULL) {
+		the_cvars = (cvar_list_t*)malloc(sizeof(cvar_list_t));
+		the_cvars->name = (char*)malloc(strlen(name) + 1);
+		strcpy(the_cvars->name, name);
+		the_cvars->value = valptr;
+		the_cvars->next = NULL;
+//		the_cvars->prev = NULL;
+		last_cvar = the_cvars;
+		return;
+	}
+	
+	curr_var = (cvar_list_t*)malloc(sizeof(cvar_list_t));
+	curr_var->name = (char*)malloc(strlen(name) + 1);
+	strcpy(curr_var->name, name);
+	curr_var->value = valptr;
+//	curr_var->prev = last_cvar;
+	curr_var->next = NULL;
+
+	last_cvar->next = curr_var;
+	last_cvar = curr_var;
+}
+
 void setup_environment(void) {
 	data_t *the_empty_environment = cons(cons(NULL, NULL), NULL);
+
+	add_cvar("mem_lim_hard", &mem_lim_hard);
+	add_cvar("mem_lim_soft", &mem_lim_soft);
+	add_cvar("mem_verbosity", &mem_verbosity);
+	add_cvar("thread_timeout", &thread_timeout);
 	
 	add_prim_proc("+", prim_add);
 	add_prim_proc("*", prim_mul);
@@ -845,8 +869,6 @@ void setup_environment(void) {
 	add_prim_proc("real?", prim_is_num);
 	add_prim_proc("integer?", prim_is_int);
 	add_prim_proc("procedure?", prim_is_proc);
-	add_prim_proc("set-config!", prim_set_config);
-	add_prim_proc("get-config", prim_get_config);
 	add_prim_proc("symbol->string", prim_sym_to_str);
 	add_prim_proc("string->symbol", prim_str_to_sym);
 	add_prim_proc("symbol?", prim_is_sym);
@@ -864,6 +886,8 @@ void setup_environment(void) {
 	add_prim_proc("log", prim_log);
 	add_prim_proc("exp", prim_exp);
 
+	add_prim_proc("set-cvar!", prim_set_cvar);
+	add_prim_proc("get-cvar", prim_get_cvar);
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
@@ -928,16 +952,23 @@ void setup_environment(void) {
 }
 
 void cleanup_lisp(void) {
-	prim_proc_list *current = the_prim_procs, *buf;
+	prim_proc_list_t *current_proc = the_prim_procs, *procbuf;
+	cvar_list_t *current_var = the_cvars, *varbuf;
 
 	run_gc(GC_FORCE);
 	free_data_rec(the_global_env);
 
-	while(current) {
-		buf = current->next;
-		free(current->name);
-		free(current);
+	while(current_proc) {
+		procbuf = current_proc->next;
+		free(current_proc->name);
+		free(current_proc);
+		current_proc = procbuf;
+	}
 
-		current = buf;
+	while(current_var) {
+		varbuf = current_var->next;
+		free(current_var->name);
+		free(current_var);
+		current_var = varbuf;
 	}
 }

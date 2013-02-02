@@ -50,7 +50,13 @@ typedef struct prim_procs {
 	prim_proc proc;
 	struct prim_procs *next;
 	struct prim_procs *prev;
-} prim_proc_list;
+} prim_proc_list_t;
+
+typedef struct cvars {
+	char *name;
+	int *value;
+	struct cvars *next;
+} cvar_list_t;
 
 typedef struct cons_t {
 	struct data_t *l, *r;
