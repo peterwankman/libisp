@@ -686,7 +686,7 @@ data_t *prim_get_config(const data_t *list) {
 	return make_symbol("Unknown config variable");
 }
 
-static data_t *mathfn(const data_t *list, const double (*func)(double)) {
+static data_t *mathfn(const data_t *list, double (*func)(double)) {
 	data_t *val;
 	
 	if(length(list) != 1)
@@ -731,7 +731,7 @@ static int gcd(const int a, const int b) {
 
 static int lcm(const int a, const int b) { return a * b / gcd(a, b); }
 
-static data_t *cumulfn(const data_t *list, const int (*func)(const int, const int))  {
+static data_t *cumulfn(const data_t *list, int (*func)(const int, const int))  {
 	int cumul, n;
 	data_t *head;
 
