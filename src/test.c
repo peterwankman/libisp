@@ -138,7 +138,7 @@ int main(void) {
 				printf("Syntax Error: '%s'\n", exp);
 				break;
 			} else {
-				ret = eval(exp_list, the_global_env);
+				ret = eval_thread(exp_list, the_global_env);
 				printf("%s", OUTPUT_PROMPT);
 				print_data(ret);
 				printf("\n");

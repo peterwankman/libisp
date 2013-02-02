@@ -20,11 +20,11 @@
 
 size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;
+size_t n_bytes_allocated = 0;
 int mem_verbosity = GC_SILENT; 
 
 static size_t n_allocs = 0;
 static size_t n_frees = 0;
-static size_t n_bytes_allocated = 0;
 static size_t n_bytes_peak = 0;
 static int warned = 0;
 

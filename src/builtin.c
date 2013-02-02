@@ -17,6 +17,7 @@
 #include "data.h"
 #include "eval.h"
 #include "mem.h"
+#include "thread.h"
 
 prim_proc_list *the_prim_procs = NULL;
 prim_proc_list *last_prim_proc = NULL;
@@ -629,6 +630,48 @@ data_t *prim_is_proc(const data_t *list) {
 	return make_symbol("#f");
 }
 
+data_t *prim_set_config(const data_t *list) {
+	data_t *var, *val;
+	char *var_name;
+	int value;
+
+	if(list->type != pair)
+		return make_symbol("#f");
+
+	if(!list)
+		return make_symbol("#f");
+	if(list->type != pair)
+		return make_symbol("#f");
+	var = car(list);
+
+	list = cdr(list);
+	if(!list)
+		return make_symbol("#f");
+	if(list->type != pair)
+		return make_symbol("#f");
+	val = car(list);
+
+	if(var->type != symbol)
+		return make_symbol("Config variable needs to be a symbol");
+	var_name = var->val.symbol;
+
+	if(val->type != integer)
+		return make_symbol("Config value needs to be an integer");
+	value = val->val.integer;
+	
+	if(!strcmp(var_name, "mem_lim_soft")) {
+		mem_lim_soft = value;
+		return make_symbol("ok");
+	} else if(!strcmp(var_name, "mem_lim_hard")) {
+		mem_lim_hard = value;
+		return make_symbol("ok");
+	} else if(!strcmp(var_name, "thread_timeout")) {
+		thread_timeout = val->val.integer;
+		return make_symbol("ok");
+	}
+	return make_symbol("Unknown config variable");
+}
+
 static data_t *primitive_procedure_names(void) {
 	prim_proc_list *curr_proc = last_prim_proc;
 	data_t *out = NULL;
@@ -706,7 +749,8 @@ void setup_environment(void) {
 	add_prim_proc("real?", prim_is_num);
 	add_prim_proc("integer?", prim_is_int);
 	add_prim_proc("procedure?", prim_is_proc);
-	
+	add_prim_proc("set-config!", prim_set_config);
+		
 	add_prim_proc("symbol->string", prim_sym_to_str);
 	add_prim_proc("string->symbol", prim_str_to_sym);
 	add_prim_proc("symbol?", prim_is_sym);
@@ -761,7 +805,10 @@ void setup_environment(void) {
 	run_exp("(define (force proc) (proc))");
 	run_exp("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
 	run_exp("(define (modulo num div) (- num (* (floor (/ num div)) div)))");
+	run_exp("(define (quotient num div) (truncate (/ num div)))");
+	run_exp("(define (remainder num div) (+ (* (quotient num div) div -1) num))");
 	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) (else (gcd a (modulo b a)))))");
+	run_exp("(define (lcm a b) (/ (* a b) (gcd a b)))");
 	run_exp("(define (odd? n) (if (= 1 (modulo n 2)) '#t '#f))");
 	run_exp("(define (even? n) (not (odd? n)))");
 	

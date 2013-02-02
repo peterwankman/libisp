@@ -9,15 +9,12 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#ifndef LIBISP_H_
-#define LIBISP_H_
+#include "defs.h"
 
-#include "read.h"
-#include "eval.h"
-#include "print.h"
-#include "data.h"
-#include "mem.h"
-#include "builtin.h"
-#include "thread.h"
+#ifndef THREAD_H_
+#define THREAD_H_
+
+data_t *eval_thread(data_t *exp, data_t *env);
+int thread_timeout;
 
 #endif
