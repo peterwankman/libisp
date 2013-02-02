@@ -208,15 +208,15 @@ data_t *make_copy(const data_t *in) {
 		case decimal: out->val.decimal = in->val.decimal; break;
 		case prim_procedure: out->val.proc = in->val.proc; break;
 		case string: 
-			out->val.string = malloc(strlen(in->val.string) + 1);
+			out->val.string = (char*)malloc(strlen(in->val.string) + 1);
 			strcpy(out->val.string, in->val.string);
 			break;
 		case symbol:
-			out->val.symbol = malloc(strlen(in->val.symbol) + 1);
+			out->val.symbol = (char*)malloc(strlen(in->val.symbol) + 1);
 			strcpy(out->val.symbol, in->val.symbol);
 			break;		
 		case pair:
-			out->val.pair = malloc(sizeof(cons_t));
+			out->val.pair = (cons_t*)malloc(sizeof(cons_t));
 			if(!out)
 				return NULL;
 			if(in->val.pair->l)

@@ -68,7 +68,7 @@ char *input_exp(int *paren) {
 	
 	*paren = 0;
 
-	if((out = malloc(bufsize)) == NULL) {
+	if((out = (char*)malloc(bufsize)) == NULL) {
 		fprintf(stderr, "ERROR: malloc(%d) failed.\n", bufsize);
 		return NULL;
 	}
