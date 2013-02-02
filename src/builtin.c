@@ -297,6 +297,21 @@ data_t *prim_comp_more(const data_t *list) {
 
 }
 
+data_t *prim_floor(const data_t *list) {
+	if(list->type != pair)
+		return make_symbol("error");
+
+	list = car(list);
+
+	if(list->type == integer)
+		return make_int(list->val.integer);
+
+	if(list->type == decimal)
+		return make_int((int)floor(list->val.decimal));
+
+	return make_symbol("error");
+}
+
 data_t *prim_eq(const data_t *list) {
 	data_t *first, *second;
 	int ret;
@@ -496,6 +511,7 @@ void setup_environment(void) {
 	add_prim_proc("=", prim_comp_eq);
 	add_prim_proc("<", prim_comp_less);
 	add_prim_proc(">", prim_comp_more);
+	add_prim_proc("floor", prim_floor);
 	add_prim_proc("not", prim_not);
 	add_prim_proc("eq?", prim_eq);
 	add_prim_proc("car", prim_car);
@@ -553,6 +569,8 @@ void setup_environment(void) {
 	run_exp("(define (delay proc) (lambda () proc))");
 	run_exp("(define (force proc) (proc))");
 	run_exp("(define (length list) (define (list-loop part count) (if (null? part) count (list-loop (cdr part) (+ count 1)))) (list-loop list 0))");
+	run_exp("(define (modulo num div) (- num (* (floor (/ num div)) div)))");
+	run_exp("(define (gcd a b) (cond ((= a 0) b) ((= b 0) a) ((> a b) (gcd (modulo a b) b)) ((< a b) (gcd a (modulo b a)))))");
 	
 	run_gc(GC_FORCE);
 }
