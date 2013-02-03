@@ -841,6 +841,7 @@ void setup_environment(void) {
 
 	add_cvar("mem_lim_hard", &mem_lim_hard, CVAR_READWRITE);
 	add_cvar("mem_lim_soft", &mem_lim_soft, CVAR_READWRITE);
+	add_cvar("mem_list_entries", &mem_list_entries, CVAR_READONLY);
 	add_cvar("mem_verbosity", &mem_verbosity, CVAR_READWRITE);
 	add_cvar("mem_allocated", &mem_allocated, CVAR_READONLY);
 	add_cvar("thread_timeout", &thread_timeout, CVAR_READWRITE);

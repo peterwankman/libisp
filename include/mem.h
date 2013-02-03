@@ -24,6 +24,7 @@
 
 size_t mem_lim_soft;
 size_t mem_lim_hard;
+size_t mem_list_entries;
 size_t mem_allocated;
 size_t mem_verbosity;
 

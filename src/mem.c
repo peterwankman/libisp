@@ -21,6 +21,7 @@
 
 size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;
+size_t mem_list_entries = 0;
 size_t mem_allocated = 0;
 size_t mem_verbosity = MEM_SILENT; 
 
@@ -36,6 +37,7 @@ typedef struct alloclist_t {
 	size_t size;
 	char mark;
 	struct alloclist_t *next;
+	struct alloclist_t *prev;
 } alloclist_t;
 
 static alloclist_t *alloc_list = NULL;
@@ -54,22 +56,30 @@ static alloclist_t *make_entry(data_t *memory, const char *file, const int line,
 	out->mark = 0;
 	out->size = size;
 	out->next = NULL;
+	out->prev = NULL;
 
 	return out;
 }
 
-static void addtolist(const alloclist_t *entry) {
+static void addtolist(alloclist_t *entry) {
 	alloclist_t *current = alloc_list, *last = NULL;
 	if(!current) {
 		alloc_list = (alloclist_t*)entry;
+		mem_list_entries++;
 		return;
 	}
 
-	while(current) {		
-		last = current;
+	while(current && current->memory < entry->memory) {		
+		last = current;		
 		current = current->next;
 	}
-	last->next = (alloclist_t*)entry;
+	entry->prev = last;
+	entry->next = current;
+
+	last->next = entry;
+	if(current)
+		current->prev = entry;
+	mem_list_entries++;	
 }
 
 data_t *_dalloc(const size_t size, const char *file, const int line) {
@@ -112,18 +122,24 @@ static int delfromlist(const void *memory) {
 		return 0;
 
 	while(current) {
-		if(current->memory == memory) {
+		if(current->memory < memory) {
+			 last = current;
+			 current = current->next;
+		} else {
 			if(last) {
 				last->next = current->next;
+				if(current->next)
+					current->next->prev = last;
 			} else {
 				alloc_list = current->next;
+				if(alloc_list)
+					alloc_list->prev = NULL;
 			}
 			mem_allocated -= current->size;
+			mem_list_entries--;
 			free(current);
 			return 1;
-		}
-		last = current;
-		current = current->next;
+		}		
 	}
 
 	return 0;
@@ -240,6 +256,8 @@ void showmemstats(FILE *fp) {
 		}
 
 		fprintf(fp, "%d allocs; %d frees.\n", n_allocs, n_frees);
+		if(mem_list_entries)
+			printf("%d list entries left.\n", mem_list_entries);
 		printf("--- End summary ---\n");
 	}
 
