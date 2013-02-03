@@ -23,7 +23,8 @@ size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;
 size_t mem_list_entries = 0;
 size_t mem_allocated = 0;
-size_t mem_verbosity = MEM_SILENT; 
+size_t mem_verbosity = MEM_SILENT;
+size_t mem_dont_kill_me = 0;
 
 static size_t n_allocs = 0;
 static size_t n_frees = 0;
@@ -98,6 +99,7 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 	} else if(warned && (newsize < mem_lim_soft))
 		warned = 0;
 
+	mem_dont_kill_me = 1;
 	memory = (data_t*)malloc(size);
 
 	if(memory) {
@@ -110,6 +112,7 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 
 		n_allocs++;
 	}
+	mem_dont_kill_me = 0;
 	return memory;
 }
 
@@ -122,7 +125,8 @@ static int delfromlist(const void *memory) {
 		return 0;
 
 	while(current) {
-		if(current->memory < memory) {
+		mem_dont_kill_me = 1;
+		if((char*)current->memory < (char*)memory) {
 			 last = current;
 			 current = current->next;
 		} else {
@@ -138,10 +142,12 @@ static int delfromlist(const void *memory) {
 			mem_allocated -= current->size;
 			mem_list_entries--;
 			free(current);
+			mem_dont_kill_me = 0;
 			return 1;
 		}		
 	}
 
+	mem_dont_kill_me = 0;
 	return 0;
 }
 

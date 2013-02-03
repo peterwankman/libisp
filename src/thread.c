@@ -47,6 +47,7 @@ static void *thread(void *in) {
 }
 
 void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle) {
+	while(mem_dont_kill_me);
 #ifdef _WIN32
 	TerminateThread(thread_handle, 0);
 #else
