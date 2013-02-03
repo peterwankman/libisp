@@ -24,8 +24,8 @@
 
 size_t mem_lim_soft;
 size_t mem_lim_hard;
-size_t n_bytes_allocated;
-int mem_verbosity;
+size_t mem_allocated;
+size_t mem_verbosity;
 
 data_t *_dalloc(const size_t size, const char *file, const int line);
 void showmemstats(FILE *fp);

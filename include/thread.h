@@ -14,7 +14,7 @@
 #ifndef THREAD_H_
 #define THREAD_H_
 
-int thread_timeout;
+size_t thread_timeout;
 int thread_running;
 
 data_t *eval_thread(const data_t *exp, data_t *env);

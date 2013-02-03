@@ -21,13 +21,13 @@
 
 size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;
-size_t n_bytes_allocated = 0;
-int mem_verbosity = MEM_SILENT; 
+size_t mem_allocated = 0;
+size_t mem_verbosity = MEM_SILENT; 
 
 static size_t n_allocs = 0;
 static size_t n_frees = 0;
 static size_t n_bytes_peak = 0;
-static int warned = 0;
+static size_t warned = 0;
 
 typedef struct alloclist_t {
 	data_t *memory;
@@ -74,7 +74,7 @@ static void addtolist(const alloclist_t *entry) {
 
 data_t *_dalloc(const size_t size, const char *file, const int line) {
 	data_t *memory;
-	size_t newsize = n_bytes_allocated + size;
+	size_t newsize = mem_allocated + size;
 	alloclist_t *newentry;
 
 	if(newsize > mem_lim_hard) {
@@ -94,9 +94,9 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 		if((newentry = make_entry(memory, file, line, size)))
 			addtolist(newentry);
 
-		n_bytes_allocated += size;
-		if(n_bytes_allocated > n_bytes_peak)
-			n_bytes_peak = n_bytes_allocated;
+		mem_allocated += size;
+		if(mem_allocated > n_bytes_peak)
+			n_bytes_peak = mem_allocated;
 
 		n_allocs++;
 	}
@@ -118,7 +118,7 @@ static int delfromlist(const void *memory) {
 			} else {
 				alloc_list = current->next;
 			}
-			n_bytes_allocated -= current->size;
+			mem_allocated -= current->size;
 			free(current);
 			return 1;
 		}
@@ -203,15 +203,15 @@ static void sweep(const int req_mark) {
 }
 
 size_t run_gc(int force) {
-	size_t old_mem = n_bytes_allocated;
+	size_t old_mem = mem_allocated;
 
-	if((force == GC_FORCE) || (n_bytes_allocated > mem_lim_soft)) {
+	if((force == GC_FORCE) || (mem_allocated > mem_lim_soft)) {
 		clear_mark();
 		mark(the_global_env);
 		sweep(0);
 	}
 
-	return old_mem - n_bytes_allocated;
+	return old_mem - mem_allocated;
 }
 
 /* FREE */
@@ -243,8 +243,8 @@ void showmemstats(FILE *fp) {
 		printf("--- End summary ---\n");
 	}
 
-	if(n_bytes_allocated)
-		fprintf(fp, "Bytes left allocated: %d out of ", n_bytes_allocated);
-	if((mem_verbosity == MEM_VERBOSE) || n_bytes_allocated)
+	if(mem_allocated)
+		fprintf(fp, "Bytes left allocated: %d out of ", mem_allocated);
+	if((mem_verbosity == MEM_VERBOSE) || mem_allocated)
 		fprintf(fp, "%d bytes peak memory usage.\n", n_bytes_peak);
 }

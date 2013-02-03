@@ -718,22 +718,24 @@ data_t *prim_set_cvar(const data_t *list) {
 	val = car(cdr(list));
 
 	if(!var || (var->type != symbol))
-		return make_symbol("Config variable needs to be a symbol");
+		return make_symbol("CVAR identifier needs to be a symbol");
 	var_name = var->val.symbol;
 
 	if(!val || (val->type != integer))
-		return make_symbol("Config value needs to be an integer");
+		return make_symbol("CVAR value needs to be an integer");
 	value = val->val.integer;
 
 	while(cvar) {
 		if(!strcmp(cvar->name, var_name)) {
+			if(cvar->access == CVAR_READONLY)
+				return make_symbol("CVAR is read-only");
 			*(cvar->value) = value;
 			return make_symbol("ok");
 		}
 		cvar = cvar->next;
 	}
 
-	return make_symbol("Unknown config variable");
+	return make_symbol("Unknown CVAR");
 }
 
 data_t *prim_get_cvar(const data_t *list) {
@@ -746,7 +748,7 @@ data_t *prim_get_cvar(const data_t *list) {
 
 	var = car(list);
 	if(var->type != symbol)
-		return make_symbol("Config variable needs to be a symbol");
+		return make_symbol("CVAR identifier needs to be a symbol");
 	var_name = var->val.symbol;
 
 	while(cvar) {
@@ -755,7 +757,7 @@ data_t *prim_get_cvar(const data_t *list) {
 		cvar = cvar->next;
 	}
 	
-	return make_symbol("Unknown config variable");
+	return make_symbol("Unknown CVAR");
 }
 
 /* --- */
@@ -809,16 +811,16 @@ void add_prim_proc(char *name, prim_proc proc) {
 	last_prim_proc = curr_proc;
 }
 
-void add_cvar(char *name, int *valptr) {
+void add_cvar(const char *name, const size_t *valptr, const int access) {
 	cvar_list_t *curr_var;
 
 	if(last_cvar == NULL) {
 		the_cvars = (cvar_list_t*)malloc(sizeof(cvar_list_t));
 		the_cvars->name = (char*)malloc(strlen(name) + 1);
 		strcpy(the_cvars->name, name);
-		the_cvars->value = valptr;
+		the_cvars->value = (size_t*)valptr;
+		the_cvars->access = (int)access;
 		the_cvars->next = NULL;
-//		the_cvars->prev = NULL;
 		last_cvar = the_cvars;
 		return;
 	}
@@ -826,8 +828,8 @@ void add_cvar(char *name, int *valptr) {
 	curr_var = (cvar_list_t*)malloc(sizeof(cvar_list_t));
 	curr_var->name = (char*)malloc(strlen(name) + 1);
 	strcpy(curr_var->name, name);
-	curr_var->value = valptr;
-//	curr_var->prev = last_cvar;
+	curr_var->value = (size_t*)valptr;
+	curr_var->access = (int)access;
 	curr_var->next = NULL;
 
 	last_cvar->next = curr_var;
@@ -837,10 +839,11 @@ void add_cvar(char *name, int *valptr) {
 void setup_environment(void) {
 	data_t *the_empty_environment = cons(cons(NULL, NULL), NULL);
 
-	add_cvar("mem_lim_hard", &mem_lim_hard);
-	add_cvar("mem_lim_soft", &mem_lim_soft);
-	add_cvar("mem_verbosity", &mem_verbosity);
-	add_cvar("thread_timeout", &thread_timeout);
+	add_cvar("mem_lim_hard", &mem_lim_hard, CVAR_READWRITE);
+	add_cvar("mem_lim_soft", &mem_lim_soft, CVAR_READWRITE);
+	add_cvar("mem_verbosity", &mem_verbosity, CVAR_READWRITE);
+	add_cvar("mem_allocated", &mem_allocated, CVAR_READONLY);
+	add_cvar("thread_timeout", &thread_timeout, CVAR_READWRITE);
 	
 	add_prim_proc("+", prim_add);
 	add_prim_proc("*", prim_mul);

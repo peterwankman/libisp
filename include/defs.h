@@ -54,7 +54,8 @@ typedef struct prim_procs {
 
 typedef struct cvars {
 	char *name;
-	int *value;
+	int access;
+	size_t *value;
 	struct cvars *next;
 } cvar_list_t;
 

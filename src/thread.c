@@ -29,7 +29,7 @@ typedef struct {
 } threadparam_t;
 
 int thread_running = 0;
-int thread_timeout = 2;
+size_t thread_timeout = 2;
 
 #ifdef _WIN32
 static DWORD WINAPI thread(LPVOID in) {
@@ -88,7 +88,7 @@ data_t *eval_thread(const data_t *exp, data_t *env) {
 	while(thread_running) {
 		if(thread_timeout && (time(NULL) - starttime > thread_timeout))
 			kill_thread(&info, "-- ERROR: eval() timed out.\n", thread_handle);
-		if(n_bytes_allocated + sizeof(data_t) >= mem_lim_hard) {
+		if(mem_allocated + sizeof(data_t) >= mem_lim_hard) {
 			kill_thread(&info, "-- ERROR: Hard memory limit reached.\n", 
 				thread_handle);
 			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE)))

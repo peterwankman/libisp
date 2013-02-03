@@ -14,6 +14,9 @@
 #ifndef BUILTIN_H_
 #define BUILTIN_H_
 
+#define CVAR_READONLY	1
+#define CVAR_READWRITE	2
+
 data_t *the_global_env;
 
 void add_prim_proc(char *name, prim_proc proc);
