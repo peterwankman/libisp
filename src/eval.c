@@ -9,6 +9,13 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <pthread.h>
+#define ExitThread pthread_exit
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -18,6 +25,8 @@
 #include "mem.h"
 #include "print.h"
 #include "read.h"
+
+size_t eval_plz_die = 0;
 
 data_t *eval(const data_t *exp, data_t *env);
 static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env);
@@ -346,6 +355,11 @@ data_t *apply(const data_t *proc, const data_t *args) {
 }
 
 data_t *eval(const data_t *exp, data_t *env) {
+	if(eval_plz_die) {
+		eval_plz_die = 0;
+		ExitThread(0);
+	}
+
 	if(is_self_evaluating(exp))
 		return (data_t*)exp;
 	if(is_variable(exp))

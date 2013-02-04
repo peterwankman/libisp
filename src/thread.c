@@ -47,12 +47,7 @@ static void *thread(void *in) {
 }
 
 void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle) {
-	while(mem_dont_kill_me);
-#ifdef _WIN32
-	TerminateThread(thread_handle, 0);
-#else
-	pthread_cancel(thread_handle);
-#endif
+	eval_plz_die = 1;
 	fprintf(stderr, msg);
 	info->result = NULL;
 	thread_running = 0;

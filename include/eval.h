@@ -15,6 +15,8 @@
 #define EVAL_H_
 
 #ifndef LIBISP_H_
+size_t eval_plz_die;
+
 int is_compound_procedure(const data_t *exp);
 data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
 #endif

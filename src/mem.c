@@ -24,7 +24,6 @@ size_t mem_lim_hard = 131071;
 size_t mem_list_entries = 0;
 size_t mem_allocated = 0;
 size_t mem_verbosity = MEM_SILENT;
-size_t mem_dont_kill_me = 0;
 
 static size_t n_allocs = 0;
 static size_t n_frees = 0;
@@ -38,7 +37,6 @@ typedef struct alloclist_t {
 	size_t size;
 	char mark;
 	struct alloclist_t *next;
-	struct alloclist_t *prev;
 } alloclist_t;
 
 static alloclist_t *alloc_list = NULL;
@@ -57,7 +55,6 @@ static alloclist_t *make_entry(data_t *memory, const char *file, const int line,
 	out->mark = 0;
 	out->size = size;
 	out->next = NULL;
-	out->prev = NULL;
 
 	return out;
 }
@@ -65,21 +62,23 @@ static alloclist_t *make_entry(data_t *memory, const char *file, const int line,
 static void addtolist(alloclist_t *entry) {
 	alloclist_t *current = alloc_list, *last = NULL;
 	if(!current) {
-		alloc_list = (alloclist_t*)entry;
-		mem_list_entries++;
+		alloc_list = entry;
+		mem_list_entries++;		
 		return;
 	}
 
-	while(current && current->memory < entry->memory) {		
+	while(current && ((void*)current->memory < (void*)entry->memory)) {
 		last = current;		
 		current = current->next;
 	}
-	entry->prev = last;
+
+	if(last)
+		last->next = entry;
+	else
+		alloc_list = entry;		
+	
 	entry->next = current;
 
-	last->next = entry;
-	if(current)
-		current->prev = entry;
 	mem_list_entries++;	
 }
 
@@ -99,20 +98,23 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 	} else if(warned && (newsize < mem_lim_soft))
 		warned = 0;
 
-	mem_dont_kill_me = 1;
 	memory = (data_t*)malloc(size);
 
 	if(memory) {
-		if((newentry = make_entry(memory, file, line, size)))
+		if((newentry = make_entry(memory, file, line, size))) {
 			addtolist(newentry);
 
-		mem_allocated += size;
-		if(mem_allocated > n_bytes_peak)
-			n_bytes_peak = mem_allocated;
+			mem_allocated += size;
+			if(mem_allocated > n_bytes_peak)
+				n_bytes_peak = mem_allocated;
 
-		n_allocs++;
+			n_allocs++;
+		} else {
+			fprintf(stderr, "ERROR: malloc() failed for new memory list entry.\n");
+			free(memory);
+			return NULL;
+		}
 	}
-	mem_dont_kill_me = 0;
 	return memory;
 }
 
@@ -125,29 +127,22 @@ static int delfromlist(const void *memory) {
 		return 0;
 
 	while(current) {
-		mem_dont_kill_me = 1;
-		if((char*)current->memory < (char*)memory) {
+		if((void*)current->memory < (void*)memory) {
 			 last = current;
 			 current = current->next;
 		} else {
-			if(last) {
+			if(last)
 				last->next = current->next;
-				if(current->next)
-					current->next->prev = last;
-			} else {
+			else
 				alloc_list = current->next;
-				if(alloc_list)
-					alloc_list->prev = NULL;
-			}
+
 			mem_allocated -= current->size;
 			mem_list_entries--;
 			free(current);
-			mem_dont_kill_me = 0;
 			return 1;
 		}		
 	}
 
-	mem_dont_kill_me = 0;
 	return 0;
 }
 
@@ -195,11 +190,18 @@ static alloclist_t *find_in_list(const void *memory) {
 }
 
 static void mark(data_t *start) {
-	alloclist_t *list_entry = find_in_list(start);
+	alloclist_t *list_entry;
 	data_t *head, *tail;
 
 	if(!start)
 		return;
+
+	list_entry = find_in_list(start);
+
+	if(!list_entry) {
+		fprintf(stderr, "ERROR: %d not found in memory list.\n", start);
+		return;
+	}
 
 	if(list_entry->mark == 0) {
 		list_entry->mark = 1;
