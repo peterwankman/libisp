@@ -1,3 +1,16 @@
+
+ '-._                  ___.....___
+     `.__           ,-'        ,-.`-,
+         `''-------'          ( p )  `._
+                               `-'      (        Have you conjured the spirits
+                                         \             of your computer today?
+                                .         \
+                                 \\---..,--'
+         .............._           --...--,
+                        `-.._         _.-'
+                             `'-----''                     Read SICP for help.
+
+
 libisp -- Lisp evaluator based on SICP
 (C) 2013 Martin Wolters
 
