@@ -20,19 +20,19 @@
 data_t *read_exp(const char *exp, size_t *readto, int *error);
 
 static size_t skip_whitespace(const char *exp) {
-	char *out = (char*)exp;
+	const char *out = exp;
 
-	while(out[0] && isspace(out[0]))
+	while(*out && isspace(*out))
 		out++;
 
 	return out - exp;
 }
 
 static int is_string(const char *exp, size_t *len) {
-	char *end;
+	const char *end;
 
-	if(exp[0] == '\"') {
-		end = (char*)strchr(exp + 1, '\"');
+	if(*exp == '\"') {
+		end = strchr(exp + 1, '\"');
 		if(end) {
 			*len = end - exp + 1;
 			return 1;
@@ -42,7 +42,7 @@ static int is_string(const char *exp, size_t *len) {
 }
 
 static int is_symbol(const char *exp, size_t *len) {
-	char *allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*+-./:<=>?@^_~'#";
+	const char *allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$%&*+-./:<=>?@^_~'#";
 	
 	*len = 0;
 	while(exp[*len] && !isspace(exp[*len]) && exp[*len] != ')') {
@@ -54,14 +54,14 @@ static int is_symbol(const char *exp, size_t *len) {
 }
 
 static int is_quotation(const char *exp) {
-	if(exp[0] == '\'')
+	if(*exp == '\'')
 		return 1;
 	return 0;
 }
 
 static int is_decimal(const char *exp, size_t *len, double *out) {
 	size_t pointfound = 0;
-	char *end;
+	const char *end;
 
 	*len = 0;
 	if(exp[0] == '-')
@@ -77,7 +77,7 @@ static int is_decimal(const char *exp, size_t *len, double *out) {
 	}
 
 	if(pointfound) {		
-		end = (char*)exp + *len;
+		end = exp + *len;
 		*out = strtod(exp, NULL);
 		return 1;
 	}
@@ -88,7 +88,7 @@ static int is_integer(const char *exp, size_t *len, int *out) {
 	int fact = 1, numbers = 0;
 
 	*len = 0;
-	if(exp[0] == '-') {
+	if(*exp == '-') {
 		fact = -1;
 		(*len)++;
 	}
@@ -115,7 +115,7 @@ static int is_integer(const char *exp, size_t *len, int *out) {
 static int is_combination(const char *exp, size_t *len) {
 	size_t parens = 1;
 
-	if(exp[0] != '(')
+	if(*exp != '(')
 		return 0;
 		
 	*len = 1;

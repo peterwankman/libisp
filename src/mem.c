@@ -43,7 +43,7 @@ static alloclist_t *alloc_list = NULL;
 
 /* ALLOCATOR */
 
-static alloclist_t *make_entry(data_t *memory, const char *file, const int line, size_t size) {
+static alloclist_t *make_entry(data_t *memory, const char *file, const int line, const size_t size) {
 	alloclist_t *out;
 	
 	if((out = (alloclist_t*)malloc(sizeof(alloclist_t))) == NULL)
@@ -226,7 +226,7 @@ static void sweep(const int req_mark) {
 	}
 }
 
-size_t run_gc(int force) {
+size_t run_gc(const int force) {
 	size_t old_mem = mem_allocated;
 
 	if((force == GC_FORCE) || (mem_allocated > mem_lim_soft)) {

@@ -23,13 +23,13 @@ void print_banner(void) {
 	printf(" '-._                  ___.....___\n");
 	printf("     `.__           ,-'        ,-.`-,\n");
 	printf("         `''-------'          ( p )  `._\n");
-	printf("                               `-'      (        Have you read your SICP today?\n");
-	printf("                                         \\\n");
+	printf("                               `-'      (         Have you conjured the spirits\n");
+	printf("                                         \\              of your computer today?\n");
 	printf("                                .         \\\n");
 	printf("                                 \\\\---..,--'\n");
 	printf("         .............._           --...--,\n");
 	printf("                        `-.._         _.-'\n");
-	printf("                             `'-----''                     Type (quit) to quit.\n\n");
+	printf("                             `'-----''                      Read SICP for help.\n\n");
 }
 
 int balanced_parens(char *exp) {
