@@ -1,5 +1,4 @@
 src/*.o
-bin/*
 Release
 Debug
 libisp/Release
