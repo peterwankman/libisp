@@ -9,10 +9,10 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef DATA_H_
-#define DATA_H_
+#ifndef LIBISP_DATA_H_
+#define LIBISP_DATA_H_
 
 data_t *make_int(const int i);
 data_t *make_decimal(const double d);

@@ -11,18 +11,16 @@
 
 #include "defs.h"
 
-#ifndef EVAL_H_
-#define EVAL_H_
+#ifndef LIBISP_BUILTIN_H_
+#define LIBISP_BUILTIN_H_
 
-#ifndef LIBISP_H_
-size_t eval_plz_die;
+#define CVAR_READONLY	1
+#define CVAR_READWRITE	2
 
-int is_compound_procedure(const data_t *exp);
-data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
-#endif
+data_t *the_global_env;
 
-data_t *apply(const data_t *proc, const data_t *args);
-data_t *eval(data_t *exp, data_t *env);
-int run_exp(const char *exp);
+void add_prim_proc(char *name, prim_proc proc);
+void setup_environment(void);
+void cleanup_lisp(void);
 
 #endif

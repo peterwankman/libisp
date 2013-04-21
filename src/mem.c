@@ -13,11 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "builtin.h"
-#include "data.h"
-#include "eval.h"
-#include "mem.h"
-#include "thread.h"
+#include "libisp/builtin.h"
+#include "libisp/data.h"
+#include "libisp/eval.h"
+#include "libisp/mem.h"
+#include "libisp/thread.h"
 
 size_t mem_lim_soft =  65535;
 size_t mem_lim_hard = 131071;

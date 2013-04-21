@@ -9,18 +9,14 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef BUILTIN_H_
-#define BUILTIN_H_
+#ifndef LIBISP_THREAD_H_
+#define LIBISP_THREAD_H_
 
-#define CVAR_READONLY	1
-#define CVAR_READWRITE	2
+size_t thread_timeout;
+int thread_running;
 
-data_t *the_global_env;
-
-void add_prim_proc(char *name, prim_proc proc);
-void setup_environment(void);
-void cleanup_lisp(void);
+data_t *eval_thread(const data_t *exp, data_t *env);
 
 #endif

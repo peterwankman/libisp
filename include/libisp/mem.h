@@ -11,10 +11,10 @@
 
 #include <stdio.h>
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef MEM_H_
-#define MEM_H_
+#ifndef LIBISP_MEM_H_
+#define LIBISP_MEM_H_
 
 #define MEM_SILENT	0
 #define MEM_VERBOSE	1

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "data.h"
+#include "libisp/data.h"
 
 data_t *read_exp(const char *exp, size_t *readto, int *error);
 
