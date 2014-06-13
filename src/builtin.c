@@ -48,8 +48,8 @@ data_t *prim_add(const data_t *list) {
 		return make_int(iout);
 	}
 	
-	if((dout - iout) == floor(dout - iout))
-		return make_int((int)dout - iout);
+	if((dout + iout) == floor(dout + iout))
+		return make_int((int)dout + iout);
 
 	return make_decimal(dout + iout);
 }
