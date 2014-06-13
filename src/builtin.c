@@ -839,8 +839,8 @@ void add_cvar(const char *name, const size_t *valptr, const int access) {
 void setup_environment(void) {
 	data_t *the_empty_environment = cons(cons(NULL, NULL), NULL);
 
-	add_cvar("mem_lim_hard", &mem_lim_hard, CVAR_READWRITE);
-	add_cvar("mem_lim_soft", &mem_lim_soft, CVAR_READWRITE);
+	add_cvar("mem_lim_hard", &mem_lim_hard, CVAR_READONLY);
+	add_cvar("mem_lim_soft", &mem_lim_soft, CVAR_READONLY);
 	add_cvar("mem_list_entries", &mem_list_entries, CVAR_READONLY);
 	add_cvar("mem_verbosity", &mem_verbosity, CVAR_READWRITE);
 	add_cvar("mem_allocated", &mem_allocated, CVAR_READONLY);
