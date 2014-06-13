@@ -15,11 +15,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "builtin.h"
-#include "data.h"
-#include "eval.h"
-#include "mem.h"
-#include "thread.h"
+#include "libisp/builtin.h"
+#include "libisp/data.h"
+#include "libisp/eval.h"
+#include "libisp/mem.h"
+#include "libisp/thread.h"
 
 prim_proc_list_t *the_prim_procs = NULL;
 prim_proc_list_t *last_prim_proc = NULL;

@@ -1,0 +1,6 @@
+src/*.o
+Release
+Debug
+libisp/Release
+libisp/Debug
+

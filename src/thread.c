@@ -20,9 +20,9 @@
 #include <time.h>
 #include <stdio.h>
 
-#include "defs.h"
-#include "eval.h"
-#include "mem.h"
+#include "libisp/defs.h"
+#include "libisp/eval.h"
+#include "libisp/mem.h"
 
 typedef struct {
 	data_t *exp, *env, *result;

@@ -12,12 +12,12 @@
 #ifndef LIBISP_H_
 #define LIBISP_H_
 
-#include "read.h"
-#include "eval.h"
-#include "print.h"
-#include "data.h"
-#include "mem.h"
-#include "builtin.h"
-#include "thread.h"
+#include "libisp/read.h"
+#include "libisp/eval.h"
+#include "libisp/print.h"
+#include "libisp/data.h"
+#include "libisp/mem.h"
+#include "libisp/builtin.h"
+#include "libisp/thread.h"
 
 #endif

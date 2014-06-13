@@ -9,14 +9,11 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef THREAD_H_
-#define THREAD_H_
+#ifndef LIBISP_PRINT_H_
+#define LIBISP_PRINT_H_
 
-size_t thread_timeout;
-int thread_running;
-
-data_t *eval_thread(const data_t *exp, data_t *env);
+void print_data(const data_t *d);
 
 #endif

@@ -9,8 +9,8 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#ifndef DEFS_H_
-#define DEFS_H_
+#ifndef LIBISP_DEFS_H_
+#define LIBISP_DEFS_H_
 
 /* MY OTHER CAR IS A CDR */
 

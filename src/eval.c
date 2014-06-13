@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "builtin.h"
-#include "data.h"
-#include "mem.h"
-#include "print.h"
-#include "read.h"
+#include "libisp/builtin.h"
+#include "libisp/data.h"
+#include "libisp/mem.h"
+#include "libisp/print.h"
+#include "libisp/read.h"
 
 size_t eval_plz_die = 0;
 

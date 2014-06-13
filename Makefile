@@ -5,54 +5,25 @@ BIN=bin
 
 CC=gcc
 CFLAGS = -I$(INC) -O0 -ggdb -Wall -lm
+OBJS=$(SRC)/builtin.o \
+	$(SRC)/data.o \
+	$(SRC)/eval.o \
+	$(SRC)/mem.o \
+	$(SRC)/print.o \
+	$(SRC)/read.o \
+	$(SRC)/thread.o
 
-all:
-	make $(OBJ)
-	make $(BIN)
-	make $(BIN)/libisp.a
-	make $(BIN)/lisp
+.PHONY: all clean
 
-$(OBJ):
-	mkdir $(OBJ)
+all: $(BIN)/libisp.a $(BIN)/lisp
 
-$(BIN):
-	mkdir $(BIN)
+$(BIN)/lisp: $(SRC)/test.c $(BIN)/libisp.a
+	$(CC) $(CFLAGS) -L$(BIN) -lisp -pthread -o $@ $^
 
-$(BIN)/lisp: $(SRC)/test.c
-	$(CC) $(CFLAGS) $^ -L$(BIN) -lisp -pthread -o $@
-
-$(BIN)/libisp.a: $(OBJ)/builtin.o \
-$(OBJ)/data.o \
-$(OBJ)/eval.o \
-$(OBJ)/mem.o \
-$(OBJ)/print.o \
-$(OBJ)/read.o \
-$(OBJ)/thread.o
+$(BIN)/libisp.a: $(OBJS)
 	ar rcs $@ $^
-
-$(OBJ)/builtin.o: $(SRC)/builtin.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/data.o: $(SRC)/data.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/eval.o: $(SRC)/eval.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/mem.o: $(SRC)/mem.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/print.o: $(SRC)/print.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/read.o: $(SRC)/read.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(OBJ)/thread.o: $(SRC)/thread.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-.PHONY: clean
+.c.o:
+	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
 
 clean:
-	rm -rf $(OBJ)
-	rm -rf $(BIN)
+	rm -rf $(OBJS) $(BIN)/libisp.a $(BIN)/lisp

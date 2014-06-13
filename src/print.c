@@ -11,8 +11,8 @@
 
 #include <stdio.h>
 
-#include "data.h"
-#include "eval.h"
+#include "libisp/data.h"
+#include "libisp/eval.h"
 
 extern data_t *the_global_env;
 

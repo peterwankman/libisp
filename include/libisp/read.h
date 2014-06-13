@@ -9,10 +9,10 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef READ_H_
-#define READ_H_
+#ifndef LIBISP_READ_H_
+#define LIBISP_READ_H_
 
 data_t *read_exp(const char *exp, size_t *readto, int *error);
 

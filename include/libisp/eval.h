@@ -9,11 +9,20 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#include "defs.h"
+#include "libisp/defs.h"
 
-#ifndef PRINT_H_
-#define PRINT_H_
+#ifndef LIBISP_EVAL_H_
+#define LIBISP_EVAL_H_
 
-void print_data(const data_t *d);
+#ifndef LIBISP_H_
+size_t eval_plz_die;
+
+int is_compound_procedure(const data_t *exp);
+data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
+#endif
+
+data_t *apply(const data_t *proc, const data_t *args);
+data_t *eval(data_t *exp, data_t *env);
+int run_exp(const char *exp);
 
 #endif
