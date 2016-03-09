@@ -146,7 +146,7 @@ int main(void) {
 		
 			exp += readto;
 
-			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_LOWMEM)))
+			if((reclaimed = run_GC(GC_LOWMEM)) && (mem_verbosity == MEM_VERBOSE))
 				printf("-- GC: %zd bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
