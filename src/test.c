@@ -36,7 +36,7 @@ int balanced_parens(char *exp) {
 	int out = 0;
 	char c;
 
-	while(c = *(exp++)) {
+	while((c = *(exp++))) {
 		if(c == '(')
 			out++;
 		if(c == ')')
@@ -69,7 +69,7 @@ char *input_exp(int *paren) {
 	*paren = 0;
 
 	if((out = (char*)malloc(bufsize)) == NULL) {
-		fprintf(stderr, "ERROR: malloc(%d) failed.\n", bufsize);
+		fprintf(stderr, "ERROR: malloc(%zd) failed.\n", bufsize);
 		return NULL;
 	}
 
@@ -83,7 +83,7 @@ char *input_exp(int *paren) {
 		if(newlen > bufsize) {
 			bufsize += BUFSIZ;
 			if((out = (char*)realloc(out, bufsize)) == NULL) {
-				fprintf(stderr, "ERROR: realloc(%d) failed.\n", bufsize);
+				fprintf(stderr, "ERROR: realloc(%zd) failed.\n", bufsize);
 				return NULL;
 			}
 		}
@@ -147,7 +147,7 @@ int main(void) {
 			exp += readto;
 
 			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_LOWMEM)))
-				printf("-- GC: %d bytes of memory reclaimed.\n", reclaimed);
+				printf("-- GC: %zd bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
 	}

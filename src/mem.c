@@ -199,7 +199,7 @@ static void mark(data_t *start) {
 	list_entry = find_in_list(start);
 
 	if(!list_entry) {
-		fprintf(stderr, "ERROR: %d not found in memory list.\n", start);
+		fprintf(stderr, "ERROR: %p not found in memory list.\n", start);
 		return;
 	}
 
@@ -263,14 +263,14 @@ void showmemstats(FILE *fp) {
 			}
 		}
 
-		fprintf(fp, "%d allocs; %d frees.\n", n_allocs, n_frees);
+		fprintf(fp, "%zd allocs; %zd frees.\n", n_allocs, n_frees);
 		if(mem_list_entries)
-			printf("%d list entries left.\n", mem_list_entries);
+			printf("%zd list entries left.\n", mem_list_entries);
 		printf("--- End summary ---\n");
 	}
 
 	if(mem_allocated)
-		fprintf(fp, "Bytes left allocated: %d out of ", mem_allocated);
+		fprintf(fp, "Bytes left allocated: %zd out of ", mem_allocated);
 	if((mem_verbosity == MEM_VERBOSE) || mem_allocated)
-		fprintf(fp, "%d bytes peak memory usage.\n", n_bytes_peak);
+		fprintf(fp, "%zd bytes peak memory usage.\n", n_bytes_peak);
 }
