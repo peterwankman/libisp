@@ -48,7 +48,7 @@ static void *thread(void *in) {
 
 void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle) {
 	eval_plz_die = 1;
-	fprintf(stderr, msg);
+	fprintf(stderr, "%s", msg);
 	info->result = NULL;
 	thread_running = 0;
 }
@@ -88,7 +88,7 @@ data_t *eval_thread(const data_t *exp, data_t *env) {
 			kill_thread(&info, "-- ERROR: Hard memory limit reached.\n", 
 				thread_handle);
 			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE)))
-				printf("-- GC: %d bytes of memory reclaimed.\n", reclaimed);			
+				printf("-- GC: %zu bytes of memory reclaimed.\n", reclaimed);			
 		}
 	}
 
