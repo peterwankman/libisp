@@ -61,7 +61,6 @@ static int is_quotation(const char *exp) {
 
 static int is_decimal(const char *exp, size_t *len, double *out) {
 	size_t pointfound = 0;
-	const char *end;
 
 	*len = 0;
 	if(exp[0] == '-')
@@ -77,7 +76,6 @@ static int is_decimal(const char *exp, size_t *len, double *out) {
 	}
 
 	if(pointfound) {		
-		end = exp + *len;
 		*out = strtod(exp, NULL);
 		return 1;
 	}
