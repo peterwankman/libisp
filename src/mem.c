@@ -152,11 +152,11 @@ void free_data(data_t *in) {
 
 	if(delfromlist(in)) {
 		if(in->type == string)
-			free(in->val.string);
+			free(in->string);
 		if(in->type == symbol)
-			free(in->val.symbol);
+			free(in->symbol);
 		if(in->type == pair)
-			free(in->val.pair);
+			free(in->pair);
 
 		free(in);
 		n_frees++;

@@ -44,7 +44,7 @@ static int is_tagged_list(const data_t *exp, const char *tag) {
 			return 0;
 		if(head->type != symbol)
 			return 0;
-		if(!strcmp(car(exp)->val.symbol , tag))
+		if(!strcmp(car(exp)->symbol , tag))
 			return 1;
 	}
 	return 0;
@@ -100,8 +100,8 @@ static data_t *get_if_alternative(const data_t *exp) {
 static data_t *make_if(const data_t *pred, const data_t *conseq, const data_t *alt) {
 	return cons(make_symbol("if"), cons(pred, cons(conseq, cons(alt, NULL))));
 }
-static int is_true(const data_t *x) { return !strcmp(x->val.symbol, "#t"); }
-static int is_false(const data_t *x) { return strcmp(x->val.symbol, "#t"); }
+static int is_true(const data_t *x) { return !strcmp(x->symbol, "#t"); }
+static int is_false(const data_t *x) { return strcmp(x->symbol, "#t"); }
 static data_t *eval_if(const data_t *exp, data_t *env) {
 	if(is_true(eval(get_if_predicate(exp), env)))
 		return eval(get_if_consequent(exp), env);
@@ -160,7 +160,7 @@ static data_t *get_procedure_environment(const data_t *proc) { return car(cdddr(
 static data_t *make_procedure(data_t *parameters, data_t *body, data_t *env) {
 	return cons(make_symbol("closure"), cons(parameters, cons(body, cons(env, NULL))));
 }
-static data_t *apply_primitive_procedure(const data_t *proc, const data_t *args) { return get_primitive_implementation(proc)->val.proc(args); }
+static data_t *apply_primitive_procedure(const data_t *proc, const data_t *args) { return get_primitive_implementation(proc)->proc(args); }
 
 /* QUOTATIONS */
 

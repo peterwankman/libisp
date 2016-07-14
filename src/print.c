@@ -26,10 +26,10 @@ void print_data_rec(const data_t *d, int print_parens) {
 	else {
 		switch(d->type) {
 			case prim_procedure: printf("<proc>"); break;
-			case integer: printf("%d", d->val.integer); break;
-			case decimal: printf("%g", d->val.decimal); break;
-			case symbol: printf("%s", d->val.symbol); break;
-			case string: printf("\"%s\"", d->val.string); break;
+			case integer: printf("%d", d->integer); break;
+			case decimal: printf("%g", d->decimal); break;
+			case symbol: printf("%s", d->symbol); break;
+			case string: printf("\"%s\"", d->string); break;
 			case pair:
 				if(is_compound_procedure(d)) {
 					printf("<proc>");

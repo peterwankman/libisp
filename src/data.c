@@ -24,7 +24,7 @@ data_t *make_int(const int i) {
 		return NULL;
 
 	out->type = integer;
-	out->val.integer = i;
+	out->integer = i;
 
 	return out;
 }
@@ -36,7 +36,7 @@ data_t *make_decimal(const double d) {
 		return NULL;
 
 	out->type = decimal;
-	out->val.decimal = d;
+	out->decimal = d;
 
 	return out;
 }
@@ -47,13 +47,13 @@ data_t *make_string(const char *str) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->val.string = (char*)malloc(strlen(str) + 1))) {
+	if(!(out->string = (char*)malloc(strlen(str) + 1))) {
 		free(out);
 		return NULL;
 	}
 
 	out->type = string;
-	strcpy(out->val.string, str);
+	strcpy(out->string, str);
 
 	return out;
 }
@@ -64,13 +64,13 @@ data_t *make_symbol(const char *ident) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->val.symbol = (char*)malloc(strlen(ident) + 1))) {
+	if(!(out->symbol = (char*)malloc(strlen(ident) + 1))) {
 		free(out);
 		return NULL;
 	}
 
 	out->type = symbol;
-	strcpy(out->val.symbol, ident);
+	strcpy(out->symbol, ident);
 
 	return out;
 }
@@ -82,7 +82,7 @@ data_t *make_primitive(prim_proc in) {
 		return NULL;
 
 	out->type = prim_procedure;
-	out->val.proc = in;
+	out->proc = in;
 
 	return out;
 }
@@ -95,14 +95,14 @@ data_t *cons(const data_t *l, const data_t *r) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->val.pair = (cons_t*)malloc(sizeof(cons_t)))) {
+	if(!(out->pair = (cons_t*)malloc(sizeof(cons_t)))) {
 		free(out);
 		return NULL;
 	}
 
 	out->type = pair;
-	out->val.pair->l = (data_t*)l;
-	out->val.pair->r = (data_t*)r;
+	out->pair->l = (data_t*)l;
+	out->pair->r = (data_t*)r;
 
 	return out;
 }
@@ -114,7 +114,7 @@ data_t *car(const data_t *in) {
 	if(in->type != pair)
 		return NULL;
 
-	return in->val.pair->l;
+	return in->pair->l;
 }
 
 data_t *cdr(const data_t *in) {
@@ -124,7 +124,7 @@ data_t *cdr(const data_t *in) {
 	if(in->type != pair)
 		return NULL;
 
-	return in->val.pair->r;
+	return in->pair->r;
 }
 
 int is_equal(const data_t *d1, const data_t *d2) {
@@ -143,15 +143,15 @@ int is_equal(const data_t *d1, const data_t *d2) {
 		case pair:
 			return is_equal(car(d1), car(d2)) && is_equal(cdr(d1), cdr(d2));
 		case integer:
-			return d1->val.integer == d2->val.integer;
+			return d1->integer == d2->integer;
 		case decimal:
-			return d1->val.decimal == d2->val.decimal;
+			return d1->decimal == d2->decimal;
 		case prim_procedure:
-			return d1->val.proc == d2->val.proc;
+			return d1->proc == d2->proc;
 		case string:
-			return !strcmp(d1->val.string, d2->val.string);
+			return !strcmp(d1->string, d2->string);
 		case symbol:			
-			return !strcmp(d1->val.symbol, d2->val.symbol);
+			return !strcmp(d1->symbol, d2->symbol);
 	}
 
 	return 0;
@@ -169,7 +169,7 @@ int length(const data_t *list) {
 	do {
 		out++;
 		if(list->type == pair)
-			list = list->val.pair->r;
+			list = list->pair->r;
 		else
 			list = NULL;
 	} while(list);
@@ -180,14 +180,14 @@ int length(const data_t *list) {
 data_t *set_car(data_t *in, const data_t *val) {
 	if(in->type != pair)
 		return NULL;
-	in->val.pair->l = (data_t*)val;
+	in->pair->l = (data_t*)val;
 	return (data_t*)val;
 }
 
 data_t *set_cdr(data_t *in, const data_t *val) {
 	if(in->type != pair)
 		return NULL;
-	in->val.pair->r = (data_t*)val;
+	in->pair->r = (data_t*)val;
 	return (data_t*)val;
 }
 
@@ -204,30 +204,30 @@ data_t *make_copy(const data_t *in) {
 	out->type = in->type;
 
 	switch(out->type) {
-		case integer: out->val.integer = in->val.integer; break;
-		case decimal: out->val.decimal = in->val.decimal; break;
-		case prim_procedure: out->val.proc = in->val.proc; break;
+		case integer: out->integer = in->integer; break;
+		case decimal: out->decimal = in->decimal; break;
+		case prim_procedure: out->proc = in->proc; break;
 		case string: 
-			out->val.string = (char*)malloc(strlen(in->val.string) + 1);
-			strcpy(out->val.string, in->val.string);
+			out->string = (char*)malloc(strlen(in->string) + 1);
+			strcpy(out->string, in->string);
 			break;
 		case symbol:
-			out->val.symbol = (char*)malloc(strlen(in->val.symbol) + 1);
-			strcpy(out->val.symbol, in->val.symbol);
+			out->symbol = (char*)malloc(strlen(in->symbol) + 1);
+			strcpy(out->symbol, in->symbol);
 			break;		
 		case pair:
-			out->val.pair = (cons_t*)malloc(sizeof(cons_t));
+			out->pair = (cons_t*)malloc(sizeof(cons_t));
 			if(!out)
 				return NULL;
-			if(in->val.pair->l)
-				out->val.pair->l = make_copy(in->val.pair->l);
+			if(in->pair->l)
+				out->pair->l = make_copy(in->pair->l);
 			else
-				out->val.pair->l = NULL;
+				out->pair->l = NULL;
 
-			if(in->val.pair->r)
-				out->val.pair->r = make_copy(in->val.pair->r);
+			if(in->pair->r)
+				out->pair->r = make_copy(in->pair->r);
 			else
-				out->val.pair->r = NULL;
+				out->pair->r = NULL;
 	}
 
 	return out;

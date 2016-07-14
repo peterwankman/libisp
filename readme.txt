@@ -46,7 +46,7 @@ data_t is a pointer to the following struct:
 			char *symbol;
 			prim_proc proc;
 			struct cons_t *pair;
-		} val;
+		};
 	} data_t;
 
 and dtype_t and cons_t are 
@@ -60,8 +60,8 @@ and dtype_t and cons_t are
 	} cons_t;
 	
 When your primitive procedure is called, it receives a Lisp data structure in
-the first parameter. First check the type and then use data_t->val.<type> as
-you need.
+the first parameter. First check the type and then use data_t->[type] as you
+need.
 
 1.2. SETUP
 ----------

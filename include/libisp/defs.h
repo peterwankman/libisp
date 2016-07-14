@@ -42,7 +42,7 @@ typedef struct data_t {
 		char *symbol;
 		prim_proc proc;
 		struct cons_t *pair;
-	} val;
+	};
 } data_t;
 
 typedef struct prim_procs {
