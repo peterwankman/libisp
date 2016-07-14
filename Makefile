@@ -4,7 +4,7 @@ OBJ=objects
 BIN=bin
 
 CC=gcc
-CFLAGS = -I$(INC) -O0 -ggdb -Wall -lm
+CFLAGS = -I$(INC) -O0 -ggdb -Wall
 OBJS=$(SRC)/builtin.o \
 	$(SRC)/data.o \
 	$(SRC)/eval.o \
@@ -13,12 +13,14 @@ OBJS=$(SRC)/builtin.o \
 	$(SRC)/read.o \
 	$(SRC)/thread.o
 
+LDFLAGS=-lm
+
 .PHONY: all clean
 
 all: $(BIN)/libisp.a $(BIN)/lisp
 
 $(BIN)/lisp: $(SRC)/test.c $(BIN)/libisp.a
-	$(CC) $(CFLAGS) -L$(BIN) -lisp -pthread -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -lisp -pthread -o $@ $^
 
 $(BIN)/libisp.a: $(OBJS)
 	ar rcs $@ $^
