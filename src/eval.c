@@ -351,7 +351,6 @@ data_t *apply(const data_t *proc, const data_t *args) {
 		return out;
 	}
 	printf("Unknown procedure type -- APPLY\n");
-	eval_plz_die = 1;
 	return make_symbol("error");
 }
 
