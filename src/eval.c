@@ -26,7 +26,7 @@
 #include "libisp/print.h"
 #include "libisp/read.h"
 
-size_t eval_plz_die = 0;
+int eval_plz_die = 0;
 
 data_t *eval(const data_t *exp, data_t *env);
 static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env);
