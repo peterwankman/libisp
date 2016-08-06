@@ -93,6 +93,9 @@ data_t *prim_sub(const data_t *list) {
 	head = car(list);
 	tail = cdr(list);
 
+	if(head == NULL)
+		return make_symbol("error");
+
 	out_type = head->type;
 	if(out_type == decimal)
 		dstart = head->decimal;
@@ -144,6 +147,9 @@ data_t *prim_div(const data_t *list) {
 	head = car(list);
 	tail = cdr(list);
 
+	if(head == NULL)
+		return make_symbol("error");
+
 	start_type = head->type;
 	if(start_type == decimal)
 		dstart = head->decimal;
@@ -188,6 +194,11 @@ data_t *prim_comp_eq(const data_t *list) {
 	first = car(list);
 	second = cdr(list);
 
+	if(first == NULL)
+		return make_symbol("error");
+	if(second == NULL)
+		return make_symbol("error");
+
 	if(second->type != pair)
 		return make_symbol("error");
 	second = car(second);
@@ -220,6 +231,9 @@ data_t *prim_comp_less(const data_t *list) {
 	
 	head = car(list);
 	tail = car(cdr(list));
+
+	if(head == NULL)
+		return make_symbol("error");
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->integer < tail->integer) {
@@ -259,6 +273,9 @@ data_t *prim_comp_more(const data_t *list) {
 	
 	head = car(list);
 	tail = car(cdr(list));
+
+	if(head == NULL)
+		return make_symbol("error");
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->integer > tail->integer) {
@@ -314,6 +331,9 @@ data_t *prim_floor(const data_t *list) {
 
 	list = car(list);
 
+	if(list == NULL)
+		return make_symbol("error");
+
 	if(list->type == integer)
 		return make_int(list->integer);
 
@@ -328,6 +348,9 @@ data_t *prim_ceiling(const data_t *list) {
 		return make_symbol("error");
 
 	list = car(list);
+
+	if(list == NULL)
+		return make_symbol("error");
 
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -345,6 +368,9 @@ data_t *prim_trunc(const data_t *list) {
 		return make_symbol("error");
 
 	list = car(list);
+
+	if(list == NULL)
+		return make_symbol("error");
 
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -368,6 +394,8 @@ data_t *prim_round(const data_t *list) {
 		return make_symbol("error");
 
 	list = car(list);
+	if(list == NULL)
+		return make_symbol("error");
 
 	if(list->type == integer)
 		return make_int(list->integer);

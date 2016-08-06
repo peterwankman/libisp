@@ -165,10 +165,10 @@ int length(const data_t *list) {
 	
 	if(list->type != pair)
 		return 0;
-
+/*
 	if(list->pair->l == NULL)
 		return 0;
-
+*/
 	do {
 		out++;
 		if(list->type == pair)
