@@ -47,7 +47,7 @@ data_t *make_string(const char *str) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->string = (char*)malloc(strlen(str) + 1))) {
+	if(!(out->string = malloc(strlen(str) + 1))) {
 		free(out);
 		return NULL;
 	}
@@ -64,7 +64,7 @@ data_t *make_symbol(const char *ident) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->symbol = (char*)malloc(strlen(ident) + 1))) {
+	if(!(out->symbol = malloc(strlen(ident) + 1))) {
 		free(out);
 		return NULL;
 	}
@@ -93,7 +93,7 @@ data_t *make_error(const char *errmsg) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->error = (char*)malloc(strlen(errmsg) + 1))) {
+	if(!(out->error = malloc(strlen(errmsg) + 1))) {
 		free(out);
 		return NULL;
 	}
@@ -112,7 +112,7 @@ data_t *cons(const data_t *l, const data_t *r) {
 	if(!(out = lisp_data_alloc(sizeof(data_t))))
 		return NULL;
 
-	if(!(out->pair = (cons_t*)malloc(sizeof(cons_t)))) {
+	if(!(out->pair = malloc(sizeof(cons_t)))) {
 		free(out);
 		return NULL;
 	}
@@ -217,7 +217,7 @@ data_t *make_copy(const data_t *in) {
 	if(!in)
 		return NULL;
 
-	out = (data_t*)malloc(sizeof(data_t));
+	out = malloc(sizeof(data_t));
 	if(!out)
 		return NULL;
 
@@ -228,19 +228,19 @@ data_t *make_copy(const data_t *in) {
 		case decimal: out->decimal = in->decimal; break;
 		case prim_procedure: out->proc = in->proc; break;
 		case string: 
-			out->string = (char*)malloc(strlen(in->string) + 1);
+			out->string = malloc(strlen(in->string) + 1);
 			strcpy(out->string, in->string);
 			break;
 		case symbol:
-			out->symbol = (char*)malloc(strlen(in->symbol) + 1);
+			out->symbol = malloc(strlen(in->symbol) + 1);
 			strcpy(out->symbol, in->symbol);
 			break;
 		case error:
-			out->error = (char*)malloc(strlen(in->error) + 1);
+			out->error = malloc(strlen(in->error) + 1);
 			strcpy(out->error, in->error);
 			break;
 		case pair:
-			out->pair = (cons_t*)malloc(sizeof(cons_t));
+			out->pair = malloc(sizeof(cons_t));
 			if(!out)
 				return NULL;
 			if(in->pair->l)

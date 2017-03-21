@@ -190,7 +190,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	} else if(is_integer(exp, readto, &integer)) {		
 		out = make_int(integer);
 	} else if(is_string(exp, readto)) {
-		if((buf = (char*)malloc(*readto - 1)) == NULL)
+		if((buf = malloc(*readto - 1)) == NULL)
 			return NULL;
 		
 		strncpy(buf, exp + 1, *readto - 2);
@@ -198,7 +198,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 		out = make_string(buf);		
 		free(buf);		
 	} else if(is_symbol(exp, readto)) {		
-		if((buf = (char*)malloc(*readto + 1)) == NULL)
+		if((buf = malloc(*readto + 1)) == NULL)
 			return NULL;
 		strncpy(buf, exp, *readto);
 		buf[*readto] = '\0';
@@ -208,7 +208,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 		if(is_empty_combination(exp)) {			
 			out = NULL;
 		} else {
-			if((newexp = (char*)malloc(*readto)) == NULL)
+			if((newexp = malloc(*readto)) == NULL)
 				return NULL;
 			buf = newexp;
 

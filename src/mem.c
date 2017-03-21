@@ -46,7 +46,7 @@ static alloclist_t *alloc_list = NULL;
 static alloclist_t *make_entry(data_t *memory, const char *file, const int line, const size_t size) {
 	alloclist_t *out;
 	
-	if((out = (alloclist_t*)malloc(sizeof(alloclist_t))) == NULL)
+	if((out = malloc(sizeof(alloclist_t))) == NULL)
 		return NULL;	
 
 	out->memory = memory;
@@ -98,7 +98,7 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 	} else if(warned && (newsize < mem_lim_soft))
 		warned = 0;
 
-	memory = (data_t*)malloc(size);
+	memory = malloc(size);
 
 	if(memory) {
 		if((newentry = make_entry(memory, file, line, size))) {

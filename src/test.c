@@ -52,7 +52,7 @@ static char *get_line(FILE *fp) {
 
 	do {
 		size += BUFSIZ;
-		buf = (char*)realloc(buf, size);
+		buf = realloc(buf, size);
 		fgets(buf + last, size, fp);
 		len = strlen(buf);
 		last = len - 1;
@@ -68,7 +68,7 @@ char *input_exp(int *paren) {
 	
 	*paren = 0;
 
-	if((out = (char*)malloc(bufsize)) == NULL) {
+	if((out = malloc(bufsize)) == NULL) {
 		fprintf(stderr, "ERROR: malloc(%zd) failed.\n", bufsize);
 		return NULL;
 	}
@@ -82,7 +82,7 @@ char *input_exp(int *paren) {
 
 		if(newlen > bufsize) {
 			bufsize += BUFSIZ;
-			if((out = (char*)realloc(out, bufsize)) == NULL) {
+			if((out = realloc(out, bufsize)) == NULL) {
 				fprintf(stderr, "ERROR: realloc(%zd) failed.\n", bufsize);
 				return NULL;
 			}

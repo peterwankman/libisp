@@ -789,8 +789,8 @@ void add_prim_proc(char *name, prim_proc proc) {
 	prim_proc_list_t *curr_proc;
 
 	if(last_prim_proc == NULL) {
-		the_prim_procs = (prim_proc_list_t*)malloc(sizeof(prim_proc_list_t));
-		the_prim_procs->name = (char*)malloc(strlen(name) + 1);
+		the_prim_procs = malloc(sizeof(prim_proc_list_t));
+		the_prim_procs->name = malloc(strlen(name) + 1);
 		strcpy(the_prim_procs->name, name);
 		the_prim_procs->proc = proc;
 		the_prim_procs->next = NULL;
@@ -799,8 +799,8 @@ void add_prim_proc(char *name, prim_proc proc) {
 		return;
 	}
 	
-	curr_proc = (prim_proc_list_t*)malloc(sizeof(prim_proc_list_t));
-	curr_proc->name = (char*)malloc(strlen(name) + 1);
+	curr_proc = malloc(sizeof(prim_proc_list_t));
+	curr_proc->name = malloc(strlen(name) + 1);
 	strcpy(curr_proc->name, name);
 	curr_proc->proc = proc;
 	curr_proc->prev = last_prim_proc;
@@ -814,8 +814,8 @@ void add_cvar(const char *name, const size_t *valptr, const int access) {
 	cvar_list_t *curr_var;
 
 	if(last_cvar == NULL) {
-		the_cvars = (cvar_list_t*)malloc(sizeof(cvar_list_t));
-		the_cvars->name = (char*)malloc(strlen(name) + 1);
+		the_cvars = malloc(sizeof(cvar_list_t));
+		the_cvars->name = malloc(strlen(name) + 1);
 		strcpy(the_cvars->name, name);
 		the_cvars->value = (size_t*)valptr;
 		the_cvars->access = (int)access;
@@ -824,8 +824,8 @@ void add_cvar(const char *name, const size_t *valptr, const int access) {
 		return;
 	}
 	
-	curr_var = (cvar_list_t*)malloc(sizeof(cvar_list_t));
-	curr_var->name = (char*)malloc(strlen(name) + 1);
+	curr_var = malloc(sizeof(cvar_list_t));
+	curr_var->name = malloc(strlen(name) + 1);
 	strcpy(curr_var->name, name);
 	curr_var->value = (size_t*)valptr;
 	curr_var->access = (int)access;
