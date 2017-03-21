@@ -155,6 +155,8 @@ void free_data(data_t *in) {
 			free(in->string);
 		if(in->type == symbol)
 			free(in->symbol);
+		if(in->type == error)
+			free(in->error);
 		if(in->type == pair)
 			free(in->pair);
 
