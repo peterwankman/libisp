@@ -980,6 +980,8 @@ void setup_environment(void) {
 	run_exp("(define (sqrt x) (define (good-enough? guess) (< (abs (- (square guess) x)) 0.000001)) (define (improve guess) (average guess (/ x guess))) (define (sqrt-iter guess) (if (good-enough? guess) (abs guess) (sqrt-iter (improve guess)))) (sqrt-iter 1.0))");
 	run_exp("(define (append list1 list2) (if (null? list1) list2 (cons (car list1) (append (cdr list1) list2))))");
 
+	run_exp("(define the-defined-symbols (caar (cadddr append)))");
+
 	run_gc(GC_FORCE);
 }
 
