@@ -234,7 +234,11 @@ data_t *make_copy(const data_t *in) {
 		case symbol:
 			out->symbol = (char*)malloc(strlen(in->symbol) + 1);
 			strcpy(out->symbol, in->symbol);
-			break;		
+			break;
+		case error:
+			out->error = (char*)malloc(strlen(in->error) + 1);
+			strcpy(out->error, in->error);
+			break;
 		case pair:
 			out->pair = (cons_t*)malloc(sizeof(cons_t));
 			if(!out)
