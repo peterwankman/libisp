@@ -41,7 +41,7 @@ data_t *prim_add(const data_t *list) {
 			iout += head->integer;
 		else if(head->type == decimal)
 			dout += head->decimal;
-		else return 0;
+		else return make_symbol("error");
 
 		list = tail;
 	}
@@ -68,7 +68,7 @@ data_t *prim_mul(const data_t *list) {
 			iout *= head->integer;
 		else if(head->type == decimal)
 			dout *= head->decimal;
-		else return make_int(0);
+		else return make_symbol("error");
 
 		list = tail;
 	}
@@ -123,7 +123,7 @@ data_t *prim_sub(const data_t *list) {
 			dstart = (double)istart;
 			dout += head->decimal;
 		}
-		else return 0;
+		else return make_symbol("error");
 
 		list = tail;
 	} while(list);
@@ -186,7 +186,7 @@ data_t *prim_comp_eq(const data_t *list) {
 	dtype_t type_first, type_second;
 
 	if(length(list) != 2)
-		return make_symbol("#f");
+		return make_symbol("error");
 	if((first = car(list)) == NULL)
 		return make_symbol("error");
 	if((second = cdr(list)) == NULL)
@@ -200,10 +200,9 @@ data_t *prim_comp_eq(const data_t *list) {
 	type_second = second->type;
 
 	if((type_first != decimal) && (type_first != integer))
-		return make_symbol("#f");
-	
+		return make_symbol("error");
 	if((type_second != decimal) && (type_second != integer))
-		return make_symbol("#f");
+		return make_symbol("error");
 
 	if(type_first == integer)
 		if(first->integer == second->integer)
