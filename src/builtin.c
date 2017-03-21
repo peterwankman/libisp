@@ -655,6 +655,34 @@ data_t *prim_log(const data_t *list) { return mathfn(list, log); }
 
 data_t *prim_exp(const data_t *list) { return mathfn(list, exp); }
 
+data_t *prim_expt(const data_t *list) {
+	data_t *base, *ex;
+	double dbase, dex;
+	
+	if(length(list) != 2)
+		return make_error("EXPT -- Expected one operand");
+	if((base = car(list)) == NULL)
+		return make_error("EXPT -- Expected number");
+	if((ex = car(cdr(list))) == NULL)
+		return make_error("EXPT -- Expected number");
+
+	if(base->type == integer)
+		dbase = (double)base->integer;
+	else if(base->type == decimal)
+		dbase = base->decimal;
+	else
+		return make_error("EXPT -- Expected number");
+
+	if(ex->type == integer)
+		dex = (double)ex->integer;
+	else if(ex->type == decimal)
+		dex = ex->decimal;
+	else
+		return make_error("EXPT -- Expected number");
+
+	return make_decimal(pow(dbase, dex));
+}
+
 static int gcd(const int a, const int b) {
 	if(a == 0)
 		return b;
@@ -888,6 +916,7 @@ void setup_environment(void) {
 	add_prim_proc("atan", prim_atan);
 	add_prim_proc("log", prim_log);
 	add_prim_proc("exp", prim_exp);
+	add_prim_proc("expt", prim_expt);
 
 	add_prim_proc("set-cvar!", prim_set_cvar);
 	add_prim_proc("get-cvar", prim_get_cvar);
@@ -949,7 +978,6 @@ void setup_environment(void) {
 	run_exp("(define (square n) (* n n))");
 	run_exp("(define (average a b) (/ (+ a b) 2))");
 	run_exp("(define (sqrt x) (define (good-enough? guess) (< (abs (- (square guess) x)) 0.000001)) (define (improve guess) (average guess (/ x guess))) (define (sqrt-iter guess) (if (good-enough? guess) (abs guess) (sqrt-iter (improve guess)))) (sqrt-iter 1.0))");
-	run_exp("(define (expt base ex) (if (= 0 ex) 1 (* base (expt base (- ex 1)))))");
 	run_exp("(define (append list1 list2) (if (null? list1) list2 (cons (car list1) (append (cdr list1) list2))))");
 
 	run_gc(GC_FORCE);
