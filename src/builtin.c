@@ -119,8 +119,10 @@ data_t *prim_sub(const data_t *list) {
 		if(head->type == integer)
 			iout += head->integer;
 		else if(head->type == decimal) {
-			out_type = decimal;
-			dstart = (double)istart;
+			if(out_type == integer) {
+				out_type = decimal;
+				dstart = (double)istart;
+			}
 			dout += head->decimal;
 		}
 		else return make_symbol("error");
