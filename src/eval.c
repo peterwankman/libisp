@@ -339,6 +339,16 @@ data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env) 
 
 data_t *apply(const data_t *proc, const data_t *args) {
 	data_t *out;
+	data_t *argl = args, *currarg;
+
+	while(argl) {
+		currarg = car(argl);
+		if(currarg && (currarg->type == symbol) && (!strcmp(currarg->symbol, "error"))) {
+			printf("Trying to apply an error -- APPLY\n");
+			return make_symbol("error");
+		}
+		argl = cdr(argl);
+	}
 
 	if(is_primitive_procedure(proc))
 		return apply_primitive_procedure(proc, args);
