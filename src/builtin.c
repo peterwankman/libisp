@@ -34,14 +34,14 @@ data_t *prim_add(const data_t *list) {
 
 	while(list) {
 		if((head = car(list)) == NULL)
-			return make_symbol("error");
+			return make_error("+ -- Expected number");
 		tail = cdr(list);
 
 		if(head->type == integer)
 			iout += head->integer;
 		else if(head->type == decimal)
 			dout += head->decimal;
-		else return make_symbol("error");
+		else return make_error("+ -- Expected number");
 
 		list = tail;
 	}
@@ -62,13 +62,13 @@ data_t *prim_mul(const data_t *list) {
 
 	while(list) {
 		if((head = car(list)) == NULL)
-			return make_symbol("error");
+			return make_error("* -- Expected number");
 		tail = cdr(list);
 		if(head->type == integer)
 			iout *= head->integer;
 		else if(head->type == decimal)
 			dout *= head->decimal;
-		else return make_symbol("error");
+		else return make_error("* -- Expected number");
 
 		list = tail;
 	}
@@ -89,9 +89,9 @@ data_t *prim_sub(const data_t *list) {
 	data_t *head, *tail;
 
 	if(!length(list))
-		return make_symbol("error");
+		return make_error("- -- No operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("- -- Expected number");
 
 	tail = cdr(list);
 	out_type = head->type;
@@ -100,7 +100,7 @@ data_t *prim_sub(const data_t *list) {
 	else if(out_type == integer)
 		istart = head->integer;
 	else
-		return make_symbol("error");
+		return make_error("- -- Expected number");
 
 	list = tail;
 
@@ -114,7 +114,7 @@ data_t *prim_sub(const data_t *list) {
 
 	do {
 		if((head = car(list)) == NULL)
-			return make_symbol("error");
+			return make_error("- -- Expected number");
 		tail = cdr(list);
 		if(head->type == integer)
 			iout += head->integer;
@@ -125,7 +125,7 @@ data_t *prim_sub(const data_t *list) {
 			}
 			dout += head->decimal;
 		}
-		else return make_symbol("error");
+		else return make_error("- -- Expected number");
 
 		list = tail;
 	} while(list);
@@ -142,9 +142,9 @@ data_t *prim_div(const data_t *list) {
 	data_t *head, *tail;
 
 	if(!length(list))
-		return make_symbol("error");
+		return make_error("/ -- No operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("/ -- Expected number");
 
 	tail = cdr(list);
 	start_type = head->type;
@@ -153,7 +153,7 @@ data_t *prim_div(const data_t *list) {
 	else if(start_type == integer)
 		dstart = (double)head->integer;
 	else
-		return make_symbol("error");
+		return make_error("/ -- Expected number");
 
 	list = tail;
 
@@ -162,7 +162,7 @@ data_t *prim_div(const data_t *list) {
 
 	do {
 		if((head = car(list)) == NULL)
-			return make_symbol("error");
+			return make_error("/ -- Expected number");
 		tail = cdr(list);
 
 		if(head->type == integer)
@@ -175,7 +175,7 @@ data_t *prim_div(const data_t *list) {
 	} while(list);
 
 	if(dout == 0)
-		return make_symbol("error");
+		return make_error("/ -- Division by zero");
 	
 	if(dstart / dout == floor(dstart / dout))
 		return make_int((int)(dstart / dout));
@@ -188,23 +188,23 @@ data_t *prim_comp_eq(const data_t *list) {
 	dtype_t type_first, type_second;
 
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("= -- Expected two operands");
 	if((first = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("= -- Expected number");
 	if((second = cdr(list)) == NULL)
-		return make_symbol("error");
+		return make_error("= -- Expected pair");
 	if(second->type != pair)
-		return make_symbol("error");
+		return make_error("= -- Expected pair");
 	if((second = car(second)) == NULL)
-		return make_symbol("error");
+		return make_error("= -- Expected number");
 
 	type_first = first->type;
 	type_second = second->type;
 
 	if((type_first != decimal) && (type_first != integer))
-		return make_symbol("error");
+		return make_error("= -- Expected number");
 	if((type_second != decimal) && (type_second != integer))
-		return make_symbol("error");
+		return make_error("= -- Expected number");
 
 	if(type_first == integer)
 		if(first->integer == second->integer)
@@ -221,11 +221,11 @@ data_t *prim_comp_less(const data_t *list) {
 	data_t *head, *tail;
 
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("< -- Expected two operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("< -- Expected number");
 	if((tail = car(cdr(list))) == NULL)
-		return make_symbol("error");
+		return make_error("< -- Expected number");
 		
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->integer < tail->integer) {
@@ -253,18 +253,18 @@ data_t *prim_comp_less(const data_t *list) {
 		}
 	}
 
-	return make_symbol("error");
+	return make_error("< -- Invalid comparison");
 }
 
 data_t *prim_comp_more(const data_t *list) {
 	data_t *head, *tail;
 
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("> -- Expected two operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("> -- Expected number");
 	if((tail = car(cdr(list))) == NULL)
-		return make_symbol("error");
+		return make_error("> -- Expected number");
 
 	if((head->type == integer) && (tail->type == integer)) {
 		if(head->integer > tail->integer) {
@@ -292,8 +292,7 @@ data_t *prim_comp_more(const data_t *list) {
 		}
 	}
 
-	return make_symbol("error");
-
+	return make_error("> -- Invalid comparison");
 }
 
 data_t *prim_or(const data_t *list) {
@@ -316,9 +315,9 @@ data_t *prim_and(const data_t *list) {
 
 data_t *prim_floor(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("FLOOR -- Expected one operand");
 	if((list = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("FLOOR -- Expected number");
 		
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -326,14 +325,14 @@ data_t *prim_floor(const data_t *list) {
 	if(list->type == decimal)
 		return make_int((int)floor(list->decimal));
 
-	return make_symbol("error");
+	return make_error("FLOOR -- Expected number");
 }
 
 data_t *prim_ceiling(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("CEILING -- Expected one operand");
 	if((list = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("CEILING -- Expected number");
 
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -341,16 +340,16 @@ data_t *prim_ceiling(const data_t *list) {
 	if(list->type == decimal)
 		return make_int((int)ceil(list->decimal));
 
-	return make_symbol("error");
+	return make_error("CEILING -- Invalid comparison");
 }
 
 data_t *prim_trunc(const data_t *list) {
 	double num;
 
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("TRUNCATE -- Expected one operand");
 	if((list = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("TRUNCATE -- Expected number");
 		
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -363,7 +362,7 @@ data_t *prim_trunc(const data_t *list) {
 		return make_int((int)floor(list->decimal));
 	}
 
-	return make_symbol("error");
+	return make_error("TRUNCATE -- Expected number");
 }
 
 data_t *prim_round(const data_t *list) {
@@ -371,9 +370,9 @@ data_t *prim_round(const data_t *list) {
 	int intpart;
 
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("ROUND -- Expected one operand");
 	if((list = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("ROUND -- Expected number");
 
 	if(list->type == integer)
 		return make_int(list->integer);
@@ -391,7 +390,7 @@ data_t *prim_round(const data_t *list) {
 		return make_int(intpart);
 	}
 
-	return make_symbol("error");
+	return make_error("ROUND -- Expected number");
 }
 
 data_t *prim_max(const data_t *list) {
@@ -400,11 +399,11 @@ data_t *prim_max(const data_t *list) {
 	data_t *val;
 
 	if(!length(list))
-		return make_symbol("error");
+		return make_error("MAX -- No operands");
 
 	while(list) {
 		if(list->type != pair)
-			return make_symbol("error");
+			return make_error("MAX -- Expected pair");
 		val = car(list);
 		if(val->type == integer) {
 			ival = val->integer;
@@ -414,7 +413,8 @@ data_t *prim_max(const data_t *list) {
 			dval = val->decimal;
 			if(dval > dmax)
 				dmax = dval;
-		}
+		} else
+			return make_error("MAX -- Expected number");
 		list = cdr(list);
 	}
 
@@ -429,11 +429,11 @@ data_t *prim_min(const data_t *list) {
 	data_t *val;
 
 	if(!length(list))
-		return make_symbol("error");
+		return make_error("MIN -- No operands");
 
 	while(list) {
 		if(list->type != pair)
-			return make_symbol("error");
+			return make_error("MIN -- Expected pair");
 		val = car(list);
 		if(val->type == integer) {
 			ival = val->integer;
@@ -456,7 +456,7 @@ data_t *prim_eq(const data_t *list) {
 	data_t *first, *second;
 
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("EQ? -- No operands");
 
 	first = car(list);
 	second = car(cdr(list));
@@ -468,9 +468,9 @@ data_t *prim_eq(const data_t *list) {
 
 data_t *prim_not(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("NOT -- Expected one operand");
 	if((list = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("NOT -- Expected boolean");
 	
 	if(!strcmp(list->symbol, "#f"))
 		return make_symbol("#t");
@@ -479,7 +479,7 @@ data_t *prim_not(const data_t *list) {
 
 data_t *prim_car(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("CAR -- Expected one operand");
 	
 	list = car(list);
 	
@@ -490,7 +490,7 @@ data_t *prim_car(const data_t *list) {
 
 data_t *prim_cdr(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("CDR -- Expected one operand");
 		
 	list = car(list);
 	
@@ -501,7 +501,7 @@ data_t *prim_cdr(const data_t *list) {
 
 data_t *prim_cons(const data_t *list) {
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("CONS -- Expected two operands");
 	
 	return cons(car(list), car(cdr(list)));
 }
@@ -516,13 +516,13 @@ data_t *prim_set_car(const data_t *list) {
 	data_t *head, *newcar;
 	
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("SET-CAR -- Expected two operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("SET-CAR -- Expected pair");
 
 	newcar = car(cdr(list));
 	if(head->type != pair)
-		return make_symbol("error");
+		return make_error("SET-CAR -- Expected pair");
 
 	head->pair->l = newcar;
 
@@ -533,13 +533,13 @@ data_t *prim_set_cdr(const data_t *list) {
 	data_t *head, *newcdr;
 	
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("SET-CDR -- Expected two operands");
 	if((head = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("SET-CDR -- Expected pair");
 
 	newcdr = car(cdr(list));
 	if(head->type != pair)
-		return make_symbol("error");
+		return make_error("SET-CDR -- Expected pair");
 
 	head->pair->r = newcdr;
 
@@ -550,11 +550,11 @@ data_t *prim_sym_to_str(const data_t *list) {
 	data_t *sym;
 
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("SYMBOL->STRING -- Expected one operand");
 	sym = car(list);
 
 	if(!sym || sym->type != symbol)
-		return make_symbol("error");
+		return make_error("SYMBOL->STRING -- Expected symbol");
 
 	return make_string(sym->symbol);
 }
@@ -563,11 +563,11 @@ data_t *prim_str_to_sym(const data_t *list) {
 	data_t *str;
 
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("STRING->SYMBOL -- Expected one operand");
 	str = car(list);
 
 	if(!str || str->type != string)
-		return make_symbol("error");
+		return make_error("STRING->SYMBOL -- Expected string");
 
 	return make_symbol(str->string);
 }
@@ -575,7 +575,7 @@ data_t *prim_str_to_sym(const data_t *list) {
 static data_t *is_type(const data_t *list, dtype_t type) {
 	data_t *sym;
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("IS-TYPE -- Expected one operand");
 
 	sym = car(list);
 	if(sym && (sym->type == type))
@@ -596,7 +596,7 @@ data_t *prim_is_num(const data_t *list) {
 	dtype_t type;
 	
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("IS-NUM -- Expected one operand");
 
 	if((head = car(list)) == NULL)
 		return make_symbol("#f");
@@ -609,7 +609,7 @@ data_t *prim_is_num(const data_t *list) {
 
 data_t *prim_is_proc(const data_t *list) {
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("IS-PROC -- Expected one operand");
 
 	list = car(list);
 	if(!list || list->type != pair)
@@ -628,15 +628,15 @@ static data_t *mathfn(const data_t *list, double (*func)(double)) {
 	data_t *val;
 	
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("MATHFN -- Expected one operand");
 	if((val = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("MATHFN -- Expected number");
 
 	if(val->type == integer)
 		return make_decimal(func((double)val->integer));
 	if(val->type == decimal)
 		return make_decimal(func(val->decimal));
-	return make_symbol("error");
+	return make_error("MATHFN -- Expected number");
 }
 
 data_t *prim_sin(const data_t *list) { return mathfn(list, sin); }
@@ -677,14 +677,14 @@ static data_t *cumulfn(const data_t *list, int (*func)(const int, const int))  {
 		
 	head = car(list);
 	if(!head || (head->type != integer))
-		return make_symbol("error");
+		return make_error("CUMULFN -- Expected integer");
 	cumul = head->integer;
 
 	list = cdr(list);
 	while(list) {
 		head = car(list);
 		if(!head || (head->type != integer))
-			return make_symbol("error");
+			return make_error("CUMULFN -- Expected integer");
 
 		n = head->integer;
 		cumul = func(cumul, n);
@@ -710,30 +710,30 @@ data_t *prim_set_cvar(const data_t *list) {
 	int value;
 
 	if(length(list) != 2)
-		return make_symbol("error");
+		return make_error("SET-CVAR -- Expected two operands");
 
 	var = car(list);
 	val = car(cdr(list));
 
 	if(!var || (var->type != symbol))
-		return make_symbol("CVAR identifier needs to be a symbol");
+		return make_error("SET-CVAR -- Expected identifier");
 	var_name = var->symbol;
 
 	if(!val || (val->type != integer))
-		return make_symbol("CVAR value needs to be an integer");
+		return make_error("SET-CVAR -- Expected integer");
 	value = val->integer;
 
 	while(cvar) {
 		if(!strcmp(cvar->name, var_name)) {
 			if(cvar->access == CVAR_READONLY)
-				return make_symbol("CVAR is read-only");
+				return make_error("SET-CVAR -- Read only");
 			*(cvar->value) = value;
 			return make_symbol("ok");
 		}
 		cvar = cvar->next;
 	}
 
-	return make_symbol("Unknown CVAR");
+	return make_error("SET-CVAR -- Unknown CVAR");
 }
 
 data_t *prim_get_cvar(const data_t *list) {
@@ -742,12 +742,12 @@ data_t *prim_get_cvar(const data_t *list) {
 	char *var_name;
 
 	if(length(list) != 1)
-		return make_symbol("error");
+		return make_error("GET-CVAR -- Expected one operand");
 	if((var = car(list)) == NULL)
-		return make_symbol("error");
+		return make_error("GET-CVAR -- Expected identifier");
 
 	if(var->type != symbol)
-		return make_symbol("CVAR identifier needs to be a symbol");
+		return make_error("GET-CVAR -- Expected identifier");
 	var_name = var->symbol;
 
 	while(cvar) {
@@ -756,7 +756,7 @@ data_t *prim_get_cvar(const data_t *list) {
 		cvar = cvar->next;
 	}
 	
-	return make_symbol("Unknown CVAR");
+	return make_error("GET-CVAR -- Unknown CVAR");
 }
 
 /* --- */
@@ -950,6 +950,7 @@ void setup_environment(void) {
 	run_exp("(define (average a b) (/ (+ a b) 2))");
 	run_exp("(define (sqrt x) (define (good-enough? guess) (< (abs (- (square guess) x)) 0.000001)) (define (improve guess) (average guess (/ x guess))) (define (sqrt-iter guess) (if (good-enough? guess) (abs guess) (sqrt-iter (improve guess)))) (sqrt-iter 1.0))");
 	run_exp("(define (expt base ex) (if (= 0 ex) 1 (* base (expt base (- ex 1)))))");
+	run_exp("(define (append list1 list2) (if (null? list1) list2 (cons (car list1) (append (cdr list1) list2))))");
 
 	run_gc(GC_FORCE);
 }

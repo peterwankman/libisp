@@ -52,6 +52,7 @@ static int is_tagged_list(const data_t *exp, const char *tag) {
 static int is_self_evaluating(const data_t *exp) { return (!exp || (exp->type == integer) || (exp->type == decimal) || (exp->type == string)); }
 static int is_symbol(const data_t *exp) { return (exp->type == symbol); }
 static int is_variable(const data_t *exp) { return is_symbol(exp); }
+static int is_error(const data_t *exp) { return (exp && (exp->type == error)); }
 
 /* SEQUENCES */
 
@@ -125,12 +126,10 @@ static data_t *expand_clauses(const data_t *clauses) {
 	rest = cdr(clauses);
 
 	if(is_cond_else_clause(first)) {
-		if(rest == NULL) {
+		if(rest == NULL)
 			return sequence_to_exp(get_cond_actions(first));
-		} else {
-			printf("ELSE clause isn't last -- COND-IF");
-			return make_symbol("error");
-		}
+		else
+			return make_error("COND-IF -- ELSE clause isn't last");
 	} 
 	return make_if(get_cond_predicate(first), sequence_to_exp(get_cond_actions(first)), expand_clauses(rest));
 }
@@ -176,20 +175,15 @@ static data_t *get_frame_values(data_t *frame) { return cdr(frame); }
 static data_t *scan_lookup(data_t *env, const data_t *vars, const data_t *vals, const data_t *var) {
 	if(vars == NULL)
 		return lookup_variable_value(var, get_enclosing_env(env));
-	if(is_equal(var, car(vars))) {		
+	if(is_equal(var, car(vars)))
 		return car(vals);
-	}	
 	return scan_lookup(env, cdr(vars), cdr(vals), var);
 }
 static data_t *lookup_variable_value(const data_t *var, data_t *env) {
 	data_t *current_frame;
 
-	if(env == NULL) {
-		printf("Unbound variable -- LOOKUP ");
-		print_data(var);
-		printf("\n");
-		return make_symbol("error");
-	}
+	if(env == NULL)
+		return make_error("LOOKUP -- Unbound variable");
 		
 	current_frame = get_first_frame(env);
 	return scan_lookup(env, get_frame_variables(current_frame), get_frame_values(current_frame), var);
@@ -210,10 +204,8 @@ static data_t *scan_assignment(data_t *env, const data_t *vars, data_t *vals, da
 static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env) {
 	data_t *current_frame;
 
-	if(env == NULL) {
-		printf("Unbound variable -- SET!\n");
-		return make_symbol("error");
-	}
+	if(env == NULL)
+		return make_error("SET -- Unbound variable");
 		
 	current_frame = get_first_frame(env);
 	return scan_assignment(env, get_frame_variables(current_frame), get_frame_values(current_frame), var, val);
@@ -328,13 +320,10 @@ data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env) 
 	if(lvars == lvals)
 		return cons(make_frame(vars, vals), env);
 
-	if(lvars < lvals) {
-		printf("Too many arguments supplied. (Expected %d, got %d)\n", lvars, lvals);
-		return make_symbol("error");
-	} else {
-		printf("Too few arguments supplied (Expected %d, got %d)\n", lvars, lvals);
-		return make_symbol("error");
-	}
+	if(lvars < lvals)
+		return make_error("EXTEND -- Too many arguments");
+	else
+		return make_error("EXTEND -- Too few arguments");
 }
 
 data_t *apply(const data_t *proc, const data_t *args) {
@@ -343,10 +332,8 @@ data_t *apply(const data_t *proc, const data_t *args) {
 
 	while(argl) {
 		currarg = car(argl);
-		if(currarg && (currarg->type == symbol) && (!strcmp(currarg->symbol, "error"))) {
-			printf("Trying to apply an error -- APPLY\n");
-			return make_symbol("error");
-		}
+		if(currarg && (currarg->type == error))
+			return currarg;
 		argl = cdr(argl);
 	}
 
@@ -360,8 +347,7 @@ data_t *apply(const data_t *proc, const data_t *args) {
 				get_procedure_environment(proc)));		
 		return out;
 	}
-	printf("Unknown procedure type -- APPLY\n");
-	return make_symbol("error");
+	return make_error("APPLY -- Unknown procedure type");
 }
 
 data_t *eval(const data_t *exp, data_t *env) {
@@ -370,6 +356,8 @@ data_t *eval(const data_t *exp, data_t *env) {
 		ExitThread(0);
 	}
 
+	if(is_error(exp))
+		return (data_t*)exp;
 	if(is_self_evaluating(exp))
 		return (data_t*)exp;
 	if(is_variable(exp))
@@ -399,8 +387,7 @@ data_t *eval(const data_t *exp, data_t *env) {
 			eval(get_operator(exp), env),
 			get_list_of_values(get_operands(exp), env));
 	
-	printf("Unknown expression type -- EVAL '");
-	return make_symbol("error");
+	return make_error("EVAL -- Unknown expression type");
 }
 
 int run_exp(const char *exp) {
