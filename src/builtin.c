@@ -787,6 +787,11 @@ data_t *prim_get_cvar(const data_t *list) {
 	return make_error("GET-CVAR -- Unknown CVAR");
 }
 
+data_t *prim_reset(const data_t *list) {
+	reset_lisp();
+	return make_symbol("OK");
+}
+
 /* --- */
 
 static data_t *primitive_procedure_names(void) {
@@ -920,6 +925,7 @@ void setup_environment(void) {
 
 	add_prim_proc("set-cvar!", prim_set_cvar);
 	add_prim_proc("get-cvar", prim_get_cvar);
+	add_prim_proc("reset-lisp!", prim_reset);
 
 	the_global_env = extend_environment(primitive_procedure_names(), 
 										primitive_procedure_objects(),
@@ -998,6 +1004,8 @@ void cleanup_lisp(void) {
 		free(current_proc);
 		current_proc = procbuf;
 	}
+	the_prim_procs = NULL;
+	last_prim_proc = NULL;
 
 	while(current_var) {
 		varbuf = current_var->next;
@@ -1005,4 +1013,11 @@ void cleanup_lisp(void) {
 		free(current_var);
 		current_var = varbuf;
 	}
+	the_cvars = NULL;
+	last_cvar = NULL;
+}
+
+void reset_lisp(void) {
+	cleanup_lisp();
+	setup_environment();
 }
