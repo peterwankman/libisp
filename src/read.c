@@ -180,7 +180,6 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	skip = skip_whitespace(exp);
 	exp += skip;
 	
-	*error = 1;
 	*readto = 0;
 
 	if(is_quotation(exp) && !already_quoted) {
@@ -227,6 +226,9 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 
 			free(buf);
 		}
+	} else {
+		*error = 1;
+		return NULL;
 	}
 
 	*readto += skip;
@@ -234,13 +236,13 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	if(!(*readto))
 		return NULL;
 
-	*error = 0;
 	return out;	
 }
 
 data_t *read_exp(const char *exp, size_t *readto, int *error) {
 	size_t l = strlen(exp), int_readto;
 	data_t *out;
+	*error = 0;
 
 	int_readto = 0;
 	if(!l)		
