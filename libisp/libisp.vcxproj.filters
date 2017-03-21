@@ -38,31 +38,31 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\builtin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\data.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\defs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\eval.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\include\libisp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\mem.h">
+    <ClInclude Include="..\include\libisp\builtin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\print.h">
+    <ClInclude Include="..\include\libisp\data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\read.h">
+    <ClInclude Include="..\include\libisp\defs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\thread.h">
+    <ClInclude Include="..\include\libisp\eval.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libisp\mem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libisp\print.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libisp\read.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\libisp\thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

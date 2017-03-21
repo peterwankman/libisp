@@ -80,15 +80,15 @@
     <ClCompile Include="..\src\thread.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\builtin.h" />
-    <ClInclude Include="..\include\data.h" />
-    <ClInclude Include="..\include\defs.h" />
-    <ClInclude Include="..\include\eval.h" />
     <ClInclude Include="..\include\libisp.h" />
-    <ClInclude Include="..\include\mem.h" />
-    <ClInclude Include="..\include\print.h" />
-    <ClInclude Include="..\include\read.h" />
-    <ClInclude Include="..\include\thread.h" />
+    <ClInclude Include="..\include\libisp\builtin.h" />
+    <ClInclude Include="..\include\libisp\data.h" />
+    <ClInclude Include="..\include\libisp\defs.h" />
+    <ClInclude Include="..\include\libisp\eval.h" />
+    <ClInclude Include="..\include\libisp\mem.h" />
+    <ClInclude Include="..\include\libisp\print.h" />
+    <ClInclude Include="..\include\libisp\read.h" />
+    <ClInclude Include="..\include\libisp\thread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
