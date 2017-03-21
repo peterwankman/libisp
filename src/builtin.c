@@ -253,7 +253,7 @@ data_t *prim_comp_less(const data_t *list) {
 		}
 	}
 
-	return make_symbol("#f");
+	return make_symbol("error");
 }
 
 data_t *prim_comp_more(const data_t *list) {
@@ -292,7 +292,7 @@ data_t *prim_comp_more(const data_t *list) {
 		}
 	}
 
-	return make_symbol("#f");
+	return make_symbol("error");
 
 }
 
