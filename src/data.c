@@ -87,6 +87,23 @@ data_t *make_primitive(prim_proc in) {
 	return out;
 }
 
+data_t *make_error(const char *errmsg) {
+	data_t *out;
+
+	if(!(out = lisp_data_alloc(sizeof(data_t))))
+		return NULL;
+
+	if(!(out->error = (char*)malloc(strlen(errmsg) + 1))) {
+		free(out);
+		return NULL;
+	}
+
+	out->type = error;
+	strcpy(out->error, errmsg);
+
+	return out;
+}
+
 /* LIST MANIPULATION */
 
 data_t *cons(const data_t *l, const data_t *r) {

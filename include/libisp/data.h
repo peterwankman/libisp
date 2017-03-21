@@ -19,6 +19,7 @@ data_t *make_decimal(const double d);
 data_t *make_string(const char *str);
 data_t *make_symbol(const char *ident);
 data_t *make_primitive(prim_proc in);
+data_t *make_error(const char *error);
 
 data_t *cons(const data_t *l, const data_t *r);
 data_t *car(const data_t *in);

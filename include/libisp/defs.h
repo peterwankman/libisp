@@ -28,7 +28,7 @@
 #define cdddr(l)	cdr(cdr(cdr(l)))
 
 typedef enum dtype_t {
-	integer, decimal, string, symbol, pair, prim_procedure
+	integer, decimal, string, symbol, pair, prim_procedure, error
 } dtype_t;
 
 typedef struct data_t* (*prim_proc)(const struct data_t*);
@@ -40,6 +40,7 @@ typedef struct data_t {
 		double decimal;
 		char *string;
 		char *symbol;
+		char *error;
 		prim_proc proc;
 		struct cons_t *pair;
 	};

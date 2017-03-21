@@ -30,6 +30,7 @@ void print_data_rec(const data_t *d, int print_parens) {
 			case decimal: printf("%g", d->decimal); break;
 			case symbol: printf("%s", d->symbol); break;
 			case string: printf("\"%s\"", d->string); break;
+			case error: printf("ERROR: '%s'", d->error); break;
 			case pair:
 				if(is_compound_procedure(d)) {
 					printf("<proc>");
