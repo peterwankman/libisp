@@ -44,6 +44,7 @@ data_t is a pointer to the following struct:
 			double decimal;
 			char *string;
 			char *symbol;
+			char *error;
 			prim_proc proc;
 			struct cons_t *pair;
 		};
@@ -52,7 +53,7 @@ data_t is a pointer to the following struct:
 and dtype_t and cons_t are 
 
 	typedef enum dtype_t {
-		integer, decimal, string, symbol, pair, prim_procedure
+		integer, decimal, string, symbol, pair, prim_procedure, error
 	} dtype_t;
 	
 	typedef struct cons_t {
