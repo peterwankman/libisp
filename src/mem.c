@@ -252,14 +252,14 @@ void showmemstats(FILE *fp, lisp_ctx_t *context) {
 			}
 		}
 
-		fprintf(fp, "%zd allocs; %zd frees.\n", context->n_allocs, context->n_frees);
+		fprintf(fp, "%lu allocs; %lu frees.\n", context->n_allocs, context->n_frees);
 		if(context->mem_list_entries)
-			printf("%zd list entries left.\n", context->mem_list_entries);
+			printf("%lu list entries left.\n", context->mem_list_entries);
 		printf("--- End summary ---\n");
 	}
 
 	if(context->mem_allocated)
-		fprintf(fp, "Bytes left allocated: %d out of ", context->mem_allocated);
+		fprintf(fp, "Bytes left allocated: %lu out of ", context->mem_allocated);
 	if((context->mem_verbosity == MEM_VERBOSE) || context->mem_allocated)
-		fprintf(fp, "%d bytes peak memory usage.\n", context->n_bytes_peak);
+		fprintf(fp, "%lu bytes peak memory usage.\n", context->n_bytes_peak);
 }
