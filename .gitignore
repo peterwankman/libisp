@@ -8,4 +8,5 @@ libisp/libisp.vcxproj.user
 libisp.opensdf
 libisp.sdf
 libisp.suo
-test/test.vcxproj.user
+repl/repl.vcxproj.user
+sample/sample.vcxproj.user
