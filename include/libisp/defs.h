@@ -12,6 +12,8 @@
 #ifndef LIBISP_DEFS_H_
 #define LIBISP_DEFS_H_
 
+#include <stdint.h>
+
 /* MY OTHER CAR IS A CDR */
 
 #define caar(l)		    car(car(l))
