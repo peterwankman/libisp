@@ -15,14 +15,13 @@
 #define LIBISP_EVAL_H_
 
 #ifndef LIBISP_H_
-int eval_plz_die;
 
 int is_compound_procedure(const data_t *exp);
-data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env);
+data_t *extend_environment(const data_t *vars, const data_t *vals, data_t *env, lisp_ctx_t *context);
 #endif
 
-data_t *apply(const data_t *proc, const data_t *args);
-data_t *eval(data_t *exp, data_t *env);
-int run_exp(const char *exp);
+data_t *apply(const data_t *proc, const data_t *args, lisp_ctx_t *context);
+data_t *eval_in_context(const data_t *exp, lisp_ctx_t *context);
+int run_exp(const char *exp, lisp_ctx_t *context);
 
 #endif

@@ -14,6 +14,6 @@
 #ifndef LIBISP_PRINT_H_
 #define LIBISP_PRINT_H_
 
-void print_data(const data_t *d);
+void print_data(const data_t *d, lisp_ctx_t *context);
 
 #endif

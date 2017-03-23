@@ -17,11 +17,12 @@
 #define CVAR_READONLY	1
 #define CVAR_READWRITE	2
 
-data_t *the_global_env;
-
-void add_prim_proc(char *name, prim_proc proc);
-void setup_environment(void);
-void cleanup_lisp(void);
-void reset_lisp(void);
+void add_prim_proc(char *name, prim_proc proc, lisp_ctx_t *context);
+void add_cvar(const char *name, const size_t *valptr, const int access, lisp_ctx_t *context);
+void setup_environment(lisp_ctx_t *context);
+void cleanup_lisp(lisp_ctx_t *context);
+void reset_lisp(lisp_ctx_t *context);
+lisp_ctx_t *make_context(const size_t mem_lim_soft, const size_t mem_lim_hard, const size_t mem_verbosity, const size_t thread_timeout);
+void destroy_context(lisp_ctx_t *context);
 
 #endif

@@ -14,14 +14,16 @@
 #ifndef LIBISP_DATA_H_
 #define LIBISP_DATA_H_
 
-data_t *make_int(const int i);
-data_t *make_decimal(const double d);
-data_t *make_string(const char *str);
-data_t *make_symbol(const char *ident);
-data_t *make_primitive(prim_proc in);
-data_t *make_error(const char *error);
+data_t *make_int(const int i, lisp_ctx_t *context);
+data_t *make_decimal(const double d, lisp_ctx_t *context);
+data_t *make_string(const char *str, lisp_ctx_t *context);
+data_t *make_symbol(const char *ident, lisp_ctx_t *context);
+data_t *make_primitive(prim_proc in, lisp_ctx_t *context);
+data_t *make_error(const char *error, lisp_ctx_t *context);
 
-data_t *cons(const data_t *l, const data_t *r);
+#define cons(l, r) cons_in_context(l, r, context)
+
+data_t *cons_in_context(const data_t *l, const data_t *r, lisp_ctx_t *context);
 data_t *car(const data_t *in);
 data_t *cdr(const data_t *in);
 

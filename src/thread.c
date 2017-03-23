@@ -25,11 +25,9 @@
 #include "libisp/mem.h"
 
 typedef struct {
-	data_t *exp, *env, *result;
+	data_t *exp, *result;
+	lisp_ctx_t *context;
 } threadparam_t;
-
-int thread_running = 0;
-size_t thread_timeout = 2;
 
 #ifdef _WIN32
 static DWORD WINAPI thread(LPVOID in) {
@@ -38,19 +36,19 @@ static void *thread(void *in) {
 #endif
 	threadparam_t *param = (threadparam_t*)in;
 
-	param->result = eval(param->exp, param->env);
-	thread_running = 0;
+	param->result = eval_in_context(param->exp, param->context);
+	param->context->thread_running = 0;
 #ifndef _WIN32
 	pthread_exit(NULL);
 #endif
 	return 0;
 }
 
-void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle) {
-	eval_plz_die = 1;
+void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle, lisp_ctx_t *context) {
+	context->eval_plz_die = 1;
 	fprintf(stderr, "%s", msg);
 	info->result = NULL;
-	thread_running = 0;
+	context->thread_running = 0;
 }
 
 static HANDLE spawn_thread(threadparam_t *param) {
@@ -69,25 +67,25 @@ static HANDLE spawn_thread(threadparam_t *param) {
 #endif
 }
 
-data_t *eval_thread(const data_t *exp, data_t *env) {
+data_t *eval_thread(const data_t *exp, lisp_ctx_t *context) {
 	HANDLE thread_handle;
 	threadparam_t info;
 	time_t starttime = time(NULL);
 	size_t reclaimed;
 
 	info.exp = (data_t*)exp;
-	info.env = env;
-	thread_running = 1;
+	info.context = context;
+	context->thread_running = 1;
 
 	thread_handle = spawn_thread(&info);
 
-	while(thread_running) {
-		if(thread_timeout && (time(NULL) - starttime > thread_timeout))
-			kill_thread(&info, "-- ERROR: eval() timed out.\n", thread_handle);
-		if(mem_allocated + sizeof(data_t) >= mem_lim_hard) {
+	while(context->thread_running) {
+		if(context->thread_timeout && (time(NULL) - starttime > context->thread_timeout))
+			kill_thread(&info, "-- ERROR: eval() timed out.\n", thread_handle, context);
+		if(context->mem_allocated + sizeof(data_t) >= context->mem_lim_hard) {
 			kill_thread(&info, "-- ERROR: Hard memory limit reached.\n", 
-				thread_handle);
-			if((mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE)))
+				thread_handle, context);
+			if((context->mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE, context)))
 				printf("-- GC: %zu bytes of memory reclaimed.\n", reclaimed);			
 		}
 	}

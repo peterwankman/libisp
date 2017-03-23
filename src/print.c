@@ -14,14 +14,12 @@
 #include "libisp/data.h"
 #include "libisp/eval.h"
 
-extern data_t *the_global_env;
-
-void print_data_rec(const data_t *d, int print_parens) {
+static void print_data_rec(const data_t *d, int print_parens, lisp_ctx_t *context) {
 	data_t *head, *tail;
 
 	if(!d)
 		printf("()");
-	else if(d == the_global_env)
+	else if(d == context->the_global_environment)
 		printf("<env>");
 	else {
 		switch(d->type) {
@@ -44,16 +42,16 @@ void print_data_rec(const data_t *d, int print_parens) {
 				tail = cdr(d);
 
 				if(tail) {
-					print_data_rec(head, 1);
+					print_data_rec(head, 1, context);
 					if(tail->type != pair) {
 						printf(" . ");
-						print_data_rec(tail, 1);
+						print_data_rec(tail, 1, context);
 					} else {
 						printf(" ");
-						print_data_rec(tail, 0);
+						print_data_rec(tail, 0, context);
 					}
 				} else {
-					print_data_rec(head, 1);					
+					print_data_rec(head, 1, context);
 				}
 
 				if(print_parens)
@@ -62,6 +60,6 @@ void print_data_rec(const data_t *d, int print_parens) {
 	}
 }
 
-void print_data(const data_t *d) {
-	print_data_rec(d, 1);
+void print_data(const data_t *d, lisp_ctx_t *context) {
+	print_data_rec(d, 1, context);
 }

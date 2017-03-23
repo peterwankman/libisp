@@ -14,9 +14,6 @@
 #ifndef LIBISP_THREAD_H_
 #define LIBISP_THREAD_H_
 
-size_t thread_timeout;
-int thread_running;
-
-data_t *eval_thread(const data_t *exp, data_t *env);
+data_t *eval_thread(const data_t *exp, lisp_ctx_t *context);
 
 #endif

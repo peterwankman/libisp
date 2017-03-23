@@ -17,7 +17,7 @@
 
 #include "libisp/data.h"
 
-data_t *read_exp(const char *exp, size_t *readto, int *error);
+data_t *read_exp(const char *exp, size_t *readto, int *error, lisp_ctx_t *context);
 
 static size_t skip_whitespace(const char *exp) {
 	const char *out = exp;
@@ -170,7 +170,7 @@ static int is_empty_combination(const char *exp) {
 	return 1;
 }
 
-static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readto, int *error) {
+static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readto, int *error, lisp_ctx_t *context) {
 	char *buf, *newexp;
 	int integer;
 	double decimal;
@@ -183,26 +183,26 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	*readto = 0;
 
 	if(is_quotation(exp) && !already_quoted) {
-		out = cons(make_symbol("quote"), cons(read_subexp(exp + 1, 1, &newread, error), NULL));
+		out = cons(make_symbol("quote", context), cons(read_subexp(exp + 1, 1, &newread, error, context), NULL));
 		*readto += newread + 1;
 	} else if(is_decimal(exp, readto, &decimal)) {
-		out = make_decimal(decimal);
+		out = make_decimal(decimal, context);
 	} else if(is_integer(exp, readto, &integer)) {		
-		out = make_int(integer);
+		out = make_int(integer, context);
 	} else if(is_string(exp, readto)) {
 		if((buf = malloc(*readto - 1)) == NULL)
 			return NULL;
 		
 		strncpy(buf, exp + 1, *readto - 2);
 		buf[*readto - 2] = '\0';
-		out = make_string(buf);		
+		out = make_string(buf, context);		
 		free(buf);		
 	} else if(is_symbol(exp, readto)) {		
 		if((buf = malloc(*readto + 1)) == NULL)
 			return NULL;
 		strncpy(buf, exp, *readto);
 		buf[*readto] = '\0';
-		out = make_symbol(buf);
+		out = make_symbol(buf, context);
 		free(buf);
 	} else if(is_combination(exp, readto)) {
 		if(is_empty_combination(exp)) {			
@@ -219,7 +219,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 			out = NULL;
 			do {
 				get_last_subexp(newexp, &exppos);
-				newdata = read_subexp(newexp + exppos, already_quoted, &newread, error);
+				newdata = read_subexp(newexp + exppos, already_quoted, &newread, error, context);
 				out = cons(newdata, out);
 				newexp[exppos] = '\0';			
 			} while(newexp[0]);
@@ -239,7 +239,7 @@ static data_t *read_subexp(const char *exp, size_t already_quoted, size_t *readt
 	return out;	
 }
 
-data_t *read_exp(const char *exp, size_t *readto, int *error) {
+data_t *read_exp(const char *exp, size_t *readto, int *error, lisp_ctx_t *context) {
 	size_t l = strlen(exp), int_readto;
 	data_t *out;
 	*error = 0;
@@ -248,7 +248,7 @@ data_t *read_exp(const char *exp, size_t *readto, int *error) {
 	if(!l)		
 		return NULL;
 	
-	out = read_subexp(exp, 0, &int_readto, error);
+	out = read_subexp(exp, 0, &int_readto, error, context);
 
 	if(readto)
 		*readto = int_readto;

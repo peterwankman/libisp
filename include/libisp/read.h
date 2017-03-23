@@ -14,6 +14,6 @@
 #ifndef LIBISP_READ_H_
 #define LIBISP_READ_H_
 
-data_t *read_exp(const char *exp, size_t *readto, int *error);
+data_t *read_exp(const char *exp, size_t *readto, int *error, lisp_ctx_t *context);
 
 #endif

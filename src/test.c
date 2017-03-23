@@ -106,12 +106,12 @@ int main(void) {
 	int error, paren = 0;
 	char *exp, *buf;
 
-	mem_verbosity = MEM_SILENT;
-	mem_lim_soft = 1024 * 768;
-	mem_lim_hard = 1024 * 1024;
+	lisp_ctx_t *context;
 
 	printf("Setting up the global environment...\n\n");
-	setup_environment();
+
+	context = make_context(1024 * 768, 1024 * 1024, MEM_SILENT, 60);
+	setup_environment(context);
 	print_banner();
 
 	while(1) {
@@ -132,26 +132,26 @@ int main(void) {
 		buf = exp;
 
 		do {
-			exp_list = read_exp(exp, &readto, &error);
+			exp_list = read_exp(exp, &readto, &error, context);
 		
 			if(error) {
 				printf("-- Syntax Error: '%s'\n", exp);
 				break;
 			} else {
-				ret = eval_thread(exp_list, the_global_env);
+				ret = eval_thread(exp_list, context);
 				printf("%s", OUTPUT_PROMPT);
-				print_data(ret);
+				print_data(ret, context);
 				printf("\n");
 			}	
 		
 			exp += readto;
 
-			if((reclaimed = run_gc(GC_LOWMEM)) && (mem_verbosity == MEM_VERBOSE))
+			if((reclaimed = run_gc(GC_LOWMEM, context)) && (context->mem_verbosity == MEM_VERBOSE))
 				printf("-- GC: %zd bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
 	}
-	cleanup_lisp();
-	showmemstats(stdout);
+	destroy_context(context);
+
 	return EXIT_SUCCESS;
 }

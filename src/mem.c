@@ -19,17 +19,6 @@
 #include "libisp/mem.h"
 #include "libisp/thread.h"
 
-size_t mem_lim_soft =  65535;
-size_t mem_lim_hard = 131071;
-size_t mem_list_entries = 0;
-size_t mem_allocated = 0;
-size_t mem_verbosity = MEM_SILENT;
-
-static size_t n_allocs = 0;
-static size_t n_frees = 0;
-static size_t n_bytes_peak = 0;
-static size_t warned = 0;
-
 typedef struct alloclist_t {
 	data_t *memory;
 	char *file;
@@ -38,8 +27,6 @@ typedef struct alloclist_t {
 	char mark;
 	struct alloclist_t *next;
 } alloclist_t;
-
-static alloclist_t *alloc_list = NULL;
 
 /* ALLOCATOR */
 
@@ -59,11 +46,11 @@ static alloclist_t *make_entry(data_t *memory, const char *file, const int line,
 	return out;
 }
 
-static void addtolist(alloclist_t *entry) {
-	alloclist_t *current = alloc_list, *last = NULL;
+static void addtolist(alloclist_t *entry, lisp_ctx_t *context) {
+	alloclist_t *current = context->alloc_list, *last = NULL;
 	if(!current) {
-		alloc_list = entry;
-		mem_list_entries++;		
+		context->alloc_list = entry;
+		context->mem_list_entries++;		
 		return;
 	}
 
@@ -75,40 +62,40 @@ static void addtolist(alloclist_t *entry) {
 	if(last)
 		last->next = entry;
 	else
-		alloc_list = entry;		
+		context->alloc_list = entry;		
 	
 	entry->next = current;
 
-	mem_list_entries++;	
+	context->mem_list_entries++;	
 }
 
-data_t *_dalloc(const size_t size, const char *file, const int line) {
+data_t *_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t *context) {
 	data_t *memory;
-	size_t newsize = mem_allocated + size;
+	size_t newsize = context->mem_allocated + size;
 	alloclist_t *newentry;
 
-	if(newsize > mem_lim_hard) {
-		if(thread_running)
+	if(newsize > context->mem_lim_hard) {
+		if(context->thread_running)
 			for(;;);
 		return NULL;
-	} else if(!warned && (newsize > mem_lim_soft)) {
-		if(mem_verbosity == MEM_VERBOSE)
+	} else if(!(context->warned) && (newsize > context->mem_lim_soft)) {
+		if(context->mem_verbosity == MEM_VERBOSE)
 			fprintf(stderr, "-- WARNING: Soft memory limit reached.\n");
-		warned = 1;
-	} else if(warned && (newsize < mem_lim_soft))
-		warned = 0;
+		context->warned = 1;
+	} else if((context->warned) && (newsize < context->mem_lim_soft))
+		context->warned = 0;
 
 	memory = malloc(size);
 
 	if(memory) {
 		if((newentry = make_entry(memory, file, line, size))) {
-			addtolist(newentry);
+			addtolist(newentry, context);
 
-			mem_allocated += size;
-			if(mem_allocated > n_bytes_peak)
-				n_bytes_peak = mem_allocated;
+			context->mem_allocated += size;
+			if(context->mem_allocated > context->n_bytes_peak)
+				context->n_bytes_peak = context->mem_allocated;
 
-			n_allocs++;
+			context->n_allocs++;
 		} else {
 			fprintf(stderr, "ERROR: malloc() failed for new memory list entry.\n");
 			free(memory);
@@ -120,8 +107,8 @@ data_t *_dalloc(const size_t size, const char *file, const int line) {
 
 /* GARBAGE COLLECTOR */
 
-static int delfromlist(const void *memory) {
-	alloclist_t *current = alloc_list, *last = NULL;
+static int delfromlist(const void *memory, lisp_ctx_t *context) {
+	alloclist_t *current = context->alloc_list, *last = NULL;
 
 	if(!memory)
 		return 0;
@@ -134,10 +121,10 @@ static int delfromlist(const void *memory) {
 			if(last)
 				last->next = current->next;
 			else
-				alloc_list = current->next;
+				context->alloc_list = current->next;
 
-			mem_allocated -= current->size;
-			mem_list_entries--;
+			context->mem_allocated -= current->size;
+			context->mem_list_entries--;
 			free(current);
 			return 1;
 		}		
@@ -146,11 +133,11 @@ static int delfromlist(const void *memory) {
 	return 0;
 }
 
-void free_data(data_t *in) {
+void free_data(data_t *in, lisp_ctx_t *context) {
 	if(!in)
 		return;
 
-	if(delfromlist(in)) {
+	if(delfromlist(in, context)) {
 		if(in->type == string)
 			free(in->string);
 		if(in->type == symbol)
@@ -161,14 +148,14 @@ void free_data(data_t *in) {
 			free(in->pair);
 
 		free(in);
-		n_frees++;
+		context->n_frees++;
 	} else {
 		fprintf(stderr, "-- WARNING: Called free() on unknown pointer.\n");
 	}
 }
 
-static void clear_mark(void) {
-	alloclist_t *current = alloc_list;
+static void clear_mark(lisp_ctx_t *context) {
+	alloclist_t *current = context->alloc_list;
 
 	while(current) {
 		current->mark = 0;			
@@ -176,8 +163,8 @@ static void clear_mark(void) {
 	}
 }
 
-static alloclist_t *find_in_list(const void *memory) {
-	alloclist_t *current =  alloc_list;
+static alloclist_t *find_in_list(const void *memory, lisp_ctx_t *context) {
+	alloclist_t *current =  context->alloc_list;
 
 	if(!memory)
 		return NULL;
@@ -191,14 +178,14 @@ static alloclist_t *find_in_list(const void *memory) {
 	return NULL;
 }
 
-static void mark(data_t *start) {
+static void mark(data_t *start, lisp_ctx_t *context) {
 	alloclist_t *list_entry;
 	data_t *head, *tail;
 
 	if(!start)
 		return;
 
-	list_entry = find_in_list(start);
+	list_entry = find_in_list(start, context);
 
 	if(!list_entry) {
 		fprintf(stderr, "ERROR: %p not found in memory list.\n", start);
@@ -211,51 +198,51 @@ static void mark(data_t *start) {
 		if(start->type == pair) {
 			head = car(start);
 			tail = cdr(start);
-			mark(head);
-			mark(tail);
+			mark(head, context);
+			mark(tail, context);
 		}
 	} 
 }
 
-static void sweep(const int req_mark) {
-	alloclist_t *current = alloc_list, *buf;
+static void sweep(const int req_mark, lisp_ctx_t *context) {
+	alloclist_t *current = context->alloc_list, *buf;
 
 	while(current) {
 		buf = current->next;
 		if(current->mark == req_mark)
-			free_data(current->memory);		
+			free_data(current->memory, context);		
 		current = buf;
 	}
 }
 
-size_t run_gc(const int force) {
-	size_t old_mem = mem_allocated;
+size_t run_gc(const int force, lisp_ctx_t *context) {
+	size_t old_mem = context->mem_allocated;
 
-	if((force == GC_FORCE) || (mem_allocated > mem_lim_soft)) {
-		clear_mark();
-		mark(the_global_env);
-		sweep(0);
+	if((force == GC_FORCE) || (context->mem_allocated > context->mem_lim_soft)) {
+		clear_mark(context);
+		mark(context->the_global_environment, context);
+		sweep(0, context);
 	}
 
-	return old_mem - mem_allocated;
+	return old_mem - context->mem_allocated;
 }
 
 /* FREE */
 
-void free_data_rec(data_t *in) {
-	clear_mark();
-	mark(in);
-	sweep(1);
+void free_data_rec(data_t *in, lisp_ctx_t *context) {
+	clear_mark(context);
+	mark(in, context);
+	sweep(1, context);
 }
 
 /* INFO */
 
-void showmemstats(FILE *fp) {
-	alloclist_t *current = alloc_list, *buf;
+void showmemstats(FILE *fp, lisp_ctx_t *context) {
+	alloclist_t *current = context->alloc_list, *buf;
 
-	if((n_allocs != n_frees) || (mem_verbosity == MEM_VERBOSE)) {
+	if((context->n_allocs != context->n_frees) || (context->mem_verbosity == MEM_VERBOSE)) {
 		printf("\n--- Memory usage summary ---\n");
-		if(n_frees < n_allocs) {
+		if(context->n_frees < context->n_allocs) {
 			fprintf(fp, "Showing unfreed memory:\n");
 			while(current) {
 				fprintf(fp, "%s, %d\n", current->file, current->line);
@@ -265,14 +252,14 @@ void showmemstats(FILE *fp) {
 			}
 		}
 
-		fprintf(fp, "%zd allocs; %zd frees.\n", n_allocs, n_frees);
-		if(mem_list_entries)
-			printf("%zd list entries left.\n", mem_list_entries);
+		fprintf(fp, "%zd allocs; %zd frees.\n", context->n_allocs, context->n_frees);
+		if(context->mem_list_entries)
+			printf("%zd list entries left.\n", context->mem_list_entries);
 		printf("--- End summary ---\n");
 	}
 
-	if(mem_allocated)
-		fprintf(fp, "Bytes left allocated: %zd out of ", mem_allocated);
-	if((mem_verbosity == MEM_VERBOSE) || mem_allocated)
-		fprintf(fp, "%zd bytes peak memory usage.\n", n_bytes_peak);
+	if(context->mem_allocated)
+		fprintf(fp, "Bytes left allocated: %d out of ", context->mem_allocated);
+	if((context->mem_verbosity == MEM_VERBOSE) || context->mem_allocated)
+		fprintf(fp, "%d bytes peak memory usage.\n", context->n_bytes_peak);
 }

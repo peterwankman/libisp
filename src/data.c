@@ -17,10 +17,10 @@
 
 /* MAKE DATA OBJECTS */
 
-data_t *make_int(const int i) {
+data_t *make_int(const int i, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	out->type = integer;
@@ -29,10 +29,10 @@ data_t *make_int(const int i) {
 	return out;
 }
 
-data_t *make_decimal(const double d) {
+data_t *make_decimal(const double d, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	out->type = decimal;
@@ -41,10 +41,10 @@ data_t *make_decimal(const double d) {
 	return out;
 }
 
-data_t *make_string(const char *str) {
+data_t *make_string(const char *str, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	if(!(out->string = malloc(strlen(str) + 1))) {
@@ -58,10 +58,10 @@ data_t *make_string(const char *str) {
 	return out;
 }
 
-data_t *make_symbol(const char *ident) {
+data_t *make_symbol(const char *ident, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	if(!(out->symbol = malloc(strlen(ident) + 1))) {
@@ -75,10 +75,10 @@ data_t *make_symbol(const char *ident) {
 	return out;
 }
 
-data_t *make_primitive(prim_proc in) {
+data_t *make_primitive(prim_proc in, lisp_ctx_t *context) {
 		data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	out->type = prim_procedure;
@@ -87,10 +87,10 @@ data_t *make_primitive(prim_proc in) {
 	return out;
 }
 
-data_t *make_error(const char *errmsg) {
+data_t *make_error(const char *errmsg, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	if(!(out->error = malloc(strlen(errmsg) + 1))) {
@@ -106,10 +106,10 @@ data_t *make_error(const char *errmsg) {
 
 /* LIST MANIPULATION */
 
-data_t *cons(const data_t *l, const data_t *r) {
+data_t *cons_in_context(const data_t *l, const data_t *r, lisp_ctx_t *context) {
 	data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t))))
+	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
 		return NULL;
 
 	if(!(out->pair = malloc(sizeof(cons_t)))) {
