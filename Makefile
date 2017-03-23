@@ -17,15 +17,20 @@ LDFLAGS=-lm
 
 .PHONY: all clean
 
-all: $(BIN)/libisp.a $(BIN)/lisp
+all: $(BIN)/libisp.a $(BIN)/lisp $(BIN)/sample
 
 $(BIN)/lisp: $(SRC)/repl.c $(BIN)/libisp.a
-	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -lisp -pthread -o $@ $^
+	$(CC) -o $@ $^ $(CFLAGS) -pthread $(LDFLAGS)
+
+$(BIN)/sample: $(SRC)/sample.c $(BIN)/libisp.a
+	$(CC) -o $@ $^ $(CFLAGS) -pthread $(LDFLAGS)
 
 $(BIN)/libisp.a: $(OBJS)
 	ar rcs $@ $^
+
 .c.o:
 	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
 
 clean:
-	rm -rf $(OBJS) $(BIN)/libisp.a $(BIN)/lisp
+	rm -f $(OBJS)
+	rm -f $(BIN)/*
