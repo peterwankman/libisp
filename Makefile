@@ -19,7 +19,7 @@ LDFLAGS=-lm
 
 all: $(BIN)/libisp.a $(BIN)/lisp
 
-$(BIN)/lisp: $(SRC)/test.c $(BIN)/libisp.a
+$(BIN)/lisp: $(SRC)/repl.c $(BIN)/libisp.a
 	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -lisp -pthread -o $@ $^
 
 $(BIN)/libisp.a: $(OBJS)
