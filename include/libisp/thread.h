@@ -11,9 +11,9 @@
 
 #include "libisp/defs.h"
 
-#ifndef LIBISP_THREAD_H_
-#define LIBISP_THREAD_H_
+#ifndef LISP_THREAD_H_
+#define LISP_THREAD_H_
 
-data_t *eval_thread(const data_t *exp, lisp_ctx_t *context);
+lisp_data_t *lisp_eval_thread(const lisp_data_t *exp, lisp_ctx_t *context);
 
 #endif

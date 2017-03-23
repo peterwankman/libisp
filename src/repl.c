@@ -101,7 +101,7 @@ char *input_exp(int *paren) {
 }
 
 int main(void) {
-	data_t *exp_list, *ret;
+	lisp_data_t *exp_list, *ret;
 	size_t readto, reclaimed;
 	int error, paren = 0;
 	char *exp, *buf;
@@ -110,8 +110,8 @@ int main(void) {
 
 	printf("Setting up the global environment...\n\n");
 
-	context = make_context(1024 * 768, 1024 * 1024, MEM_SILENT, 60);
-	setup_environment(context);
+	context = lisp_make_context(1024 * 768, 1024 * 1024, LISP_GC_SILENT, 60);
+	lisp_setup_env(context);
 	print_banner();
 
 	while(1) {
@@ -132,26 +132,26 @@ int main(void) {
 		buf = exp;
 
 		do {
-			exp_list = read_exp(exp, &readto, &error, context);
+			exp_list = lisp_read(exp, &readto, &error, context);
 		
 			if(error) {
 				printf("-- Syntax Error: '%s'\n", exp);
 				break;
 			} else {
-				ret = eval_thread(exp_list, context);
+				ret = lisp_eval_thread(exp_list, context);
 				printf("%s", OUTPUT_PROMPT);
-				print_data(ret, context);
+				lisp_print(ret, context);
 				printf("\n");
 			}	
 		
 			exp += readto;
 
-			if((reclaimed = run_gc(GC_LOWMEM, context)) && (context->mem_verbosity == MEM_VERBOSE))
+			if((reclaimed = lisp_gc(LISP_GC_LOWMEM, context)) && (context->mem_verbosity == LISP_GC_VERBOSE))
 				printf("-- GC: %zd bytes of memory reclaimed.\n", reclaimed);
 		} while(strlen(exp));
 		free(buf);
 	}
-	destroy_context(context);
+	lisp_destroy_context(context);
 
 	return EXIT_SUCCESS;
 }

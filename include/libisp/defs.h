@@ -9,8 +9,8 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#ifndef LIBISP_DEFS_H_
-#define LIBISP_DEFS_H_
+#ifndef LISP_DEFS_H_
+#define LISP_DEFS_H_
 
 #include <stdint.h>
 
@@ -29,17 +29,17 @@
 #define cddar(l)	cdr(cdr(car(l)))
 #define cdddr(l)	cdr(cdr(cdr(l)))
 
-typedef enum dtype_t {
-	integer, decimal, string, symbol, pair, prim_procedure, error
-} dtype_t;
+typedef enum lisp_type_t {
+	lisp_type_integer, lisp_type_decimal, lisp_type_string, lisp_type_symbol, lisp_type_pair, lisp_type_prim, lisp_type_error
+} lisp_type_t;
 
-typedef struct data_t data_t;
+typedef struct lisp_data_t lisp_data_t;
 typedef struct lisp_ctx_t lisp_ctx_t;
 
-typedef data_t* (*prim_proc)(const data_t*, lisp_ctx_t*);
+typedef lisp_data_t* (*prim_proc)(const lisp_data_t*, lisp_ctx_t*);
 
-struct data_t {
-	dtype_t type;
+struct lisp_data_t {
+	lisp_type_t type;
 	union {
 		int integer;
 		double decimal;
@@ -47,35 +47,35 @@ struct data_t {
 		char *symbol;
 		char *error;
 		prim_proc proc;
-		struct cons_t *pair;
+		struct lisp_cons_t *pair;
 	};
 };
 
-typedef struct prim_procs {
+typedef struct lisp_prim_proc_list_t {
 	char *name;
 	prim_proc proc;
-	struct prim_procs *next;
-	struct prim_procs *prev;
-} prim_proc_list_t;
+	struct lisp_prim_proc_list_t *next;
+	struct lisp_prim_proc_list_t *prev;
+} lisp_prim_proc_list_t;
 
-typedef struct cvars {
+typedef struct lisp_cvar_list_t {
 	char *name;
 	int access;
 	size_t *value;
-	struct cvars *next;
-} cvar_list_t;
+	struct lisp_cvar_list_t *next;
+} lisp_cvar_list_t;
 
-typedef struct cons_t {
-	struct data_t *l, *r;
-} cons_t;
+typedef struct lisp_cons_t {
+	struct lisp_data_t *l, *r;
+} lisp_cons_t;
 
 struct lisp_ctx_t {
-	data_t *the_global_environment;
-	prim_proc_list_t *the_prim_procs;
-	prim_proc_list_t *the_last_prim_proc;
+	lisp_data_t *the_global_environment;
+	lisp_prim_proc_list_t *the_prim_procs;
+	lisp_prim_proc_list_t *the_last_prim_proc;
 
-	cvar_list_t *the_cvars;
-	cvar_list_t *the_last_cvar;
+	lisp_cvar_list_t *the_cvars;
+	lisp_cvar_list_t *the_last_cvar;
 	
 	size_t mem_lim_soft;
 	size_t mem_lim_hard;

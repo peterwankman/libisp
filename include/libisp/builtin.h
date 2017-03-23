@@ -11,18 +11,17 @@
 
 #include "defs.h"
 
-#ifndef LIBISP_BUILTIN_H_
-#define LIBISP_BUILTIN_H_
+#ifndef LISP_BUILTIN_H_
+#define LISP_BUILTIN_H_
 
-#define CVAR_READONLY	1
-#define CVAR_READWRITE	2
+#define LISP_CVAR_RO	1
+#define LISP_CVAR_RW	2
 
-void add_prim_proc(char *name, prim_proc proc, lisp_ctx_t *context);
-void add_cvar(const char *name, const size_t *valptr, const int access, lisp_ctx_t *context);
-void setup_environment(lisp_ctx_t *context);
-void cleanup_lisp(lisp_ctx_t *context);
-void reset_lisp(lisp_ctx_t *context);
-lisp_ctx_t *make_context(const size_t mem_lim_soft, const size_t mem_lim_hard, const size_t mem_verbosity, const size_t thread_timeout);
-void destroy_context(lisp_ctx_t *context);
+void lisp_add_prim_proc(char *name, prim_proc proc, lisp_ctx_t *context);
+void lisp_add_cvar(const char *name, const size_t *valptr, const int access, lisp_ctx_t *context);
+void lisp_setup_env(lisp_ctx_t *context);
+void lisp_free_context(lisp_ctx_t *context);
+lisp_ctx_t *lisp_make_context(const size_t mem_lim_soft, const size_t mem_lim_hard, const size_t mem_verbosity, const size_t thread_timeout);
+void lisp_destroy_context(lisp_ctx_t *context);
 
 #endif

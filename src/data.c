@@ -17,34 +17,34 @@
 
 /* MAKE DATA OBJECTS */
 
-data_t *make_int(const int i, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *lisp_make_int(const int i, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
-	out->type = integer;
+	out->type = lisp_type_integer;
 	out->integer = i;
 
 	return out;
 }
 
-data_t *make_decimal(const double d, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *lisp_make_decimal(const double d, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
-	out->type = decimal;
+	out->type = lisp_type_decimal;
 	out->decimal = d;
 
 	return out;
 }
 
-data_t *make_string(const char *str, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *lisp_make_string(const char *str, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
 	if(!(out->string = malloc(strlen(str) + 1))) {
@@ -52,16 +52,16 @@ data_t *make_string(const char *str, lisp_ctx_t *context) {
 		return NULL;
 	}
 
-	out->type = string;
+	out->type = lisp_type_string;
 	strcpy(out->string, str);
 
 	return out;
 }
 
-data_t *make_symbol(const char *ident, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *lisp_make_symbol(const char *ident, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
 	if(!(out->symbol = malloc(strlen(ident) + 1))) {
@@ -69,28 +69,28 @@ data_t *make_symbol(const char *ident, lisp_ctx_t *context) {
 		return NULL;
 	}
 
-	out->type = symbol;
+	out->type = lisp_type_symbol;
 	strcpy(out->symbol, ident);
 
 	return out;
 }
 
-data_t *make_primitive(prim_proc in, lisp_ctx_t *context) {
-		data_t *out;
+lisp_data_t *lisp_make_prim(prim_proc in, lisp_ctx_t *context) {
+		lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
-	out->type = prim_procedure;
+	out->type = lisp_type_prim;
 	out->proc = in;
 
 	return out;
 }
 
-data_t *make_error(const char *errmsg, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *lisp_make_error(const char *errmsg, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
 	if(!(out->error = malloc(strlen(errmsg) + 1))) {
@@ -98,7 +98,7 @@ data_t *make_error(const char *errmsg, lisp_ctx_t *context) {
 		return NULL;
 	}
 
-	out->type = error;
+	out->type = lisp_type_error;
 	strcpy(out->error, errmsg);
 
 	return out;
@@ -106,45 +106,45 @@ data_t *make_error(const char *errmsg, lisp_ctx_t *context) {
 
 /* LIST MANIPULATION */
 
-data_t *cons_in_context(const data_t *l, const data_t *r, lisp_ctx_t *context) {
-	data_t *out;
+lisp_data_t *cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context) {
+	lisp_data_t *out;
 
-	if(!(out = lisp_data_alloc(sizeof(data_t), context)))
+	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
 		return NULL;
 
-	if(!(out->pair = malloc(sizeof(cons_t)))) {
+	if(!(out->pair = malloc(sizeof(lisp_cons_t)))) {
 		free(out);
 		return NULL;
 	}
 
-	out->type = pair;
-	out->pair->l = (data_t*)l;
-	out->pair->r = (data_t*)r;
+	out->type = lisp_type_pair;
+	out->pair->l = (lisp_data_t*)l;
+	out->pair->r = (lisp_data_t*)r;
 
 	return out;
 }
 
-data_t *car(const data_t *in) {
+lisp_data_t *car(const lisp_data_t *in) {
 	if(!in)
 		return NULL;
 
-	if(in->type != pair)
+	if(in->type != lisp_type_pair)
 		return NULL;
 
 	return in->pair->l;
 }
 
-data_t *cdr(const data_t *in) {
+lisp_data_t *cdr(const lisp_data_t *in) {
 	if(!in)
 		return NULL;
 
-	if(in->type != pair)
+	if(in->type != lisp_type_pair)
 		return NULL;
 
 	return in->pair->r;
 }
 
-int is_equal(const data_t *d1, const data_t *d2) {
+int is_equal(const lisp_data_t *d1, const lisp_data_t *d2) {
 	if(d1 == d2)
 		return 1;
 
@@ -157,37 +157,37 @@ int is_equal(const data_t *d1, const data_t *d2) {
 		return 0;
 
 	switch(d1->type) {
-		case pair:
+		case lisp_type_pair:
 			return is_equal(car(d1), car(d2)) && is_equal(cdr(d1), cdr(d2));
-		case integer:
+		case lisp_type_integer:
 			return d1->integer == d2->integer;
-		case decimal:
+		case lisp_type_decimal:
 			return d1->decimal == d2->decimal;
-		case prim_procedure:
+		case lisp_type_prim:
 			return d1->proc == d2->proc;
-		case string:
+		case lisp_type_string:
 			return !strcmp(d1->string, d2->string);
-		case error:
+		case lisp_type_error:
 			return 0;
-		case symbol:			
+		case lisp_type_symbol:			
 			return !strcmp(d1->symbol, d2->symbol);
 	}
 
 	return 0;
 }
 
-int length(const data_t *list) {
+int length(const lisp_data_t *list) {
 	int out = 0;
 	
 	if(!list)
 		return 0;
 	
-	if(list->type != pair)
+	if(list->type != lisp_type_pair)
 		return 0;
 
 	do {
 		out++;
-		if(list->type == pair)
+		if(list->type == lisp_type_pair)
 			list = list->pair->r;
 		else
 			list = NULL;
@@ -196,50 +196,50 @@ int length(const data_t *list) {
 	return out;
 }
 
-data_t *set_car(data_t *in, const data_t *val) {
-	if(in->type != pair)
+lisp_data_t *set_car(lisp_data_t *in, const lisp_data_t *val) {
+	if(in->type != lisp_type_pair)
 		return NULL;
-	in->pair->l = (data_t*)val;
-	return (data_t*)val;
+	in->pair->l = (lisp_data_t*)val;
+	return (lisp_data_t*)val;
 }
 
-data_t *set_cdr(data_t *in, const data_t *val) {
-	if(in->type != pair)
+lisp_data_t *set_cdr(lisp_data_t *in, const lisp_data_t *val) {
+	if(in->type != lisp_type_pair)
 		return NULL;
-	in->pair->r = (data_t*)val;
-	return (data_t*)val;
+	in->pair->r = (lisp_data_t*)val;
+	return (lisp_data_t*)val;
 }
 
-data_t *make_copy(const data_t *in) {
-	data_t *out;
+lisp_data_t *make_copy(const lisp_data_t *in) {
+	lisp_data_t *out;
 
 	if(!in)
 		return NULL;
 
-	out = malloc(sizeof(data_t));
+	out = malloc(sizeof(lisp_data_t));
 	if(!out)
 		return NULL;
 
 	out->type = in->type;
 
 	switch(out->type) {
-		case integer: out->integer = in->integer; break;
-		case decimal: out->decimal = in->decimal; break;
-		case prim_procedure: out->proc = in->proc; break;
-		case string: 
+		case lisp_type_integer: out->integer = in->integer; break;
+		case lisp_type_decimal: out->decimal = in->decimal; break;
+		case lisp_type_prim: out->proc = in->proc; break;
+		case lisp_type_string: 
 			out->string = malloc(strlen(in->string) + 1);
 			strcpy(out->string, in->string);
 			break;
-		case symbol:
+		case lisp_type_symbol:
 			out->symbol = malloc(strlen(in->symbol) + 1);
 			strcpy(out->symbol, in->symbol);
 			break;
-		case error:
+		case lisp_type_error:
 			out->error = malloc(strlen(in->error) + 1);
 			strcpy(out->error, in->error);
 			break;
-		case pair:
-			out->pair = malloc(sizeof(cons_t));
+		case lisp_type_pair:
+			out->pair = malloc(sizeof(lisp_cons_t));
 			if(!out)
 				return NULL;
 			if(in->pair->l)
@@ -256,18 +256,18 @@ data_t *make_copy(const data_t *in) {
 	return out;
 }
 
-data_t *append(const data_t *list1, const data_t *list2) {
-	data_t *out, *buf;
+lisp_data_t *append(const lisp_data_t *list1, const lisp_data_t *list2) {
+	lisp_data_t *out, *buf;
 
 	if(!list1) {
 		if(!list2)
 			return NULL;
-		if(list2->type != pair)
+		if(list2->type != lisp_type_pair)
 			return NULL;
 		return make_copy(list2);
 	}
 
-	if(list1->type != pair)
+	if(list1->type != lisp_type_pair)
 		return NULL;
 
 	if(!list2)

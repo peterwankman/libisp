@@ -25,7 +25,7 @@
 #include "libisp/mem.h"
 
 typedef struct {
-	data_t *exp, *result;
+	lisp_data_t *exp, *result;
 	lisp_ctx_t *context;
 } threadparam_t;
 
@@ -36,7 +36,7 @@ static void *thread(void *in) {
 #endif
 	threadparam_t *param = (threadparam_t*)in;
 
-	param->result = eval_in_context(param->exp, param->context);
+	param->result = lisp_eval(param->exp, param->context);
 	param->context->thread_running = 0;
 #ifndef _WIN32
 	pthread_exit(NULL);
@@ -44,7 +44,7 @@ static void *thread(void *in) {
 	return 0;
 }
 
-void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle, lisp_ctx_t *context) {
+static void kill_thread(threadparam_t *info, const char *msg, HANDLE thread_handle, lisp_ctx_t *context) {
 	context->eval_plz_die = 1;
 	fprintf(stderr, "%s", msg);
 	info->result = NULL;
@@ -67,13 +67,13 @@ static HANDLE spawn_thread(threadparam_t *param) {
 #endif
 }
 
-data_t *eval_thread(const data_t *exp, lisp_ctx_t *context) {
+lisp_data_t *lisp_eval_thread(const lisp_data_t *exp, lisp_ctx_t *context) {
 	HANDLE thread_handle;
 	threadparam_t info;
 	time_t starttime = time(NULL);
 	size_t reclaimed;
 
-	info.exp = (data_t*)exp;
+	info.exp = (lisp_data_t*)exp;
 	info.context = context;
 	context->thread_running = 1;
 
@@ -82,10 +82,10 @@ data_t *eval_thread(const data_t *exp, lisp_ctx_t *context) {
 	while(context->thread_running) {
 		if(context->thread_timeout && (time(NULL) - starttime > context->thread_timeout))
 			kill_thread(&info, "-- ERROR: eval() timed out.\n", thread_handle, context);
-		if(context->mem_allocated + sizeof(data_t) >= context->mem_lim_hard) {
+		if(context->mem_allocated + sizeof(lisp_data_t) >= context->mem_lim_hard) {
 			kill_thread(&info, "-- ERROR: Hard memory limit reached.\n", 
 				thread_handle, context);
-			if((context->mem_verbosity == MEM_VERBOSE) && (reclaimed = run_gc(GC_FORCE, context)))
+			if((context->mem_verbosity == LISP_GC_VERBOSE) && (reclaimed = lisp_gc(LISP_GC_FORCE, context)))
 				printf("-- GC: %zu bytes of memory reclaimed.\n", reclaimed);			
 		}
 	}

@@ -11,29 +11,29 @@
 
 #include "libisp/defs.h"
 
-#ifndef LIBISP_DATA_H_
-#define LIBISP_DATA_H_
+#ifndef LISP_DATA_H_
+#define LISP_DATA_H_
 
-data_t *make_int(const int i, lisp_ctx_t *context);
-data_t *make_decimal(const double d, lisp_ctx_t *context);
-data_t *make_string(const char *str, lisp_ctx_t *context);
-data_t *make_symbol(const char *ident, lisp_ctx_t *context);
-data_t *make_primitive(prim_proc in, lisp_ctx_t *context);
-data_t *make_error(const char *error, lisp_ctx_t *context);
+lisp_data_t *lisp_make_int(const int i, lisp_ctx_t *context);
+lisp_data_t *lisp_make_decimal(const double d, lisp_ctx_t *context);
+lisp_data_t *lisp_make_string(const char *str, lisp_ctx_t *context);
+lisp_data_t *lisp_make_symbol(const char *ident, lisp_ctx_t *context);
+lisp_data_t *lisp_make_prim(prim_proc in, lisp_ctx_t *context);
+lisp_data_t *lisp_make_error(const char *error, lisp_ctx_t *context);
 
 #define cons(l, r) cons_in_context(l, r, context)
 
-data_t *cons_in_context(const data_t *l, const data_t *r, lisp_ctx_t *context);
-data_t *car(const data_t *in);
-data_t *cdr(const data_t *in);
+lisp_data_t *cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context);
+lisp_data_t *car(const lisp_data_t *in);
+lisp_data_t *cdr(const lisp_data_t *in);
 
-int is_equal(const data_t *d1, const data_t *d2);
-int length(const data_t *list);
+int is_equal(const lisp_data_t *d1, const lisp_data_t *d2);
+int length(const lisp_data_t *list);
 
-data_t *set_car(data_t *pair, const data_t *val);
-data_t *set_cdr(data_t *pair, const data_t *val);
+lisp_data_t *set_car(lisp_data_t *pair, const lisp_data_t *val);
+lisp_data_t *set_cdr(lisp_data_t *pair, const lisp_data_t *val);
 
-data_t *make_copy(const data_t *in);
-data_t *append(const data_t *list1, const data_t *list2);
+lisp_data_t *make_copy(const lisp_data_t *in);
+lisp_data_t *append(const lisp_data_t *list1, const lisp_data_t *list2);
 
 #endif

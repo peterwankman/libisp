@@ -13,27 +13,19 @@
 
 #include "libisp/defs.h"
 
-#ifndef LIBISP_MEM_H_
-#define LIBISP_MEM_H_
+#ifndef LISP_MEM_H_
+#define LISP_MEM_H_
 
-#define MEM_SILENT	0
-#define MEM_VERBOSE	1
-#define GC_LOWMEM	0
-#define GC_FORCE	1
-#define lisp_data_alloc(n, c) _dalloc(n, __FILE__, __LINE__, c)
+#define LISP_GC_SILENT	0
+#define LISP_GC_VERBOSE	1
+#define LISP_GC_LOWMEM	0
+#define LISP_GC_FORCE	1
+#define lisp_data_alloc(n, c) lisp_dalloc(n, __FILE__, __LINE__, c)
 
-/*
-size_t mem_lim_soft;
-size_t mem_lim_hard;
-size_t mem_list_entries;
-size_t mem_allocated;
-size_t mem_verbosity;
-*/
-
-data_t *_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t *context);
-void showmemstats(FILE *fp, lisp_ctx_t *context);
-void free_data(data_t *in, lisp_ctx_t *context);
-void free_data_rec(data_t *in, lisp_ctx_t *context);
-size_t run_gc(const int force, lisp_ctx_t *context);
+lisp_data_t *lisp_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t *context);
+void lisp_gc_stats(FILE *fp, lisp_ctx_t *context);
+void lisp_free_data(lisp_data_t *in, lisp_ctx_t *context);
+void lisp_free_data_rec(lisp_data_t *in, lisp_ctx_t *context);
+size_t lisp_gc(const int force, lisp_ctx_t *context);
 
 #endif

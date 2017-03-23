@@ -9,8 +9,8 @@
  * http://sam.zoy.org/wtfpl/COPYING for more details.
  */
 
-#ifndef LIBISP_H_
-#define LIBISP_H_
+#ifndef LISP_LIBISP_H_
+#define LISP_LIBISP_H_
 
 #include "libisp/read.h"
 #include "libisp/eval.h"

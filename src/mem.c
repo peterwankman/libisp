@@ -20,7 +20,7 @@
 #include "libisp/thread.h"
 
 typedef struct alloclist_t {
-	data_t *memory;
+	lisp_data_t *memory;
 	char *file;
 	int line;
 	size_t size;
@@ -30,7 +30,7 @@ typedef struct alloclist_t {
 
 /* ALLOCATOR */
 
-static alloclist_t *make_entry(data_t *memory, const char *file, const int line, const size_t size) {
+static alloclist_t *make_entry(lisp_data_t *memory, const char *file, const int line, const size_t size) {
 	alloclist_t *out;
 	
 	if((out = malloc(sizeof(alloclist_t))) == NULL)
@@ -69,8 +69,8 @@ static void addtolist(alloclist_t *entry, lisp_ctx_t *context) {
 	context->mem_list_entries++;	
 }
 
-data_t *_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t *context) {
-	data_t *memory;
+lisp_data_t *lisp_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t *context) {
+	lisp_data_t *memory;
 	size_t newsize = context->mem_allocated + size;
 	alloclist_t *newentry;
 
@@ -79,7 +79,7 @@ data_t *_dalloc(const size_t size, const char *file, const int line, lisp_ctx_t 
 			for(;;);
 		return NULL;
 	} else if(!(context->warned) && (newsize > context->mem_lim_soft)) {
-		if(context->mem_verbosity == MEM_VERBOSE)
+		if(context->mem_verbosity == LISP_GC_VERBOSE)
 			fprintf(stderr, "-- WARNING: Soft memory limit reached.\n");
 		context->warned = 1;
 	} else if((context->warned) && (newsize < context->mem_lim_soft))
@@ -133,18 +133,18 @@ static int delfromlist(const void *memory, lisp_ctx_t *context) {
 	return 0;
 }
 
-void free_data(data_t *in, lisp_ctx_t *context) {
+void lisp_free_data(lisp_data_t *in, lisp_ctx_t *context) {
 	if(!in)
 		return;
 
 	if(delfromlist(in, context)) {
-		if(in->type == string)
+		if(in->type == lisp_type_string)
 			free(in->string);
-		if(in->type == symbol)
+		if(in->type == lisp_type_symbol)
 			free(in->symbol);
-		if(in->type == error)
+		if(in->type == lisp_type_error)
 			free(in->error);
-		if(in->type == pair)
+		if(in->type == lisp_type_pair)
 			free(in->pair);
 
 		free(in);
@@ -178,9 +178,9 @@ static alloclist_t *find_in_list(const void *memory, lisp_ctx_t *context) {
 	return NULL;
 }
 
-static void mark(data_t *start, lisp_ctx_t *context) {
+static void mark(lisp_data_t *start, lisp_ctx_t *context) {
 	alloclist_t *list_entry;
-	data_t *head, *tail;
+	lisp_data_t *head, *tail;
 
 	if(!start)
 		return;
@@ -195,7 +195,7 @@ static void mark(data_t *start, lisp_ctx_t *context) {
 	if(list_entry->mark == 0) {
 		list_entry->mark = 1;
 		
-		if(start->type == pair) {
+		if(start->type == lisp_type_pair) {
 			head = car(start);
 			tail = cdr(start);
 			mark(head, context);
@@ -210,15 +210,15 @@ static void sweep(const int req_mark, lisp_ctx_t *context) {
 	while(current) {
 		buf = current->next;
 		if(current->mark == req_mark)
-			free_data(current->memory, context);		
+			lisp_free_data(current->memory, context);		
 		current = buf;
 	}
 }
 
-size_t run_gc(const int force, lisp_ctx_t *context) {
+size_t lisp_gc(const int force, lisp_ctx_t *context) {
 	size_t old_mem = context->mem_allocated;
 
-	if((force == GC_FORCE) || (context->mem_allocated > context->mem_lim_soft)) {
+	if((force == LISP_GC_FORCE) || (context->mem_allocated > context->mem_lim_soft)) {
 		clear_mark(context);
 		mark(context->the_global_environment, context);
 		sweep(0, context);
@@ -229,7 +229,7 @@ size_t run_gc(const int force, lisp_ctx_t *context) {
 
 /* FREE */
 
-void free_data_rec(data_t *in, lisp_ctx_t *context) {
+void lisp_free_data_rec(lisp_data_t *in, lisp_ctx_t *context) {
 	clear_mark(context);
 	mark(in, context);
 	sweep(1, context);
@@ -237,10 +237,10 @@ void free_data_rec(data_t *in, lisp_ctx_t *context) {
 
 /* INFO */
 
-void showmemstats(FILE *fp, lisp_ctx_t *context) {
+void lisp_gc_stats(FILE *fp, lisp_ctx_t *context) {
 	alloclist_t *current = context->alloc_list, *buf;
 
-	if((context->n_allocs != context->n_frees) || (context->mem_verbosity == MEM_VERBOSE)) {
+	if((context->n_allocs != context->n_frees) || (context->mem_verbosity == LISP_GC_VERBOSE)) {
 		printf("\n--- Memory usage summary ---\n");
 		if(context->n_frees < context->n_allocs) {
 			fprintf(fp, "Showing unfreed memory:\n");
@@ -260,6 +260,6 @@ void showmemstats(FILE *fp, lisp_ctx_t *context) {
 
 	if(context->mem_allocated)
 		fprintf(fp, "Bytes left allocated: %lu out of ", context->mem_allocated);
-	if((context->mem_verbosity == MEM_VERBOSE) || context->mem_allocated)
+	if((context->mem_verbosity == LISP_GC_VERBOSE) || context->mem_allocated)
 		fprintf(fp, "%lu bytes peak memory usage.\n", context->n_bytes_peak);
 }
