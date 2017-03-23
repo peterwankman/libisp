@@ -167,6 +167,8 @@ int is_equal(const data_t *d1, const data_t *d2) {
 			return d1->proc == d2->proc;
 		case string:
 			return !strcmp(d1->string, d2->string);
+		case error:
+			return 0;
 		case symbol:			
 			return !strcmp(d1->symbol, d2->symbol);
 	}
@@ -182,10 +184,7 @@ int length(const data_t *list) {
 	
 	if(list->type != pair)
 		return 0;
-/*
-	if(list->pair->l == NULL)
-		return 0;
-*/
+
 	do {
 		out++;
 		if(list->type == pair)
