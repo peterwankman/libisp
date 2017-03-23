@@ -106,7 +106,7 @@ lisp_data_t *lisp_make_error(const char *errmsg, lisp_ctx_t *context) {
 
 /* LIST MANIPULATION */
 
-lisp_data_t *cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context) {
+lisp_data_t *lisp_cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context) {
 	lisp_data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))
@@ -124,7 +124,7 @@ lisp_data_t *cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ct
 	return out;
 }
 
-lisp_data_t *car(const lisp_data_t *in) {
+lisp_data_t *lisp_car(const lisp_data_t *in) {
 	if(!in)
 		return NULL;
 
@@ -134,7 +134,7 @@ lisp_data_t *car(const lisp_data_t *in) {
 	return in->pair->l;
 }
 
-lisp_data_t *cdr(const lisp_data_t *in) {
+lisp_data_t *lisp_cdr(const lisp_data_t *in) {
 	if(!in)
 		return NULL;
 
@@ -144,7 +144,7 @@ lisp_data_t *cdr(const lisp_data_t *in) {
 	return in->pair->r;
 }
 
-int is_equal(const lisp_data_t *d1, const lisp_data_t *d2) {
+int lisp_is_equal(const lisp_data_t *d1, const lisp_data_t *d2) {
 	if(d1 == d2)
 		return 1;
 
@@ -158,7 +158,7 @@ int is_equal(const lisp_data_t *d1, const lisp_data_t *d2) {
 
 	switch(d1->type) {
 		case lisp_type_pair:
-			return is_equal(car(d1), car(d2)) && is_equal(cdr(d1), cdr(d2));
+			return lisp_is_equal(lisp_car(d1), lisp_car(d2)) && lisp_is_equal(lisp_cdr(d1), lisp_cdr(d2));
 		case lisp_type_integer:
 			return d1->integer == d2->integer;
 		case lisp_type_decimal:
@@ -176,7 +176,7 @@ int is_equal(const lisp_data_t *d1, const lisp_data_t *d2) {
 	return 0;
 }
 
-int length(const lisp_data_t *list) {
+int lisp_list_length(const lisp_data_t *list) {
 	int out = 0;
 	
 	if(!list)
@@ -196,21 +196,21 @@ int length(const lisp_data_t *list) {
 	return out;
 }
 
-lisp_data_t *set_car(lisp_data_t *in, const lisp_data_t *val) {
+lisp_data_t *lisp_set_car(lisp_data_t *in, const lisp_data_t *val) {
 	if(in->type != lisp_type_pair)
 		return NULL;
 	in->pair->l = (lisp_data_t*)val;
 	return (lisp_data_t*)val;
 }
 
-lisp_data_t *set_cdr(lisp_data_t *in, const lisp_data_t *val) {
+lisp_data_t *lisp_set_cdr(lisp_data_t *in, const lisp_data_t *val) {
 	if(in->type != lisp_type_pair)
 		return NULL;
 	in->pair->r = (lisp_data_t*)val;
 	return (lisp_data_t*)val;
 }
 
-lisp_data_t *make_copy(const lisp_data_t *in) {
+lisp_data_t *lisp_make_copy(const lisp_data_t *in) {
 	lisp_data_t *out;
 
 	if(!in)
@@ -243,12 +243,12 @@ lisp_data_t *make_copy(const lisp_data_t *in) {
 			if(!out)
 				return NULL;
 			if(in->pair->l)
-				out->pair->l = make_copy(in->pair->l);
+				out->pair->l = lisp_make_copy(in->pair->l);
 			else
 				out->pair->l = NULL;
 
 			if(in->pair->r)
-				out->pair->r = make_copy(in->pair->r);
+				out->pair->r = lisp_make_copy(in->pair->r);
 			else
 				out->pair->r = NULL;
 	}
@@ -256,7 +256,7 @@ lisp_data_t *make_copy(const lisp_data_t *in) {
 	return out;
 }
 
-lisp_data_t *append(const lisp_data_t *list1, const lisp_data_t *list2) {
+lisp_data_t *lisp_append(const lisp_data_t *list1, const lisp_data_t *list2) {
 	lisp_data_t *out, *buf;
 
 	if(!list1) {
@@ -264,21 +264,21 @@ lisp_data_t *append(const lisp_data_t *list1, const lisp_data_t *list2) {
 			return NULL;
 		if(list2->type != lisp_type_pair)
 			return NULL;
-		return make_copy(list2);
+		return lisp_make_copy(list2);
 	}
 
 	if(list1->type != lisp_type_pair)
 		return NULL;
 
 	if(!list2)
-		return make_copy(list1);
+		return lisp_make_copy(list1);
 
-	buf = out = make_copy(list1);
+	buf = out = lisp_make_copy(list1);
 
-	while(cdr(out))
-		out = cdr(out);
+	while(lisp_cdr(out))
+		out = lisp_cdr(out);
 	
-	set_cdr(out, make_copy(list2));
+	lisp_set_cdr(out, lisp_make_copy(list2));
 
 	return buf;
 }

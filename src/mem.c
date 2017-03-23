@@ -196,8 +196,8 @@ static void mark(lisp_data_t *start, lisp_ctx_t *context) {
 		list_entry->mark = 1;
 		
 		if(start->type == lisp_type_pair) {
-			head = car(start);
-			tail = cdr(start);
+			head = lisp_car(start);
+			tail = lisp_cdr(start);
 			mark(head, context);
 			mark(tail, context);
 		}

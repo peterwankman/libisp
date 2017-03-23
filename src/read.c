@@ -183,7 +183,7 @@ static lisp_data_t *read_subexp(const char *exp, size_t already_quoted, size_t *
 	*readto = 0;
 
 	if(is_quotation(exp) && !already_quoted) {
-		out = cons(lisp_make_symbol("quote", context), cons(read_subexp(exp + 1, 1, &newread, error, context), NULL));
+		out = lisp_cons(lisp_make_symbol("quote", context), lisp_cons(read_subexp(exp + 1, 1, &newread, error, context), NULL));
 		*readto += newread + 1;
 	} else if(is_decimal(exp, readto, &decimal)) {
 		out = lisp_make_decimal(decimal, context);
@@ -220,7 +220,7 @@ static lisp_data_t *read_subexp(const char *exp, size_t already_quoted, size_t *
 			do {
 				get_last_subexp(newexp, &exppos);
 				newdata = read_subexp(newexp + exppos, already_quoted, &newread, error, context);
-				out = cons(newdata, out);
+				out = lisp_cons(newdata, out);
 				newexp[exppos] = '\0';			
 			} while(newexp[0]);
 

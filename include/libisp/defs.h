@@ -16,18 +16,18 @@
 
 /* MY OTHER CAR IS A CDR */
 
-#define caar(l)		    car(car(l))
-#define cadr(l)		    car(cdr(l))
-#define cdar(l)		    cdr(car(l))
-#define cddr(l)		    cdr(cdr(l))
-#define caaar(l)	car(car(car(l)))
-#define caadr(l)	car(car(cdr(l)))
-#define cadar(l)	car(cdr(car(l)))
-#define caddr(l)	car(cdr(cdr(l)))
-#define cdaar(l)	cdr(car(car(l)))
-#define cdadr(l)	cdr(car(cdr(l)))
-#define cddar(l)	cdr(cdr(car(l)))
-#define cdddr(l)	cdr(cdr(cdr(l)))
+#define lisp_caar(l)		     lisp_car(lisp_car(l))
+#define lisp_cadr(l)		     lisp_car(lisp_cdr(l))
+#define lisp_cdar(l)		     lisp_cdr(lisp_car(l))
+#define lisp_cddr(l)		     lisp_cdr(lisp_cdr(l))
+#define lisp_caaar(l)	lisp_car(lisp_car(lisp_car(l)))
+#define lisp_caadr(l)	lisp_car(lisp_car(lisp_cdr(l)))
+#define lisp_cadar(l)	lisp_car(lisp_cdr(lisp_car(l)))
+#define lisp_caddr(l)	lisp_car(lisp_cdr(lisp_cdr(l)))
+#define lisp_cdaar(l)	lisp_cdr(lisp_car(lisp_car(l)))
+#define lisp_cdadr(l)	lisp_cdr(lisp_car(lisp_cdr(l)))
+#define lisp_cddar(l)	lisp_cdr(lisp_cdr(lisp_car(l)))
+#define lisp_cdddr(l)	lisp_cdr(lisp_cdr(lisp_cdr(l)))
 
 typedef enum lisp_type_t {
 	lisp_type_integer, lisp_type_decimal, lisp_type_string, lisp_type_symbol, lisp_type_pair, lisp_type_prim, lisp_type_error

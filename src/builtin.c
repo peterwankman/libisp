@@ -27,9 +27,9 @@ static lisp_data_t *prim_add(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *tail;
 
 	while(list) {
-		if((head = car(list)) == NULL)
+		if((head = lisp_car(list)) == NULL)
 			return lisp_make_error("+ -- Expected number", context);
-		tail = cdr(list);
+		tail = lisp_cdr(list);
 
 		if(head->type == lisp_type_integer)
 			iout += head->integer;
@@ -55,9 +55,9 @@ static lisp_data_t *prim_mul(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *tail;
 
 	while(list) {
-		if((head = car(list)) == NULL)
+		if((head = lisp_car(list)) == NULL)
 			return lisp_make_error("* -- Expected number", context);
-		tail = cdr(list);
+		tail = lisp_cdr(list);
 		if(head->type == lisp_type_integer)
 			iout *= head->integer;
 		else if(head->type == lisp_type_decimal)
@@ -82,12 +82,12 @@ static lisp_data_t *prim_sub(const lisp_data_t *list, lisp_ctx_t *context) {
 	double dout = 0.0f, dstart;
 	lisp_data_t *head, *tail;
 
-	if(!length(list))
+	if(!lisp_list_length(list))
 		return lisp_make_error("- -- No operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("- -- Expected number", context);
 
-	tail = cdr(list);
+	tail = lisp_cdr(list);
 	out_type = head->type;
 	if(out_type == lisp_type_decimal)
 		dstart = head->decimal;
@@ -107,9 +107,9 @@ static lisp_data_t *prim_sub(const lisp_data_t *list, lisp_ctx_t *context) {
 	}
 
 	do {
-		if((head = car(list)) == NULL)
+		if((head = lisp_car(list)) == NULL)
 			return lisp_make_error("- -- Expected number", context);
-		tail = cdr(list);
+		tail = lisp_cdr(list);
 		if(head->type == lisp_type_integer)
 			iout += head->integer;
 		else if(head->type == lisp_type_decimal) {
@@ -135,12 +135,12 @@ static lisp_data_t *prim_div(const lisp_data_t *list, lisp_ctx_t *context) {
 	double dout = 1.0f, dstart;
 	lisp_data_t *head, *tail;
 
-	if(!length(list))
+	if(!lisp_list_length(list))
 		return lisp_make_error("/ -- No operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("/ -- Expected number", context);
 
-	tail = cdr(list);
+	tail = lisp_cdr(list);
 	start_type = head->type;
 	if(start_type == lisp_type_decimal)
 		dstart = head->decimal;
@@ -155,9 +155,9 @@ static lisp_data_t *prim_div(const lisp_data_t *list, lisp_ctx_t *context) {
 		return lisp_make_decimal(1 / dstart, context);
 
 	do {
-		if((head = car(list)) == NULL)
+		if((head = lisp_car(list)) == NULL)
 			return lisp_make_error("/ -- Expected number", context);
-		tail = cdr(list);
+		tail = lisp_cdr(list);
 
 		if(head->type == lisp_type_integer)
 			dout *= head->integer;
@@ -181,15 +181,15 @@ static lisp_data_t *prim_comp_eq(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *first, *second;
 	lisp_type_t type_first, type_second;
 
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("= -- Expected two operands", context);
-	if((first = car(list)) == NULL)
+	if((first = lisp_car(list)) == NULL)
 		return lisp_make_error("= -- Expected number", context);
-	if((second = cdr(list)) == NULL)
+	if((second = lisp_cdr(list)) == NULL)
 		return lisp_make_error("= -- Expected pair", context);
 	if(second->type != lisp_type_pair)
 		return lisp_make_error("= -- Expected pair", context);
-	if((second = car(second)) == NULL)
+	if((second = lisp_car(second)) == NULL)
 		return lisp_make_error("= -- Expected number", context);
 
 	type_first = first->type;
@@ -214,11 +214,11 @@ static lisp_data_t *prim_comp_eq(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *prim_comp_less(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *tail;
 
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("< -- Expected two operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("< -- Expected number", context);
-	if((tail = car(cdr(list))) == NULL)
+	if((tail = lisp_car(lisp_cdr(list))) == NULL)
 		return lisp_make_error("< -- Expected number", context);
 		
 	if((head->type == lisp_type_integer) && (tail->type == lisp_type_integer)) {
@@ -253,11 +253,11 @@ static lisp_data_t *prim_comp_less(const lisp_data_t *list, lisp_ctx_t *context)
 static lisp_data_t *prim_comp_more(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *tail;
 
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("> -- Expected two operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("> -- Expected number", context);
-	if((tail = car(cdr(list))) == NULL)
+	if((tail = lisp_car(lisp_cdr(list))) == NULL)
 		return lisp_make_error("> -- Expected number", context);
 
 	if((head->type == lisp_type_integer) && (tail->type == lisp_type_integer)) {
@@ -291,26 +291,26 @@ static lisp_data_t *prim_comp_more(const lisp_data_t *list, lisp_ctx_t *context)
 
 static lisp_data_t *prim_or(const lisp_data_t *list, lisp_ctx_t *context) {
 	while(list) {
-		if(is_equal(car(list), lisp_make_symbol("#t", context)))
+		if(lisp_is_equal(lisp_car(list), lisp_make_symbol("#t", context)))
 			return lisp_make_symbol("#t", context);
-		list = cdr(list);
+		list = lisp_cdr(list);
 	}
 	return lisp_make_symbol("#f", context);
 }
 
 static lisp_data_t *prim_and(const lisp_data_t *list, lisp_ctx_t *context) {
 	while(list) {
-		if(is_equal(car(list), lisp_make_symbol("#f", context)))
+		if(lisp_is_equal(lisp_car(list), lisp_make_symbol("#f", context)))
 			return lisp_make_symbol("#f", context);
-		list = cdr(list);
+		list = lisp_cdr(list);
 	}
 	return lisp_make_symbol("#t", context);
 }
 
 static lisp_data_t *prim_floor(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("FLOOR -- Expected one operand", context);
-	if((list = car(list)) == NULL)
+	if((list = lisp_car(list)) == NULL)
 		return lisp_make_error("FLOOR -- Expected number", context);
 		
 	if(list->type == lisp_type_integer)
@@ -323,9 +323,9 @@ static lisp_data_t *prim_floor(const lisp_data_t *list, lisp_ctx_t *context) {
 }
 
 static lisp_data_t *prim_ceiling(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("CEILING -- Expected one operand", context);
-	if((list = car(list)) == NULL)
+	if((list = lisp_car(list)) == NULL)
 		return lisp_make_error("CEILING -- Expected number", context);
 
 	if(list->type == lisp_type_integer)
@@ -340,9 +340,9 @@ static lisp_data_t *prim_ceiling(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *prim_trunc(const lisp_data_t *list, lisp_ctx_t *context) {
 	double num;
 
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("TRUNCATE -- Expected one operand", context);
-	if((list = car(list)) == NULL)
+	if((list = lisp_car(list)) == NULL)
 		return lisp_make_error("TRUNCATE -- Expected number", context);
 		
 	if(list->type == lisp_type_integer)
@@ -363,9 +363,9 @@ static lisp_data_t *prim_round(const lisp_data_t *list, lisp_ctx_t *context) {
 	double num, fracpart;
 	int intpart;
 
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("ROUND -- Expected one operand", context);
-	if((list = car(list)) == NULL)
+	if((list = lisp_car(list)) == NULL)
 		return lisp_make_error("ROUND -- Expected number", context);
 
 	if(list->type == lisp_type_integer)
@@ -392,13 +392,13 @@ static lisp_data_t *prim_max(const lisp_data_t *list, lisp_ctx_t *context) {
 	double dval, dmax = 0.0f;
 	lisp_data_t *val;
 
-	if(!length(list))
+	if(!lisp_list_length(list))
 		return lisp_make_error("MAX -- No operands", context);
 
 	while(list) {
 		if(list->type != lisp_type_pair)
 			return lisp_make_error("MAX -- Expected pair", context);
-		val = car(list);
+		val = lisp_car(list);
 		if(val->type == lisp_type_integer) {
 			ival = val->integer;
 			if(ival > imax)
@@ -409,7 +409,7 @@ static lisp_data_t *prim_max(const lisp_data_t *list, lisp_ctx_t *context) {
 				dmax = dval;
 		} else
 			return lisp_make_error("MAX -- Expected number", context);
-		list = cdr(list);
+		list = lisp_cdr(list);
 	}
 
 	if((double)imax > dmax)
@@ -422,13 +422,13 @@ static lisp_data_t *prim_min(const lisp_data_t *list, lisp_ctx_t *context) {
 	double dval, dmin = DBL_MAX;
 	lisp_data_t *val;
 
-	if(!length(list))
+	if(!lisp_list_length(list))
 		return lisp_make_error("MIN -- No operands", context);
 
 	while(list) {
 		if(list->type != lisp_type_pair)
 			return lisp_make_error("MIN -- Expected pair", context);
-		val = car(list);
+		val = lisp_car(list);
 		if(val->type == lisp_type_integer) {
 			ival = val->integer;
 			if(ival < imin)
@@ -438,7 +438,7 @@ static lisp_data_t *prim_min(const lisp_data_t *list, lisp_ctx_t *context) {
 			if(dval < dmin)
 				dmin = dval;
 		}
-		list = cdr(list);
+		list = lisp_cdr(list);
 	}
 
 	if((double)imin < dmin)
@@ -449,21 +449,21 @@ static lisp_data_t *prim_min(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *prim_eq(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *first, *second;
 
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("EQ? -- No operands", context);
 
-	first = car(list);
-	second = car(cdr(list));
+	first = lisp_car(list);
+	second = lisp_car(lisp_cdr(list));
 	
-	if(is_equal(first, second))
+	if(lisp_is_equal(first, second))
 		return lisp_make_symbol("#t", context);
 	return lisp_make_symbol("#f", context);
 }
 
 static lisp_data_t *prim_not(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("NOT -- Expected one operand", context);
-	if((list = car(list)) == NULL)
+	if((list = lisp_car(list)) == NULL)
 		return lisp_make_error("NOT -- Expected boolean", context);
 	
 	if(!strcmp(list->symbol, "#f"))
@@ -472,49 +472,49 @@ static lisp_data_t *prim_not(const lisp_data_t *list, lisp_ctx_t *context) {
 }
 
 static lisp_data_t *prim_car(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("CAR -- Expected one operand", context);
 	
-	list = car(list);
+	list = lisp_car(list);
 	
 	if(list && list->type == lisp_type_pair)
-		return car(list);
+		return lisp_car(list);
 	return NULL;
 }
 
 static lisp_data_t *prim_cdr(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("CDR -- Expected one operand", context);
 		
-	list = car(list);
+	list = lisp_car(list);
 	
 	if(list && list->type == lisp_type_pair)
-		return cdr(list);
+		return lisp_cdr(list);
 	return NULL;
 }
 
 static lisp_data_t *prim_cons(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("CONS -- Expected two operands", context);
 	
-	return cons(car(list), car(cdr(list)));
+	return lisp_cons(lisp_car(list), lisp_car(lisp_cdr(list)));
 }
 
 static lisp_data_t *prim_list(const lisp_data_t *list, lisp_ctx_t *context) {
 	if(!list)
 		return NULL;
-	return cons(car(list), prim_list(cdr(list), context));
+	return lisp_cons(lisp_car(list), prim_list(lisp_cdr(list), context));
 }
 
 static lisp_data_t *prim_set_car(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *newcar;
 	
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("SET-CAR -- Expected two operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("SET-CAR -- Expected pair", context);
 
-	newcar = car(cdr(list));
+	newcar = lisp_car(lisp_cdr(list));
 	if(head->type != lisp_type_pair)
 		return lisp_make_error("SET-CAR -- Expected pair", context);
 
@@ -526,12 +526,12 @@ static lisp_data_t *prim_set_car(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *prim_set_cdr(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head, *newcdr;
 	
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("SET-CDR -- Expected two operands", context);
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_error("SET-CDR -- Expected pair", context);
 
-	newcdr = car(cdr(list));
+	newcdr = lisp_car(lisp_cdr(list));
 	if(head->type != lisp_type_pair)
 		return lisp_make_error("SET-CDR -- Expected pair", context);
 
@@ -543,9 +543,9 @@ static lisp_data_t *prim_set_cdr(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *prim_sym_to_str(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *sym;
 
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("SYMBOL->STRING -- Expected one operand", context);
-	sym = car(list);
+	sym = lisp_car(list);
 
 	if(!sym || sym->type != lisp_type_symbol)
 		return lisp_make_error("SYMBOL->STRING -- Expected symbol", context);
@@ -556,9 +556,9 @@ static lisp_data_t *prim_sym_to_str(const lisp_data_t *list, lisp_ctx_t *context
 static lisp_data_t *prim_str_to_sym(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *str;
 
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("STRING->SYMBOL -- Expected one operand", context);
-	str = car(list);
+	str = lisp_car(list);
 
 	if(!str || str->type != lisp_type_string)
 		return lisp_make_error("STRING->SYMBOL -- Expected string", context);
@@ -568,10 +568,10 @@ static lisp_data_t *prim_str_to_sym(const lisp_data_t *list, lisp_ctx_t *context
 
 static lisp_data_t *is_type(const lisp_data_t *list, lisp_type_t type, lisp_ctx_t *context) {
 	lisp_data_t *sym;
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("IS-TYPE -- Expected one operand", context);
 
-	sym = car(list);
+	sym = lisp_car(list);
 	if(sym && (sym->type == type))
 		return lisp_make_symbol("#t", context);
 	return lisp_make_symbol("#f", context);
@@ -589,10 +589,10 @@ static lisp_data_t *prim_is_num(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *head;
 	lisp_type_t type;
 	
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("IS-NUM -- Expected one operand", context);
 
-	if((head = car(list)) == NULL)
+	if((head = lisp_car(list)) == NULL)
 		return lisp_make_symbol("#f", context);
 
 	type = head->type;
@@ -602,14 +602,14 @@ static lisp_data_t *prim_is_num(const lisp_data_t *list, lisp_ctx_t *context) {
 }
 
 static lisp_data_t *prim_is_proc(const lisp_data_t *list, lisp_ctx_t *context) {
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("IS-PROC -- Expected one operand", context);
 
-	list = car(list);
+	list = lisp_car(list);
 	if(!list || list->type != lisp_type_pair)
 		return lisp_make_symbol("#f", context);
 	
-	list = car(list);
+	list = lisp_car(list);
 	if(!list || (list->type != lisp_type_symbol))
 		return lisp_make_symbol("#f", context);
 	
@@ -621,9 +621,9 @@ static lisp_data_t *prim_is_proc(const lisp_data_t *list, lisp_ctx_t *context) {
 static lisp_data_t *mathfn(const lisp_data_t *list, double (*func)(double), lisp_ctx_t *context) {
 	lisp_data_t *val;
 	
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("MATHFN -- Expected one operand", context);
-	if((val = car(list)) == NULL)
+	if((val = lisp_car(list)) == NULL)
 		return lisp_make_error("MATHFN -- Expected number", context);
 
 	if(val->type == lisp_type_integer)
@@ -653,11 +653,11 @@ static lisp_data_t *prim_expt(const lisp_data_t *list, lisp_ctx_t *context) {
 	lisp_data_t *base, *ex;
 	double dbase, dex;
 	
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("EXPT -- Expected one operand", context);
-	if((base = car(list)) == NULL)
+	if((base = lisp_car(list)) == NULL)
 		return lisp_make_error("EXPT -- Expected number", context);
-	if((ex = car(cdr(list))) == NULL)
+	if((ex = lisp_car(lisp_cdr(list))) == NULL)
 		return lisp_make_error("EXPT -- Expected number", context);
 
 	if(base->type == lisp_type_integer)
@@ -694,24 +694,24 @@ static lisp_data_t *cumulfn(const lisp_data_t *list, int (*func)(const int, cons
 	int cumul, n;
 	lisp_data_t *head;
 
-	if(length(list) == 0)
+	if(lisp_list_length(list) == 0)
 		return lisp_make_int(0, context);
 		
-	head = car(list);
+	head = lisp_car(list);
 	if(!head || (head->type != lisp_type_integer))
 		return lisp_make_error("CUMULFN -- Expected integer", context);
 	cumul = head->integer;
 
-	list = cdr(list);
+	list = lisp_cdr(list);
 	while(list) {
-		head = car(list);
+		head = lisp_car(list);
 		if(!head || (head->type != lisp_type_integer))
 			return lisp_make_error("CUMULFN -- Expected integer", context);
 
 		n = head->integer;
 		cumul = func(cumul, n);
 
-		list = cdr(list);
+		list = lisp_cdr(list);
 	}
 
 	return lisp_make_int(cumul, context);
@@ -731,11 +731,11 @@ static lisp_data_t *prim_set_cvar(const lisp_data_t *list, lisp_ctx_t *context) 
 	char *var_name;
 	int value;
 
-	if(length(list) != 2)
+	if(lisp_list_length(list) != 2)
 		return lisp_make_error("SET-CVAR -- Expected two operands", context);
 
-	var = car(list);
-	val = car(cdr(list));
+	var = lisp_car(list);
+	val = lisp_car(lisp_cdr(list));
 
 	if(!var || (var->type != lisp_type_symbol))
 		return lisp_make_error("SET-CVAR -- Expected identifier", context);
@@ -763,9 +763,9 @@ static lisp_data_t *prim_get_cvar(const lisp_data_t *list, lisp_ctx_t *context) 
 	lisp_data_t *var;
 	char *var_name;
 
-	if(length(list) != 1)
+	if(lisp_list_length(list) != 1)
 		return lisp_make_error("GET-CVAR -- Expected one operand", context);
-	if((var = car(list)) == NULL)
+	if((var = lisp_car(list)) == NULL)
 		return lisp_make_error("GET-CVAR -- Expected identifier", context);
 
 	if(var->type != lisp_type_symbol)
@@ -788,7 +788,7 @@ static lisp_data_t *primitive_procedure_names(lisp_ctx_t *context) {
 	lisp_data_t *out = NULL;
 
 	while(curr_proc) {
-		out = cons(lisp_make_symbol(curr_proc->name, context), out);
+		out = lisp_cons(lisp_make_symbol(curr_proc->name, context), out);
 		curr_proc = curr_proc->prev;
 	}
 
@@ -800,7 +800,7 @@ static lisp_data_t *primitive_procedure_objects(lisp_ctx_t *context) {
 	lisp_data_t *out = NULL;
 
 	while(curr_proc) {
-		out = cons(cons(lisp_make_symbol("primitive", context), cons(lisp_make_prim(curr_proc->proc, context), NULL)), out);
+		out = lisp_cons(lisp_cons(lisp_make_symbol("primitive", context), lisp_cons(lisp_make_prim(curr_proc->proc, context), NULL)), out);
 		curr_proc = curr_proc->prev;
 	}
 
@@ -908,7 +908,7 @@ static void add_builtin_prim_procs(lisp_ctx_t *context) {
 }
 
 void lisp_setup_env(lisp_ctx_t *context) {
-	lisp_data_t *the_empty_environment = cons(cons(NULL, NULL), NULL);
+	lisp_data_t *the_empty_environment = lisp_cons(lisp_cons(NULL, NULL), NULL);
 
 	lisp_add_cvar("mem_lim_hard", &context->mem_lim_hard, LISP_CVAR_RO, context);
 	lisp_add_cvar("mem_lim_soft", &context->mem_lim_soft, LISP_CVAR_RO, context);

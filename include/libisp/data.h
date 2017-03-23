@@ -21,19 +21,19 @@ lisp_data_t *lisp_make_symbol(const char *ident, lisp_ctx_t *context);
 lisp_data_t *lisp_make_prim(prim_proc in, lisp_ctx_t *context);
 lisp_data_t *lisp_make_error(const char *error, lisp_ctx_t *context);
 
-#define cons(l, r) cons_in_context(l, r, context)
+#define lisp_cons(l, r) lisp_cons_in_context(l, r, context)
 
-lisp_data_t *cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context);
-lisp_data_t *car(const lisp_data_t *in);
-lisp_data_t *cdr(const lisp_data_t *in);
+lisp_data_t *lisp_cons_in_context(const lisp_data_t *l, const lisp_data_t *r, lisp_ctx_t *context);
+lisp_data_t *lisp_car(const lisp_data_t *in);
+lisp_data_t *lisp_cdr(const lisp_data_t *in);
 
-int is_equal(const lisp_data_t *d1, const lisp_data_t *d2);
-int length(const lisp_data_t *list);
+int lisp_is_equal(const lisp_data_t *d1, const lisp_data_t *d2);
+int lisp_list_length(const lisp_data_t *list);
 
-lisp_data_t *set_car(lisp_data_t *pair, const lisp_data_t *val);
-lisp_data_t *set_cdr(lisp_data_t *pair, const lisp_data_t *val);
+lisp_data_t *lisp_set_car(lisp_data_t *pair, const lisp_data_t *val);
+lisp_data_t *lisp_set_cdr(lisp_data_t *pair, const lisp_data_t *val);
 
-lisp_data_t *make_copy(const lisp_data_t *in);
-lisp_data_t *append(const lisp_data_t *list1, const lisp_data_t *list2);
+lisp_data_t *lisp_make_copy(const lisp_data_t *in);
+lisp_data_t *lisp_append(const lisp_data_t *list1, const lisp_data_t *list2);
 
 #endif

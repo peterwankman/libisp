@@ -38,8 +38,8 @@ static void print_data_rec(const lisp_data_t *d, int print_parens, lisp_ctx_t *c
 				if(print_parens)
 					printf("(");
 
-				head = car(d);
-				tail = cdr(d);
+				head = lisp_car(d);
+				tail = lisp_cdr(d);
 
 				if(tail) {
 					print_data_rec(head, 1, context);
