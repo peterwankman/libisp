@@ -1,6 +1,6 @@
 /*
  * libisp -- Lisp evaluator based on SICP
- * (C) 2013 Martin Wolters
+ * (C) 2013-2017 Martin Wolters
  *
  * This program is free software. It comes without any warranty, to
  * the extent permitted by applicable law. You can redistribute it
