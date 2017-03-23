@@ -6,8 +6,8 @@ rd /q /s debug
 rd /q /s release
 cd ..
 
-cd test
-del /q test.aps
+cd repl
+del /q repl.aps
 del /q *.user
 rd /q /s debug
 rd /q /s release

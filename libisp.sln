@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libisp", "libisp\libisp.vcxproj", "{5519A301-DEF4-4D37-A26D-5D850D909D4E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{498768F1-78A2-473E-BEA3-15AC08B385E0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "repl", "repl\repl.vcxproj", "{8C801F20-4C80-4A9A-AC20-FFBBDA2D6EF2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5519A301-DEF4-4D37-A26D-5D850D909D4E} = {5519A301-DEF4-4D37-A26D-5D850D909D4E}
 	EndProjectSection
@@ -18,10 +18,10 @@ Global
 		{5519A301-DEF4-4D37-A26D-5D850D909D4E}.Debug|Win32.Build.0 = Debug|Win32
 		{5519A301-DEF4-4D37-A26D-5D850D909D4E}.Release|Win32.ActiveCfg = Release|Win32
 		{5519A301-DEF4-4D37-A26D-5D850D909D4E}.Release|Win32.Build.0 = Release|Win32
-		{498768F1-78A2-473E-BEA3-15AC08B385E0}.Debug|Win32.ActiveCfg = Debug|Win32
-		{498768F1-78A2-473E-BEA3-15AC08B385E0}.Debug|Win32.Build.0 = Debug|Win32
-		{498768F1-78A2-473E-BEA3-15AC08B385E0}.Release|Win32.ActiveCfg = Release|Win32
-		{498768F1-78A2-473E-BEA3-15AC08B385E0}.Release|Win32.Build.0 = Release|Win32
+		{8C801F20-4C80-4A9A-AC20-FFBBDA2D6EF2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8C801F20-4C80-4A9A-AC20-FFBBDA2D6EF2}.Debug|Win32.Build.0 = Debug|Win32
+		{8C801F20-4C80-4A9A-AC20-FFBBDA2D6EF2}.Release|Win32.ActiveCfg = Release|Win32
+		{8C801F20-4C80-4A9A-AC20-FFBBDA2D6EF2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
