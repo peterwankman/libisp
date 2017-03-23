@@ -27,7 +27,7 @@
 #include "libisp/read.h"
 #include "libisp/thread.h"
 
-data_t *eval(const data_t *exp, data_t *env, lisp_ctx_t *context);
+static data_t *eval(const data_t *exp, data_t *env, lisp_ctx_t *context);
 static data_t *set_variable_value(data_t *var, const data_t *val, data_t *env, lisp_ctx_t *context);
 static data_t *lookup_variable_value(const data_t *var, data_t *env, lisp_ctx_t *context);
 
