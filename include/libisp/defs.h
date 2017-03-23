@@ -36,7 +36,7 @@ typedef enum lisp_type_t {
 typedef struct lisp_data_t lisp_data_t;
 typedef struct lisp_ctx_t lisp_ctx_t;
 
-typedef lisp_data_t* (*prim_proc)(const lisp_data_t*, lisp_ctx_t*);
+typedef lisp_data_t* (*lisp_prim_proc)(const lisp_data_t*, lisp_ctx_t*);
 
 struct lisp_data_t {
 	lisp_type_t type;
@@ -46,14 +46,14 @@ struct lisp_data_t {
 		char *string;
 		char *symbol;
 		char *error;
-		prim_proc proc;
+		lisp_prim_proc proc;
 		struct lisp_cons_t *pair;
 	};
 };
 
 typedef struct lisp_prim_proc_list_t {
 	char *name;
-	prim_proc proc;
+	lisp_prim_proc proc;
 	struct lisp_prim_proc_list_t *next;
 	struct lisp_prim_proc_list_t *prev;
 } lisp_prim_proc_list_t;

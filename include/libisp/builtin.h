@@ -17,7 +17,7 @@
 #define LISP_CVAR_RO	1
 #define LISP_CVAR_RW	2
 
-void lisp_add_prim_proc(char *name, prim_proc proc, lisp_ctx_t *context);
+void lisp_add_prim_proc(char *name, lisp_prim_proc proc, lisp_ctx_t *context);
 void lisp_add_cvar(const char *name, const size_t *valptr, const int access, lisp_ctx_t *context);
 void lisp_setup_env(lisp_ctx_t *context);
 void lisp_free_context(lisp_ctx_t *context);

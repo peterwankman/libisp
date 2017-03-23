@@ -75,7 +75,7 @@ lisp_data_t *lisp_make_symbol(const char *ident, lisp_ctx_t *context) {
 	return out;
 }
 
-lisp_data_t *lisp_make_prim(prim_proc in, lisp_ctx_t *context) {
+lisp_data_t *lisp_make_prim(lisp_prim_proc in, lisp_ctx_t *context) {
 		lisp_data_t *out;
 
 	if(!(out = lisp_data_alloc(sizeof(lisp_data_t), context)))

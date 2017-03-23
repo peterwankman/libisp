@@ -807,7 +807,7 @@ static lisp_data_t *primitive_procedure_objects(lisp_ctx_t *context) {
 	return out;
 }
 
-void lisp_add_prim_proc(char *name, prim_proc proc, lisp_ctx_t *context) {
+void lisp_add_prim_proc(char *name, lisp_prim_proc proc, lisp_ctx_t *context) {
 	lisp_prim_proc_list_t *curr_proc;
 
 	if(context->the_last_prim_proc == NULL) {

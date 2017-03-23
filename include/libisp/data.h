@@ -18,7 +18,7 @@ lisp_data_t *lisp_make_int(const int i, lisp_ctx_t *context);
 lisp_data_t *lisp_make_decimal(const double d, lisp_ctx_t *context);
 lisp_data_t *lisp_make_string(const char *str, lisp_ctx_t *context);
 lisp_data_t *lisp_make_symbol(const char *ident, lisp_ctx_t *context);
-lisp_data_t *lisp_make_prim(prim_proc in, lisp_ctx_t *context);
+lisp_data_t *lisp_make_prim(lisp_prim_proc in, lisp_ctx_t *context);
 lisp_data_t *lisp_make_error(const char *error, lisp_ctx_t *context);
 
 #define lisp_cons(l, r) lisp_cons_in_context(l, r, context)
