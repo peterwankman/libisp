@@ -68,7 +68,7 @@ lisp_data_t is a pointer to the following struct:
 			char *symbol;
 			char *error;
 			lisp_prim_proc proc;
-			struct cons_t *pair;
+			struct lisp_cons_t *pair;
 		};
 	} lisp_data_t;
 
@@ -86,7 +86,7 @@ and lisp_type_t and lisp_cons_t are
 	
 	typedef struct lisp_cons_t {
 		struct lisp_data_t *l, *r;
-	} cons_t;
+	} lisp_cons_t;
 	
 When your primitive procedure is called, it receives a Lisp data structure in
 the first parameter. First check the type and then use lisp_data_t->[type] as
@@ -147,8 +147,10 @@ The returned data structure can now be used to evaluate the expression.
 
 	lisp_data_t *lisp_eval(const lisp_data_t *exp, lisp_ctx_t *context);
 	
-lisp_eval() returns a Lisp data structure, which can be printed to the screen
-(like any other Lisp structure, say from lisp_read()) with
+lisp_eval() spawns a thread to do the evaluation in. If the thread takes longer
+than specified in thread_timeout, the thread will be terminated and it will
+return NULL. Else, it returns a Lisp data structure, which can be printed to
+the screen (like any other Lisp structure, say from lisp_read()) with
 
 	void lisp_print(const lisp_data_t *d, lisp_ctx_t *context);
 	
